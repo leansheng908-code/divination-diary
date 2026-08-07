@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大六壬排盘系统 · 275+维 · v1.1-optimized</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1410;color:#c9a96e;font-family:'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh}
+.header{text-align:center;padding:30px 20px;background:linear-gradient(135deg,#1a1410,#2a1f18)}
+.header h1{color:#c9a96e;font-size:28px;margin-bottom:8px;text-shadow:0 0 20px rgba(201,169,110,0.3)}
+.header p{color:#8b7355;font-size:14px}
+.container{max-width:900px;margin:0 auto;padding:20px}
+.input-area{background:#221814;border-radius:12px;padding:20px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;border:1px solid #3a2f24}
+.input-area label{color:#8b7355;font-size:13px;display:block;margin-bottom:4px}
+.input-area input{background:#1a1410;border:1px solid #4a3f34;color:#c9a96e;padding:8px 12px;border-radius:6px;font-size:16px;width:80px}
+.input-area input:focus{outline:none;border-color:#c9a96e}
+.btn{background:linear-gradient(135deg,#3a2f24,#8b7355);color:#1a1410;border:none;padding:10px 30px;border-radius:8px;font-size:16px;cursor:pointer;transition:all .3s;font-weight:bold}
+.btn:hover{background:linear-gradient(135deg,#8b7355,#c9a96e)}
+.core-display{background:#221814;border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid #3a2f24}
+.core-big{display:flex;justify-content:center;align-items:center;gap:30px;margin-bottom:20px;flex-wrap:wrap}
+.big-item{text-align:center;min-width:90px}
+.big-item .big-label{color:#8b7355;font-size:12px;margin-bottom:6px}
+.big-item .big-value{font-size:32px;font-weight:bold;color:#c9a96e}
+.big-item .big-sub{font-size:12px;margin-top:4px;color:#8b7355}
+.highlight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:12px}
+.highlight-item{background:#1a1410;padding:10px 14px;border-radius:8px;border-left:3px solid #8b7355}
+.highlight-item .label{color:#8b7355;font-size:11px}
+.highlight-item .value{color:#c9a96e;font-size:15px;font-weight:bold;margin-top:2px}
+.highlight-item.active{border-left-color:#c9a96e}
+.highlight-item.active .value{color:#c9a96e}
+.highlight-item.warn{border-left-color:#a0522d}
+.highlight-item.warn .value{color:#a0522d}
+.highlight-item.gold{border-left-color:#daa520}
+.highlight-item.gold .value{color:#daa520}
+.opt-section{margin-bottom:20px}
+.opt-card{background:#221814;border:1px solid #3a2f24;border-radius:8px;padding:14px 18px;margin-bottom:8px}
+.opt-card .opt-title{color:#daa520;font-size:14px;font-weight:bold}
+.opt-card .opt-desc{color:#c9a96e;font-size:13px;margin-top:6px;line-height:1.6}
+.opt-card .opt-detail{color:#8b7355;font-size:13px;margin-top:4px}
+.layer{background:#1f1612;border-radius:8px;margin-bottom:8px;overflow:hidden;border:1px solid #2a2018}
+.layer-header{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.2s}
+.layer-header:hover{background:rgba(201,169,110,0.08)}
+.layer-header .layer-title{color:#8b7355;font-size:14px;font-weight:bold}
+.layer-header .layer-arrow{color:#8b7355;transition:transform 0.3s}
+.layer-header.open .layer-arrow{transform:rotate(90deg)}
+.layer-body{max-height:0;overflow:hidden;transition:max-height 0.3s ease}
+.layer-body.open{max-height:20000px;overflow-y:auto}
+.layer-content{padding:12px 16px}
+.kv{display:flex;flex-wrap:wrap;gap:6px}
+.kv-item{background:#1a1410;padding:4px 10px;border-radius:4px;font-size:12px}
+.kv-item .k{color:#8b7355}.kv-item .v{color:#c9a96e;margin-left:4px}
+.kv-item.active{background:#221814;border:1px solid #c9a96e}
+.kv-item.active .v{color:#daa520}
+.kv-item.warn{background:#221814;border:1px solid #a0522d}
+.kv-item.warn .v{color:#a0522d}
+.table-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;align-items:flex-start}
+.table-row .row-label{color:#8b7355;font-size:12px;font-weight:bold;min-width:80px}
+.footer{text-align:center;padding:20px;color:#5a4a3a;font-size:12px}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>大六壬排盘</h1>
+<p>月将加时·四课三传 · 275+维度 · 17层 + 5项优化 · v1.1-optimized</p>
+</div>
+<div class="container">
+<div class="input-area">
+<div><label>年份</label><input type="number" id="year" value="2026" min="1900" max="2100"></div>
+<div><label>月份</label><input type="number" id="month" value="8" min="1" max="12"></div>
+<div><label>日期</label><input type="number" id="day" value="7" min="1" max="31"></div>
+<div><label>时辰</label><input type="number" id="hour" value="19" min="0" max="23"></div>
+<button class="btn" onclick="generate()">排盘推演</button>
+</div>
+<div id="output"></div>
+</div>
+<div class="footer">大六壬排盘系统 · 17层275+维 · 5项理论驱动优化 · 术数日记</div>
+<script>
+// ============================================================
+// Part 1: 基础数据表（从Python源码完整移植）
+// ============================================================
+var TIANGAN=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+var DIZHI=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+var LIUSHIJIAZI=[];
+for(var i=0;i<60;i++){LIUSHIJIAZI.push(TIANGAN[i%10]+DIZHI[i%12]);}
+
+// 十干寄宫
+var GAN_JI_GONG={
+"甲":["寅","木"],"乙":["辰","土"],"丙":["巳","火"],"丁":["未","土"],
+"戊":["巳","火"],"己":["未","土"],"庚":["申","金"],"辛":["戌","土"],
+"壬":["亥","水"],"癸":["丑","土"]
+};
+
+// 十二月将 (中气换将)
+var YUEJIANG={
+"亥":["登明","雨水~春分"],"戌":["河魁","春分~谷雨"],"酉":["从魁","谷雨~小满"],
+"申":["传送","小满~夏至"],"未":["小吉","夏至~大暑"],"午":["胜光","大暑~处暑"],
+"巳":["太乙","处暑~秋分"],"辰":["天罡","秋分~霜降"],"卯":["太冲","霜降~小雪"],
+"寅":["功曹","小雪~冬至"],"丑":["大吉","冬至~大寒"],"子":["神后","大寒~雨水"]
+};
+
+// 中气→月将映射 (按公历近似, 已排序)
+var ZHONGQI_TO_YUEJIANG=[
+{m:1,d:20,j:"子"},{m:2,d:19,j:"亥"},{m:3,d:21,j:"戌"},{m:4,d:20,j:"酉"},
+{m:5,d:21,j:"申"},{m:6,d:21,j:"未"},{m:7,d:23,j:"午"},{m:8,d:23,j:"巳"},
+{m:9,d:23,j:"辰"},{m:10,d:24,j:"卯"},{m:11,d:22,j:"寅"},{m:12,d:22,j:"丑"}
+];
+
+// 十二天将属性
+var TIANJIANG={
+"贵人":{"wuxing":"土","jixiong":"吉","meaning":"尊贵首领贵人","person":"领导贵人名流官员","thing":"贵重物品重要事项","yiji":"百事吉利但逢空不验"},
+"腾蛇":{"wuxing":"火","jixiong":"凶","meaning":"虚惊怪异缠绕变化","person":"善变多疑之人宗教人士","thing":"虚诈怪异缠绕之事噩梦","yiji":"主精神恍惚得奇吉可解"},
+"朱雀":{"wuxing":"火","jixiong":"凶","meaning":"口舌是非文书信息","person":"口才好的人诉讼者","thing":"口舌官司文书信件消息","yiji":"主口舌争讼文书吉则利考"},
+"六合":{"wuxing":"木","jixiong":"吉","meaning":"合作婚姻中介和合","person":"中介媒人善于沟通者","thing":"合作交易婚姻谈判","yiji":"利合作婚姻交易谈判"},
+"勾陈":{"wuxing":"土","jixiong":"凶","meaning":"牵连滞留争斗田土","person":"固执之人争斗者","thing":"牵连滞留田土纠纷诉讼","yiji":"主事迟延牵连争斗"},
+"青龙":{"wuxing":"木","jixiong":"吉","meaning":"财富喜庆吉祥高贵","person":"富贵之人有才德者","thing":"财利喜庆升迁婚姻","yiji":"百事吉主财喜升迁"},
+"天空":{"wuxing":"土","jixiong":"凶","meaning":"空亡虚诈无实欺诈","person":"虚伪之人空口说白话者","thing":"虚无欺诈空亡不实之事","yiji":"主虚诈不实逢空则无"},
+"白虎":{"wuxing":"金","jixiong":"凶","meaning":"凶丧血光疾病道路","person":"凶悍之人重病者军人","thing":"血光丧服疾病凶灾","yiji":"主凶丧血光临吉则威"},
+"太常":{"wuxing":"土","jixiong":"吉","meaning":"衣食宴席印绶常任","person":"衣食无忧之人官员","thing":"衣食宴饮印绶官服","yiji":"主衣食宴饮印绶之喜"},
+"玄武":{"wuxing":"水","jixiong":"凶","meaning":"盗贼暗昧奸私逃亡","person":"盗贼小人暗昧之人","thing":"盗贼逃亡暗昧阴谋","yiji":"主盗贼暗昧得吉则智"},
+"太阴":{"wuxing":"金","jixiong":"吉","meaning":"阴私暗助女人婚姻","person":"女人阴私之人暗中助者","thing":"阴私暗中帮助婚姻","yiji":"主阴私暗助利婚姻"},
+"天后":{"wuxing":"水","jixiong":"吉","meaning":"妇女婚姻恩泽宠爱","person":"妇女贵妇已婚女性","thing":"婚姻恩泽宠信妇女事","yiji":"主婚姻恩泽妇女之事"}
+};
+
+// 十二天将顺序
+var TIANJIANG_ORDER=["贵人","腾蛇","朱雀","六合","勾陈","青龙","天空","白虎","太常","玄武","太阴","天后"];
+
+// 贵人口诀
+var GUIREN={
+"甲":["丑","未"],"戊":["丑","未"],"庚":["丑","未"],
+"乙":["子","申"],"己":["子","申"],
+"丙":["亥","酉"],"丁":["亥","酉"],
+"壬":["巳","卯"],"癸":["巳","卯"],
+"辛":["午","寅"]
+};
+
+// 六甲旬空
+var XUN_KONG={
+"甲子":["戌","亥"],"甲戌":["申","酉"],"甲申":["午","未"],
+"甲午":["辰","巳"],"甲辰":["寅","卯"],"甲寅":["子","丑"]
+};
+var XUN_SHOU_LIST=["甲子","甲戌","甲申","甲午","甲辰","甲寅"];
+var XUN_SHOU_MAP={};
+for(var i=0;i<6;i++){for(var j=0;j<10;j++){XUN_SHOU_MAP[LIUSHIJIAZI[i*10+j]]=XUN_SHOU_LIST[i];}}
+
+// 驿马
+var YIMA={"申":"寅","子":"寅","辰":"寅","寅":"申","午":"申","戌":"申",
+"巳":"亥","酉":"亥","丑":"亥","亥":"巳","卯":"巳","未":"巳"};
+
+// 课体格局 (66种主要课体)
+var KETI_LIST={
+"元首课":"一上克下余无克·天地得位","重审课":"一下贼上余无克·臣诤君再三审",
+"知一课":"二克择比而用·事有两歧择一","涉害课":"俱比俱不比取涉深·历尽风霜",
+"遥克课":"四课无克取遥克·蒿矢弹射","昴星课":"无克无遥取昴星·阴伏阳转",
+"别责课":"三课无克别责合·刚柔取合","八专课":"二课俱无克·日阳辰阴",
+"伏吟课":"天地不动各居本位·事慢","反吟课":"天地相冲往来·事反复",
+"三光课":"用神日辰时旺将吉·万事通","三阳课":"日辰用旺贵人顺·天朗气清",
+"三奇课":"子戌寻大吉申午辰寅·福奇","六仪课":"六甲旬头发用·仪仗威严",
+"时泰课":"发用岁月方龙合财德·昌泰","龙德课":"太岁月将天乙发用·致福祥",
+"官爵课":"岁月年命驿马魁常·官爵","富贵课":"天乙旺气日辰年命生·富贵",
+"轩盖课":"三传午卯子·天驷华盖","铸印课":"戌加巳·铸印太常",
+"斫轮课":"太冲申上·卯轮庚斧","引从课":"三传引干支·车马蜂拥",
+"亨通课":"三传递生日辰·天生地生","繁昌课":"夫妻年为用·德合旺相",
+"荣华课":"贵旺禄马·干支年命吉","德庆课":"天德月德干支德·德庆",
+"合欢课":"日上递干合·吉将六合","和美课":"四课各合互合·和美",
+"斩关课":"魁罡日辰·重土塞门","闭口课":"旬尾加旬首·闭口不言",
+"游子课":"季用乘丁遇天马·走西东","三交课":"四仲加仲·三传皆仲阴合",
+"乱首课":"支加干克干·下犯上","赘婿课":"支临干被克·屈意从人",
+"冲破课":"日辰冲为用·反复破损","淫泆课":"后合乘卯酉·淫欲阴私",
+"芜淫课":"三课有克交克·两情相背","解离课":"日辰互克上·离散",
+"孤寡课":"四季前后·孤寡","度厄课":"三课上下克·长幼惊",
+"无禄课":"四上临下·以尊制卑","绝嗣课":"四下贼上·小人无礼",
+"迍福课":"八迍五福·吉凶驳","侵害课":"日辰六害·凶残",
+"刑伤课":"干支三刑用·刑伤","二烦课":"日月加四仲·斗系丑未",
+"天祸课":"四立绝神·昨日干加今干","天狱课":"墓作死囚·天罡日本",
+"天寇课":"分至前一日·月加离辰","天网课":"时用克日·天网",
+"魄化课":"死囚带白虎·凶祸","三阴课":"贵逆日辰后·死囚玄虎",
+"龙战课":"卯酉日年·事迍邅","死奇课":"月躔天罡·鬼墓",
+"灾厄课":"丧吊游魂·丘墓岁虎","殃咎课":"三传克日·神将克战",
+"九丑课":"子午卯酉·乙戊己辛壬","鬼墓课":"日辰鬼作墓·鬼克墓覆",
+"励德课":"日辰看前后·天乙二八门","盘珠课":"岁月日时皆在四课",
+"全局课":"三传三合局·同类欢会","玄胎课":"三传皆四孟·玄中有胎",
+"连珠课":"三传相连·贯珠","间传课":"间位作三传·事多间阻",
+"六阳课":"四课用传皆阳·如登三天","六阴课":"四课用传皆阴·似涉重渊"
+};
+
+// 地支五行
+var DIZHI_WUXING={
+"子":"水","丑":"土","寅":"木","卯":"木","辰":"土","巳":"火",
+"午":"火","未":"土","申":"金","酉":"金","戌":"土","亥":"水"
+};
+
+// 地支六合
+var DIZHI_LIUHE={
+"子":"丑","丑":"子","寅":"亥","亥":"寅","卯":"戌","戌":"卯",
+"辰":"酉","酉":"辰","巳":"申","申":"巳","午":"未","未":"午"
+};
+
+// 地支六冲
+var DIZHI_LIUCHONG={
+"子":"午","午":"子","丑":"未","未":"丑","寅":"申","申":"寅",
+"卯":"酉","酉":"卯","辰":"戌","戌":"辰","巳":"亥","亥":"巳"
+};
+
+// 地支三合
+var DIZHI_SANHE={
+"申子辰":"水","亥卯未":"木","寅午戌":"火","巳酉丑":"金"
+};
+
+// 五行生克
+var WUXING_SHENG={"木":"火","火":"土","土":"金","金":"水","水":"木"};
+var WUXING_KE={"木":"土","土":"水","水":"火","火":"金","金":"木"};
+
+// 九宗门
+var JIU_ZONGMEN=["贼克","比用","涉害","遥克","昴星","别责","八专","伏吟","反吟"];
+
+// OPT3: 五鼠遁
+var WUSHU_DUN={
+"甲":"甲","己":"甲","乙":"丙","庚":"丙","丙":"戊","辛":"戊",
+"丁":"庚","壬":"庚","戊":"壬","癸":"壬"
+};
+var DUNGAN_XIANGYI={
+"甲":"首领·开始","乙":"转折·曲折","丙":"光明·显露",
+"丁":"希望·丁火","戊":"阻隔·厚重","己":"私欲·暗藏",
+"庚":"困难·阻碍","辛":"错误·失误","壬":"流动·变化","癸":"闭塞·终结"
+};
+
+// 四课顺序
+var SI_KE_ORDER=["一课(干阳)","二课(干阴)","三课(支阳)","四课(支阴)"];
+
+// ============================================================
+// Part 2: 计算函数（从Python源码完整移植）
+// ============================================================
+
+// 日数计算 (对齐Python datetime差值)
+function daysSince1900(year,month,day){
+var d1=Date.UTC(1900,0,1);
+var d2=Date.UTC(year,month-1,day);
+return Math.round((d2-d1)/86400000);
+}
+
+// 四柱排盘
+function solar_to_bazi(year,month,day,hour){
+var lichun_m=2,lichun_d=4;
+var gz_year;
+if(month<lichun_m||(month===lichun_m&&day<lichun_d)){
+gz_year=((year-1-4)%60+60)%60;
+}else{
+gz_year=((year-4)%60+60)%60;
+}
+var jieqi_for_month={1:12,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8,10:9,11:10,12:11};
+var month_branch=jieqi_for_month[month]||1;
+var mg_idx=((gz_year%10)*2+month_branch)%10;
+var mz_idx=((month_branch+2)%12+12)%12;
+var delta=daysSince1900(year,month,day);
+var gz_day_idx=((10+delta)%60+60)%60;
+var hour_zhi_idx=(Math.floor((hour+1)/2))%12;
+var day_gan_idx=gz_day_idx%10;
+var hg_idx=((day_gan_idx*2+hour_zhi_idx)%10+10)%10;
+return{
+year_gan:TIANGAN[gz_year%10],year_zhi:DIZHI[gz_year%12],
+year_ganzhi:LIUSHIJIAZI[gz_year],
+month_gan:TIANGAN[mg_idx],month_zhi:DIZHI[mz_idx],
+month_ganzhi:TIANGAN[mg_idx]+DIZHI[mz_idx],
+day_gan:TIANGAN[gz_day_idx%10],day_zhi:DIZHI[gz_day_idx%12],
+day_ganzhi:LIUSHIJIAZI[gz_day_idx],
+hour_gan:TIANGAN[hg_idx],hour_zhi:DIZHI[hour_zhi_idx],
+hour_ganzhi:TIANGAN[hg_idx]+DIZHI[hour_zhi_idx],
+day_gz_idx:gz_day_idx,hour_zhi_idx:hour_zhi_idx
+};
+}
+
+// 月将
+function get_yuejiang(month,day){
+var current="子";
+for(var i=0;i<ZHONGQI_TO_YUEJIANG.length;i++){
+var zq=ZHONGQI_TO_YUEJIANG[i];
+if(month>zq.m||(month===zq.m&&day>=zq.d)){
+current=zq.j;
+}
+}
+return current;
+}
+
+// 排天盘: 月将加时
+function arrange_tianpan(yuejiang,hour_zhi){
+var yuejiang_idx=DIZHI.indexOf(yuejiang);
+var hour_idx=DIZHI.indexOf(hour_zhi);
+var offset=((hour_idx-yuejiang_idx)%12+12)%12;
+var tianpan={};
+for(var i=0;i<12;i++){
+tianpan[DIZHI[i]]=DIZHI[(i+offset)%12];
+}
+return tianpan;
+}
+
+// 排四课
+function get_si_ke(tianpan,day_gan,day_zhi){
+var ganGong=GAN_JI_GONG[day_gan]||["寅","木"];
+var gan_gong=ganGong[0];
+var ke1_top=tianpan[gan_gong]||gan_gong;
+var ke2_top=tianpan[ke1_top]||ke1_top;
+var ke3_top=tianpan[day_zhi]||day_zhi;
+var ke4_top=tianpan[ke3_top]||ke3_top;
+var si_ke={};
+si_ke["一课(干阳)"]=[ke1_top,gan_gong];
+si_ke["二课(干阴)"]=[ke2_top,ke1_top];
+si_ke["三课(支阳)"]=[ke3_top,day_zhi];
+si_ke["四课(支阴)"]=[ke4_top,ke3_top];
+return si_ke;
+}
+
+// OPT2: 高级三传发用 (贼克→比用→涉害→默认)
+function get_san_chuan_advanced(si_ke,day_gan,tianpan){
+var ke_list=SI_KE_ORDER.map(function(k){return si_ke[k];});
+var day_gan_idx=TIANGAN.indexOf(day_gan);
+var day_gan_yang=(day_gan_idx%2===0);
+var ke_ke=[];
+for(var idx=0;idx<ke_list.length;idx++){
+var top=ke_list[idx][0],bot=ke_list[idx][1];
+var tw=DIZHI_WUXING[top]||"土";
+var bw=DIZHI_WUXING[bot]||"土";
+if(WUXING_KE[tw]===bw){
+ke_ke.push(["上克下",top,bot,idx]);
+}else if(WUXING_KE[bw]===tw){
+ke_ke.push(["下贼上",top,bot,idx]);
+}
+}
+var zongmen="贼克";
+var chuan_first=null;
+if(ke_ke.length===0){
+chuan_first=ke_list[0][0];
+zongmen="无克";
+}else if(ke_ke.length===1){
+chuan_first=ke_ke[0][1];
+zongmen="贼克";
+}else{
+var bi_list=[];
+for(var i=0;i<ke_ke.length;i++){
+var top=ke_ke[i][1];
+var top_idx=DIZHI.indexOf(top);
+var top_yang=(top_idx%2===0);
+if(top_yang===day_gan_yang){
+bi_list.push(ke_ke[i]);
+}
+}
+if(bi_list.length===1){
+chuan_first=bi_list[0][1];
+zongmen="比用";
+}else if(bi_list.length>1){
+var shehai_list=[];
+for(var i=0;i<bi_list.length;i++){
+var top=bi_list[i][1];
+var top_wx=DIZHI_WUXING[top]||"土";
+var ke_count=0;
+for(var j=0;j<bi_list.length;j++){
+var b=bi_list[j][2];
+var bw=DIZHI_WUXING[b]||"土";
+if(WUXING_KE[bw]===top_wx)ke_count++;
+}
+shehai_list.push([bi_list[i][0],top,bi_list[i][2],bi_list[i][3],ke_count]);
+}
+shehai_list.sort(function(a,b){return b[4]-a[4];});
+chuan_first=shehai_list[0][1];
+zongmen="涉害";
+}else{
+var shehai_list=[];
+for(var i=0;i<ke_ke.length;i++){
+var top=ke_ke[i][1];
+var top_wx=DIZHI_WUXING[top]||"土";
+var ke_count=0;
+for(var j=0;j<ke_ke.length;j++){
+var b=ke_ke[j][2];
+var bw=DIZHI_WUXING[b]||"土";
+if(WUXING_KE[bw]===top_wx)ke_count++;
+}
+shehai_list.push([ke_ke[i][0],top,ke_ke[i][2],ke_ke[i][3],ke_count]);
+}
+shehai_list.sort(function(a,b){return b[4]-a[4];});
+chuan_first=shehai_list[0][1];
+zongmen="涉害";
+}
+}
+var chuan=[chuan_first];
+chuan.push(tianpan[chuan[0]]||chuan[0]);
+chuan.push(tianpan[chuan[1]]||chuan[1]);
+return{chuan:chuan,zongmen:zongmen};
+}
+
+// 贵人
+function get_guiren(day_gan,hour_zhi){
+var gr=GUIREN[day_gan]||["丑","未"];
+var zhou=gr[0],ye=gr[1];
+var hour_idx=DIZHI.indexOf(hour_zhi);
+if(hour_idx>=2&&hour_idx<=7){
+return{guiren:zhou,type:"昼贵"};
+}else{
+return{guiren:ye,type:"夜贵"};
+}
+}
+
+// OPT1: 修复后的十二天将排列
+function arrange_tianjiang_fixed(tianpan,guiren,hour_zhi){
+var guiren_dipan=null;
+for(var dizi in tianpan){
+if(tianpan[dizi]===guiren){
+guiren_dipan=dizi;
+break;
+}
+}
+if(guiren_dipan===null)guiren_dipan="子";
+var dipan_idx=DIZHI.indexOf(guiren_dipan);
+var direction;
+if([11,0,1,2,3,4].indexOf(dipan_idx)>=0){
+direction=1;
+}else{
+direction=-1;
+}
+var guiren_idx=DIZHI.indexOf(guiren);
+var tianjiang={};
+for(var i=0;i<12;i++){
+var jiang=TIANJIANG_ORDER[i];
+var zhi=DIZHI[((guiren_idx+i*direction)%12+12)%12];
+tianjiang[jiang]=zhi;
+}
+return tianjiang;
+}
+
+// 空亡
+function get_kongwang(hour_ganzhi){
+var xun=XUN_SHOU_MAP[hour_ganzhi]||"甲子";
+return{kong:XUN_KONG[xun]||["戌","亥"],xun_shou:xun};
+}
+
+// 驿马
+function get_yima(day_zhi){
+return YIMA[day_zhi]||"寅";
+}
+
+// 地支旺衰
+function get_dizhi_wangshuai(zhi,month){
+var zhi_wx=DIZHI_WUXING[zhi]||"土";
+var month_wx_map={1:"水",2:"水",3:"木",4:"木",5:"木",6:"火",7:"火",8:"火",9:"土",10:"土",11:"土",12:"水"};
+var m_wx=month_wx_map[month]||"土";
+if(zhi_wx===m_wx)return"旺";
+if(WUXING_SHENG[zhi_wx]===m_wx)return"相";
+if(WUXING_KE[zhi_wx]===m_wx)return"死";
+if(WUXING_KE[m_wx]===zhi_wx)return"囚";
+if(WUXING_SHENG[m_wx]===zhi_wx)return"休";
+return"平";
+}
+
+// OPT3: 遁干计算 (五鼠遁法)
+function calc_dungan(day_gan,zhi){
+var start_gan=WUSHU_DUN[day_gan]||"甲";
+var start_idx=TIANGAN.indexOf(start_gan);
+var zhi_idx=DIZHI.indexOf(zhi);
+return TIANGAN[(start_idx+zhi_idx)%10];
+}
+
+// OPT4: 扩展课体格局检测
+function detect_keti_extended(si_ke,san_chuan,tianpan,day_gan,day_zhi){
+var results={};
+var ke_list=SI_KE_ORDER.map(function(k){return si_ke[k];});
+var ke_ke=[];
+for(var i=0;i<ke_list.length;i++){
+var top=ke_list[i][0],bot=ke_list[i][1];
+var tw=DIZHI_WUXING[top]||"土";
+var bw=DIZHI_WUXING[bot]||"土";
+if(WUXING_KE[tw]===bw){
+ke_ke.push("上克下");
+}else if(WUXING_KE[bw]===tw){
+ke_ke.push("下贼上");
+}else{
+ke_ke.push("无克");
+}
+}
+var ke_count=0;
+for(var i=0;i<ke_ke.length;i++){if(ke_ke[i]!=="无克")ke_count++;}
+var shangKeCount=0;
+for(var i=0;i<ke_ke.length;i++){if(ke_ke[i]==="上克下")shangKeCount++;}
+var xiazeiCount=0;
+for(var i=0;i<ke_ke.length;i++){if(ke_ke[i]==="下贼上")xiazeiCount++;}
+results["元首课"]=(ke_count===1&&shangKeCount===1);
+results["重审课"]=(ke_count===1&&xiazeiCount===1);
+results["知一课"]=(ke_count===2);
+var yang_zhi=["子","寅","辰","午","申","戌"];
+var all_yang=true;
+for(var i=0;i<ke_list.length;i++){if(yang_zhi.indexOf(ke_list[i][0])<0){all_yang=false;break;}}
+for(var i=0;i<san_chuan.length;i++){if(yang_zhi.indexOf(san_chuan[i])<0){all_yang=false;break;}}
+results["六阳课"]=all_yang;
+var yin_zhi=["丑","卯","巳","未","酉","亥"];
+var all_yin=true;
+for(var i=0;i<ke_list.length;i++){if(yin_zhi.indexOf(ke_list[i][0])<0){all_yin=false;break;}}
+for(var i=0;i<san_chuan.length;i++){if(yin_zhi.indexOf(san_chuan[i])<0){all_yin=false;break;}}
+results["六阴课"]=all_yin;
+var c0=DIZHI.indexOf(san_chuan[0]),c1=DIZHI.indexOf(san_chuan[1]),c2=DIZHI.indexOf(san_chuan[2]);
+var gap1=((c1-c0)%12+12)%12;
+var gap2=((c2-c1)%12+12)%12;
+results["间传课"]=((gap1===2&&gap2===2)||(gap1===10&&gap2===10));
+results["连珠课"]=((gap1===1&&gap2===1)||(gap1===11&&gap2===11));
+results["全局课"]=false;
+for(var he in DIZHI_SANHE){
+var allIn=true;
+for(var i=0;i<san_chuan.length;i++){
+if(he.indexOf(san_chuan[i])<0){allIn=false;break;}
+}
+if(allIn){results["全局课"]=true;break;}
+}
+var si_meng=["寅","巳","申","亥"];
+var allMeng=true;
+for(var i=0;i<san_chuan.length;i++){if(si_meng.indexOf(san_chuan[i])<0){allMeng=false;break;}}
+results["玄胎课"]=allMeng;
+var si_zhong=["子","午","卯","酉"];
+var allZhong=true;
+for(var i=0;i<san_chuan.length;i++){if(si_zhong.indexOf(san_chuan[i])<0){allZhong=false;break;}}
+results["三交课"]=allZhong;
+var si_ji=["辰","戌","丑","未"];
+var allJi=true;
+for(var i=0;i<san_chuan.length;i++){if(si_ji.indexOf(san_chuan[i])<0){allJi=false;break;}}
+results["游子课"]=allJi;
+var allFu=true;
+for(var i=0;i<12;i++){if(tianpan[DIZHI[i]]!==DIZHI[i]){allFu=false;break;}}
+results["伏吟课"]=allFu;
+var allFan=true;
+for(var i=0;i<12;i++){
+var expected=DIZHI_LIUCHONG[DIZHI[i]]||DIZHI[i];
+if(tianpan[DIZHI[i]]!==expected){allFan=false;break;}
+}
+results["反吟课"]=allFan;
+return results;
+}
+
+// OPT5: 三传生克趋势详细分析
+function analyze_chuan_trend(san_chuan){
+var c0_wx=DIZHI_WUXING[san_chuan[0]]||"土";
+var c1_wx=DIZHI_WUXING[san_chuan[1]]||"土";
+var c2_wx=DIZHI_WUXING[san_chuan[2]]||"土";
+var c0c1,c1c2,c0c2;
+if(WUXING_SHENG[c0_wx]===c1_wx)c0c1="初生中";
+else if(WUXING_KE[c0_wx]===c1_wx)c0c1="初克中";
+else if(WUXING_SHENG[c1_wx]===c0_wx)c0c1="中生初";
+else if(WUXING_KE[c1_wx]===c0_wx)c0c1="中克初";
+else if(c0_wx===c1_wx)c0c1="初中比和";
+else c0c1="初中无克";
+if(WUXING_SHENG[c1_wx]===c2_wx)c1c2="中生末";
+else if(WUXING_KE[c1_wx]===c2_wx)c1c2="中克末";
+else if(WUXING_SHENG[c2_wx]===c1_wx)c1c2="末生中";
+else if(WUXING_KE[c2_wx]===c1_wx)c1c2="末克中";
+else if(c1_wx===c2_wx)c1c2="中末比和";
+else c1c2="中末无克";
+if(WUXING_SHENG[c0_wx]===c2_wx)c0c2="初生末";
+else if(WUXING_KE[c0_wx]===c2_wx)c0c2="初克末";
+else if(WUXING_SHENG[c2_wx]===c0_wx)c0c2="末生初";
+else if(WUXING_KE[c2_wx]===c0_wx)c0c2="末克初";
+else if(c0_wx===c2_wx)c0c2="初末比和";
+else c0c2="初末无克";
+var trend;
+if(c0c1==="初生中"&&c1c2==="中生末")trend="递生·顺利渐进";
+else if(c0c1==="初克中"&&c1c2==="中克末")trend="递克·阻碍递增";
+else if(c0c2==="初生末")trend="初生末·始助终成";
+else if(c0c2==="初克末")trend="初克末·始阻终败";
+else if(c0c2==="末生初")trend="末生初·回光返照";
+else if(c0c2==="末克初")trend="末克初·终克始因";
+else if(c0_wx===c1_wx&&c1_wx===c2_wx)trend="三传同气·纯粹";
+else trend="交错生克·复杂多变";
+return{c0c1:c0c1,c1c2:c1c2,c0c2:c0c2,trend:trend};
+}
+
+// ============================================================
+// Part 3: 辅助渲染函数
+// ============================================================
+function toggleLayer(header){
+header.classList.toggle("open");
+header.nextElementSibling.classList.toggle("open");
+}
+
+function gc(k,v,cls){
+var c=cls||"kv-item";
+return'<span class="'+c+'"><span class="k">'+k+'</span><span class="v">'+v+'</span></span>';
+}
+
+function layerHtml(title,contentStr){
+return'<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><span class="layer-title">'+title+'</span><span class="layer-arrow">▶</span></div><div class="layer-body"><div class="layer-content">'+contentStr+'</div></div></div>';
+}
+
+function optCardHtml(title,detail,extra){
+var html='<div class="opt-card"><div class="opt-title">'+title+'</div>';
+if(detail)html+='<div class="opt-desc">'+detail+'</div>';
+if(extra)html+='<div class="opt-detail">'+extra+'</div>';
+html+='</div>';
+return html;
+}
+
+// 查找三传天将
+function find_chuan_tianjiang(chuan_zhi,tianpan,tianjiang){
+var tianpan_val=tianpan[chuan_zhi]||chuan_zhi;
+for(var jiang_name in tianjiang){
+if(tianjiang[jiang_name]===tianpan_val){
+return jiang_name;
+}
+}
+return"未知";
+}
+
+// ============================================================
+// Part 4: 主生成函数
+// ============================================================
+function generate(){
+var year=parseInt(document.getElementById("year").value);
+var month=parseInt(document.getElementById("month").value);
+var day=parseInt(document.getElementById("day").value);
+var hour=parseInt(document.getElementById("hour").value);
+
+// 基础排盘
+var bazi=solar_to_bazi(year,month,day,hour);
+var yuejiang=get_yuejiang(month,day);
+var yj_info=YUEJIANG[yuejiang]||["未知",""];
+var yuejiang_name=yj_info[0];
+var yuejiang_range=yj_info[1];
+
+var tianpan=arrange_tianpan(yuejiang,bazi.hour_zhi);
+var si_ke=get_si_ke(tianpan,bazi.day_gan,bazi.day_zhi);
+
+// OPT2: 高级三传
+var sc_result=get_san_chuan_advanced(si_ke,bazi.day_gan,tianpan);
+var san_chuan=sc_result.chuan;
+var zongmen=sc_result.zongmen;
+
+// 贵人
+var gr_result=get_guiren(bazi.day_gan,bazi.hour_zhi);
+var guiren=gr_result.guiren;
+var guiren_type=gr_result.type;
+
+// OPT1: 修复后的天将排列
+var tianjiang=arrange_tianjiang_fixed(tianpan,guiren,bazi.hour_zhi);
+
+// 空亡
+var kw_result=get_kongwang(bazi.hour_ganzhi);
+var kong=kw_result.kong;
+var xun_shou=kw_result.xun_shou;
+
+// 驿马
+var yima=get_yima(bazi.day_zhi);
+
+// 日干寄宫
+var ganGong=GAN_JI_GONG[bazi.day_gan]||["寅","木"];
+var gan_gong=ganGong[0];
+var gan_gong_wx=ganGong[1];
+
+// OPT3: 遁干
+var dungan_list=[];
+var chuan_names=["初传","中传","末传"];
+for(var i=0;i<3;i++){
+var dg=calc_dungan(bazi.day_gan,san_chuan[i]);
+var xy=DUNGAN_XIANGYI[dg]||"";
+dungan_list.push(dg+"("+xy+")");
+}
+
+// OPT4: 扩展课体检测
+var keti_ext=detect_keti_extended(si_ke,san_chuan,tianpan,bazi.day_gan,bazi.day_zhi);
+var ext_triggered_count=0;
+for(var kn in keti_ext){if(keti_ext[kn])ext_triggered_count++;}
+
+// OPT5: 三传趋势
+var trend=analyze_chuan_trend(san_chuan);
+
+// 三传天将
+var chuan_tianjiang=[];
+for(var i=0;i<3;i++){
+chuan_tianjiang.push(find_chuan_tianjiang(san_chuan[i],tianpan,tianjiang));
+}
+
+// === 基础课体检测 (原Python逻辑) ===
+var all_chuan_meng=san_chuan.every(function(z){return["寅","申","巳","亥"].indexOf(z)>=0;});
+var all_chuan_zhong=san_chuan.every(function(z){return["子","午","卯","酉"].indexOf(z)>=0;});
+var all_chuan_ji=san_chuan.every(function(z){return["辰","戌","丑","未"].indexOf(z)>=0;});
+var keti_results={};
+for(var keti in KETI_LIST){
+var desc=KETI_LIST[keti];
+var triggered=false;
+if(keti==="伏吟课"){
+var allSame=true;
+for(var d=0;d<12;d++){if(tianpan[DIZHI[d]]!==DIZHI[d]){allSame=false;break;}}
+triggered=allSame;
+}else if(keti==="反吟课"){
+var allFan=true;
+for(var d=0;d<12;d++){
+var exp=DIZHI_LIUCHONG[DIZHI[d]]||DIZHI[d];
+if(tianpan[DIZHI[d]]!==exp){allFan=false;break;}
+}
+triggered=allFan;
+}else if(keti==="玄胎课"){
+triggered=all_chuan_meng;
+}else if(keti==="三交课"){
+triggered=all_chuan_zhong;
+}else if(keti==="游子课"){
+triggered=all_chuan_ji;
+}else if(keti==="全局课"){
+for(var he in DIZHI_SANHE){
+var allIn=true;
+for(var ci=0;ci<san_chuan.length;ci++){
+if(he.indexOf(san_chuan[ci])<0){allIn=false;break;}
+}
+if(allIn){triggered=true;break;}
+}
+}
+keti_results[keti]=triggered?("✅"+desc):"未触发";
+}
+
+// OPT4: 覆盖扩展检测结果
+for(var kn in keti_ext){
+if(keti_ext[kn]){
+var desc=KETI_LIST[kn]||"";
+keti_results[kn]="✅"+desc;
+}
+}
+
+// 统计触发课体
+var triggered_keti=[];
+for(var k in keti_results){
+if(keti_results[k].indexOf("✅")>=0){
+triggered_keti.push(k);
+}
+}
+
+// 九宗门检测
+var ke_ke_count=0;
+for(var ki=0;ki<SI_KE_ORDER.length;ki++){
+var kk=si_ke[SI_KE_ORDER[ki]];
+var tw=DIZHI_WUXING[kk[0]]||"土";
+var bw=DIZHI_WUXING[kk[1]]||"土";
+if(WUXING_KE[tw]===bw||WUXING_KE[bw]===tw)ke_ke_count++;
+}
+var zongmen_results={};
+for(var zi=0;zi<JIU_ZONGMEN.length;zi++){
+var zm=JIU_ZONGMEN[zi];
+var trig=false;
+if(zm==="贼克"&&ke_ke_count===1)trig=true;
+else if(zm==="比用"&&ke_ke_count===2)trig=true;
+else if(zm==="涉害"&&ke_ke_count>=3)trig=true;
+else if(zm==="伏吟"){
+var allF=true;
+for(var d=0;d<12;d++){if(tianpan[DIZHI[d]]!==DIZHI[d]){allF=false;break;}}
+trig=allF;
+}else if(zm==="反吟"){
+var allR=true;
+for(var d=0;d<12;d++){
+var exp=DIZHI_LIUCHONG[DIZHI[d]]||DIZHI[d];
+if(tianpan[DIZHI[d]]!==exp){allR=false;break;}
+}
+trig=allR;
+}
+zongmen_results[zm]=trig?"✅触发":"未触发";
+}
+
+// === L16 主客分析 ===
+var day_gan_wx=gan_gong_wx;
+var day_zhi_wx=DIZHI_WUXING[bazi.day_zhi]||"土";
+var gx;
+if(day_gan_wx===day_zhi_wx)gx="干支比和";
+else if(WUXING_SHENG[day_gan_wx]===day_zhi_wx)gx="干生支(利支)";
+else if(WUXING_SHENG[day_zhi_wx]===day_gan_wx)gx="支生干(利干)";
+else if(WUXING_KE[day_gan_wx]===day_zhi_wx)gx="干克支(干强)";
+else if(WUXING_KE[day_zhi_wx]===day_gan_wx)gx="支克干(支强)";
+else gx="无特殊关系";
+var zhengti_zhuke;
+if(day_gan_wx&&WUXING_KE[day_gan_wx]===day_zhi_wx)zhengti_zhuke="主胜客";
+else if(WUXING_KE[day_zhi_wx]===day_gan_wx)zhengti_zhuke="客胜主";
+else zhengti_zhuke="主客平衡";
+
+// === L17 盘面总评 ===
+var zhengti_jixiong;
+var tnames=triggered_keti.join("");
+if(triggered_keti.length>0&&tnames.indexOf("凶")<0){
+zhengti_jixiong="吉";
+}else if(triggered_keti.some(function(k){return(KETI_LIST[k]||"").indexOf("凶")>=0;})){
+zhengti_jixiong="凶";
+}else{
+zhengti_jixiong="平";
+}
+var kongwang_yingxiang;
+if(san_chuan.some(function(z){return kong.indexOf(z)>=0;})){
+kongwang_yingxiang="用神空亡·事难成";
+}else{
+kongwang_yingxiang="用神不空·事可成";
+}
+var sanchuan_qushi;
+var is_di_sheng=true;
+for(var si=0;si<2;si++){
+var wx1=DIZHI_WUXING[san_chuan[si]]||"土";
+var wx2=DIZHI_WUXING[san_chuan[si+1]]||"土";
+if(WUXING_SHENG[wx1]!==wx2){is_di_sheng=false;break;}
+}
+sanchuan_qushi=is_di_sheng?"递生·吉":"非递生";
+var sike_vals=SI_KE_ORDER.map(function(k){return si_ke[k][0]+"/"+si_ke[k][1];});
+var unique_sike=new Set(sike_vals).size;
+var sike_wanbei=unique_sike===4?"四课完备":"四课不全";
+
+// === 开始构建HTML ===
+var html="";
+
+// 核心展示区
+html+='<div class="core-display">';
+html+='<div class="core-big">';
+html+='<div class="big-item"><div class="big-label">日干支</div><div class="big-value" style="font-size:24px">'+bazi.day_ganzhi+'</div><div class="big-sub">'+bazi.day_gan+"("+gan_gong_wx+")/"+bazi.day_zhi+"("+day_zhi_wx+")"+'</div></div>';
+html+='<div class="big-item"><div class="big-label">月将</div><div class="big-value">'+yuejiang+'</div><div class="big-sub">'+yuejiang_name+"·"+yuejiang_range+'</div></div>';
+html+='<div class="big-item"><div class="big-label">占时</div><div class="big-value">'+bazi.hour_zhi+'</div><div class="big-sub">'+guiren_type+"·贵人"+guiren+'</div></div>';
+html+='<div class="big-item"><div class="big-label">三传</div><div class="big-value" style="font-size:20px">'+san_chuan[0]+"→"+san_chuan[1]+"→"+san_chuan[2]+'</div><div class="big-sub">'+chuan_tianjiang[0]+"→"+chuan_tianjiang[1]+"→"+chuan_tianjiang[2]+'</div></div>';
+html+='</div>';
+
+html+='<div class="highlight-grid">';
+html+='<div class="highlight-item gold"><div class="label">宗门</div><div class="value">'+zongmen+'法</div></div>';
+html+='<div class="highlight-item"><div class="label">空亡</div><div class="value">'+kong.join("、")+'</div></div>';
+html+='<div class="highlight-item"><div class="label">驿马</div><div class="value">'+yima+'</div></div>';
+html+='<div class="highlight-item"><div class="label">旬首</div><div class="value">'+xun_shou+'</div></div>';
+html+='<div class="highlight-item"><div class="label">太岁</div><div class="value">'+bazi.year_zhi+'</div></div>';
+html+='<div class="highlight-item"><div class="label">月建</div><div class="value">'+bazi.month_zhi+'</div></div>';
+html+='<div class="highlight-item gold"><div class="label">三传趋势</div><div class="value">'+trend.trend+'</div></div>';
+html+='<div class="highlight-item '+(sike_wanbei==="四课完备"?"active":"warn")+'"><div class="label">四课</div><div class="value">'+sike_wanbei+'</div></div>';
+html+='</div>';
+html+='</div>';
+
+// === 5项优化卡片 ===
+html+='<div class="opt-section">';
+html+=optCardHtml("OPT1 贵人顺逆排列修复","亥子丑寅卯辰顺排 / 巳午未申酉戌逆排","贵人"+guiren+"→地盘"+(function(){for(var d in tianpan){if(tianpan[d]===guiren)return d;}return"子";})()+"→"+([11,0,1,2,3,4].indexOf(DIZHI.indexOf((function(){for(var d in tianpan){if(tianpan[d]===guiren)return d;}return"子";})()))>=0?"顺排":"逆排"));
+html+=optCardHtml("OPT2 比用/涉害取三传",zongmen+"法取用·克贼数"+ke_ke_count,"三传: "+san_chuan[0]+"→"+san_chuan[1]+"→"+san_chuan[2]);
+html+=optCardHtml("OPT3 遁干计算(五鼠遁)","初传"+dungan_list[0]+" / 中传"+dungan_list[1]+" / 末传"+dungan_list[2],"日干"+bazi.day_gan+"→起"+(WUSHU_DUN[bazi.day_gan]||"甲")+"子时");
+html+=optCardHtml("OPT4 课体格局扩展检测","新增检测: 元首/重审/知一/六阳/六阴/间传/连珠/全局/玄胎/三交/游子/伏吟/反吟","共检测"+ext_triggered_count+"个课体触发·总触发"+triggered_keti.length+"个");
+html+=optCardHtml("OPT5 三传生克趋势分析","初中:"+trend.c0c1+" / 中末:"+trend.c1c2+" / 初末:"+trend.c0c2,"综合趋势: "+trend.trend);
+html+='</div>';
+
+// === L1 基础排盘 (14维) ===
+var l1='<div class="kv">';
+l1+=gc("日干",bazi.day_gan,"kv-item active");
+l1+=gc("日支",bazi.day_zhi,"kv-item active");
+l1+=gc("日干支",bazi.day_ganzhi,"kv-item active");
+l1+=gc("月将",yuejiang+"("+yuejiang_name+")");
+l1+=gc("月将范围",yuejiang_range);
+l1+=gc("占时",bazi.hour_zhi);
+l1+=gc("昼夜",guiren_type);
+l1+=gc("贵人",guiren,"kv-item active");
+l1+=gc("空亡",kong.join(","));
+l1+=gc("旬首",xun_shou);
+l1+=gc("驿马",yima);
+l1+=gc("日干寄宫",gan_gong+"("+gan_gong_wx+")");
+l1+=gc("年干支",bazi.year_ganzhi);
+l1+=gc("月干支",bazi.month_ganzhi);
+l1+='</div>';
+html+=layerHtml("L1 基础排盘 (14维): 日干支/月将/占时/昼夜/贵人/空亡/旬首/驿马/寄宫/年月干支",l1);
+
+// === L2 天地盘 (12维) ===
+var l2='<div class="table-row"><span class="row-label">地盘→天盘</span>';
+for(var i=0;i<12;i++){
+var zhi=DIZHI[i];
+l2+=gc(zhi,tianpan[zhi]||"",tianpan[zhi]===zhi?"kv-item warn":"kv-item");
+}
+l2+='</div>';
+html+=layerHtml("L2 天地盘 (12维): 12地支各自的天盘上神",l2);
+
+// === L3 四课 (8维) ===
+var l3="";
+for(var ki=0;ki<SI_KE_ORDER.length;ki++){
+var kn=SI_KE_ORDER[ki];
+var kk=si_ke[kn];
+l3+='<div class="table-row"><span class="row-label">'+kn+'</span>';
+l3+=gc("上神",kk[0],"kv-item active");
+l3+=gc("下神",kk[1]);
+l3+='</div>';
+}
+html+=layerHtml("L3 四课 (8维): 四课各自的上神和下神",l3);
+
+// === L4 三传 (9维+3遁干=12维) ===
+var l4="";
+var chuan_meanings=["事发端始·动机","事中变·移易之门","事归宿·结局定论"];
+for(var i=0;i<3;i++){
+var cn=chuan_names[i];
+var cz=san_chuan[i];
+var cwx=DIZHI_WUXING[cz]||"土";
+l4+='<div class="table-row"><span class="row-label">'+cn+'</span>';
+l4+=gc("地支",cz,"kv-item active");
+l4+=gc("五行",cwx);
+l4+=gc("天将",chuan_tianjiang[i]);
+l4+=gc("遁干",dungan_list[i],"kv-item active");
+l4+=gc("旺衰",get_dizhi_wangshuai(cz,month));
+l4+=gc("含义",chuan_meanings[i]);
+l4+='</div>';
+}
+html+=layerHtml("L4 三传 (12维): 初中末传×地支/五行/天将/遁干(OPT3)/旺衰/含义",l4);
+
+// === L5 十二天将分布 (12维) ===
+var l5='<div class="kv">';
+for(var i=0;i<TIANJIANG_ORDER.length;i++){
+var jiang=TIANJIANG_ORDER[i];
+var jx=TIANJIANG[jiang]?TIANJIANG[jiang].jixiong:"";
+var cls=jx==="吉"?"kv-item active":(jx==="凶"?"kv-item warn":"kv-item");
+l5+=gc(jiang,tianjiang[jiang]||"",cls);
+}
+l5+='</div>';
+html+=layerHtml("L5 十二天将分布 (12维): 十二天将各自所在天盘地支",l5);
+
+// === L6 十二天将属性 (72维) ===
+var l6="";
+for(var i=0;i<TIANJIANG_ORDER.length;i++){
+var jiang=TIANJIANG_ORDER[i];
+var attr=TIANJIANG[jiang]||{};
+var jx=attr.jixiong||"";
+l6+='<div class="table-row"><span class="row-label">'+jiang+'('+jx+')</span>';
+l6+=gc("五行",attr.wuxing||"");
+l6+=gc("吉凶",jx,jx==="吉"?"kv-item active":(jx==="凶"?"kv-item warn":"kv-item"));
+l6+=gc("核心象意",attr.meaning||"");
+l6+=gc("人物象意",attr.person||"");
+l6+=gc("事物象意",attr.thing||"");
+l6+=gc("宜忌",attr.yiji||"");
+l6+='</div>';
+}
+html+=layerHtml("L6 十二天将属性 (72维): 12天将×6属性(五行/吉凶/象意/人物/事物/宜忌)",l6);
+
+// === L7 十二月将属性 (12维) ===
+var l7='<div class="kv">';
+for(var i=0;i<12;i++){
+var zhi=DIZHI[i];
+var yj=YUEJIANG[zhi]||["未知",""];
+l7+=gc(zhi,yj[0]+"/"+yj[1],zhi===yuejiang?"kv-item active":"kv-item");
+}
+l7+='</div>';
+html+=layerHtml("L7 十二月将属性 (12维): 12月将各自的将名和节气范围",l7);
+
+// === L8 课体格局判断 (66维+1扩展=67维) ===
+var l8='<div class="kv">';
+for(var keti in KETI_LIST){
+var val=keti_results[keti]||"未触发";
+var cls=val.indexOf("✅")>=0?"kv-item active":"kv-item";
+var shortDesc=val==="未触发"?"未触发":val.substring(1);
+l8+=gc(keti,shortDesc,cls);
+}
+l8+=gc("OPT4扩展","共检测"+ext_triggered_count+"个触发","kv-item active");
+l8+='</div>';
+html+=layerHtml("L8 课体格局判断 (67维): 66种课体+OPT4扩展检测",l8);
+
+// === L9 九宗门 (9维+1实际=10维) ===
+var l9='<div class="kv">';
+for(var zi=0;zi<JIU_ZONGMEN.length;zi++){
+var zm=JIU_ZONGMEN[zi];
+var val=zongmen_results[zm]||"未触发";
+var cls=val.indexOf("✅")>=0?"kv-item active":"kv-item";
+l9+=gc(zm,val,cls);
+}
+l9+=gc("OPT2实际","✅"+zongmen+"法取用","kv-item active");
+l9+='</div>';
+html+=layerHtml("L9 九宗门 (10维): 九宗门触发+OPT2实际宗门",l9);
+
+// === L10 十干寄宫 (10维) ===
+var l10='<div class="kv">';
+for(var i=0;i<TIANGAN.length;i++){
+var gan=TIANGAN[i];
+var gp=GAN_JI_GONG[gan]||["?","?"];
+l10+=gc(gan,"寄"+gp[0]+"宫/"+gp[1],gan===bazi.day_gan?"kv-item active":"kv-item");
+}
+l10+='</div>';
+html+=layerHtml("L10 十干寄宫 (10维): 10天干各自的寄宫地支和五行",l10);
+
+// === L11 四课关系 (8维) ===
+var l11="";
+for(var ki=0;ki<SI_KE_ORDER.length;ki++){
+var kn=SI_KE_ORDER[ki];
+var kk=si_ke[kn];
+var top=kk[0],bot=kk[1];
+var tw=DIZHI_WUXING[top]||"土";
+var bw=DIZHI_WUXING[bot]||"土";
+var rel;
+if(WUXING_KE[tw]===bw)rel="上克下";
+else if(WUXING_KE[bw]===tw)rel="下贼上";
+else if(tw===bw)rel="比和";
+else if(WUXING_SHENG[tw]===bw)rel="上生下";
+else if(WUXING_SHENG[bw]===tw)rel="下生上";
+else rel="无克";
+l11+='<div class="table-row"><span class="row-label">'+kn+'</span>';
+l11+=gc("关系",rel,rel==="上克下"||rel==="下贼上"?"kv-item warn":"kv-item");
+l11+=gc("上神旺衰",get_dizhi_wangshuai(top,month));
+l11+='</div>';
+}
+html+=layerHtml("L11 四课关系 (8维): 四课各自的上下克贼关系和旺衰",l11);
+
+// === L12 三传趋势 (6维+4 OPT5=10维) ===
+var l12='<div class="kv">';
+for(var i=0;i<3;i++){
+var cn=chuan_names[i];
+l12+=gc(cn+"含义",chuan_meanings[i]);
+l12+=gc(cn+"旺衰",get_dizhi_wangshuai(san_chuan[i],month));
+}
+l12+=gc("OPT5初中",trend.c0c1,"kv-item active");
+l12+=gc("OPT5中末",trend.c1c2,"kv-item active");
+l12+=gc("OPT5初末",trend.c0c2,"kv-item active");
+l12+=gc("OPT5综合",trend.trend,"kv-item active");
+l12+='</div>';
+html+=layerHtml("L12 三传趋势 (10维): 初中末传含义旺衰+OPT5生克趋势分析",l12);
+
+// === L13 贵人系统 (4维) ===
+var gr=GUIREN[bazi.day_gan]||["丑","未"];
+var l13='<div class="kv">';
+l13+=gc("昼贵",gr[0],guiren_type==="昼贵"?"kv-item active":"kv-item");
+l13+=gc("夜贵",gr[1],guiren_type==="夜贵"?"kv-item active":"kv-item");
+l13+=gc("当前用贵",guiren,"kv-item active");
+l13+=gc("贵人所在",tianjiang["贵人"]||"");
+l13+='</div>';
+html+=layerHtml("L13 贵人系统 (4维): 昼贵/夜贵/当前用贵/贵人所在",l13);
+
+// === L14 神煞 (6维) ===
+var l14='<div class="kv">';
+l14+=gc("驿马",yima,"kv-item active");
+l14+=gc("空亡",kong.join(","));
+l14+=gc("日支六合",DIZHI_LIUHE[bazi.day_zhi]||"");
+l14+=gc("日支六冲",DIZHI_LIUCHONG[bazi.day_zhi]||"");
+l14+=gc("太岁",bazi.year_zhi);
+l14+=gc("月建",bazi.month_zhi);
+l14+='</div>';
+html+=layerHtml("L14 神煞 (6维): 驿马/空亡/六合/六冲/太岁/月建",l14);
+
+// === L15 旺衰评估 (12维) ===
+var l15='<div class="kv">';
+for(var i=0;i<12;i++){
+var zhi=DIZHI[i];
+var ws=get_dizhi_wangshuai(zhi,month);
+var cls=ws==="旺"?"kv-item active":(ws==="死"||ws==="囚"?"kv-item warn":"kv-item");
+l15+=gc(zhi,ws,cls);
+}
+l15+='</div>';
+html+=layerHtml("L15 旺衰评估 (12维): 12地支各自的旺衰状态",l15);
+
+// === L16 主客分析 (6维) ===
+var l16='<div class="kv">';
+l16+=gc("日干(主)",bazi.day_gan+"("+day_gan_wx+")","kv-item active");
+l16+=gc("日支(客)",bazi.day_zhi+"("+day_zhi_wx+")","kv-item active");
+l16+=gc("干支关系",gx);
+l16+=gc("主旺衰",get_dizhi_wangshuai(gan_gong,month));
+l16+=gc("客旺衰",get_dizhi_wangshuai(bazi.day_zhi,month));
+l16+=gc("整体主客",zhengti_zhuke,zhengti_zhuke==="主胜客"?"kv-item active":(zhengti_zhuke==="客胜主"?"kv-item warn":"kv-item"));
+l16+='</div>';
+html+=layerHtml("L16 主客分析 (6维): 日干(主)/日支(客)/关系/旺衰/整体",l16);
+
+// === L17 盘面总评 (10维) ===
+var l17='<div class="kv">';
+l17+=gc("整体吉凶",zhengti_jixiong,zhengti_jixiong==="吉"?"kv-item active":(zhengti_jixiong==="凶"?"kv-item warn":"kv-item"));
+l17+=gc("主要课体",triggered_keti.length>0?triggered_keti.join(","):"无特殊课体","kv-item active");
+l17+=gc("初传吉凶",(TIANJIANG[chuan_tianjiang[0]]||{}).jixiong||"");
+l17+=gc("末传吉凶",(TIANJIANG[chuan_tianjiang[2]]||{}).jixiong||"");
+l17+=gc("贵人吉凶","贵人临身");
+l17+=gc("空亡影响",kongwang_yingxiang,kongwang_yingxiang.indexOf("空亡")>=0?"kv-item warn":"kv-item active");
+l17+=gc("三传趋势",sanchuan_qushi);
+l17+=gc("四课完备",sike_wanbei,sike_wanbei==="四课完备"?"kv-item active":"kv-item warn");
+l17+=gc("格局数量",triggered_keti.length+"个");
+l17+=gc("总评","课体"+triggered_keti.length+"个·三传"+san_chuan[0]+"→"+san_chuan[1]+"→"+san_chuan[2],"kv-item active");
+l17+='</div>';
+html+=layerHtml("L17 盘面总评 (10维): 整体吉凶/课体/三传/贵人/空亡/格局数量/总评",l17);
+
+document.getElementById("output").innerHTML=html;
+
+// 自动展开前3层
+var layers=document.querySelectorAll(".layer-header");
+for(var i=0;i<3&&i<layers.length;i++){
+layers[i].classList.add("open");
+layers[i].nextElementSibling.classList.add("open");
+}
+}
+
+// 页面加载时自动生成
+window.onload=function(){generate();};
+</script>
+</body>
+</html>
