@@ -3,635 +3,524 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>🔮 术数日记</title>
+<title>🔮 术数日记 · 集成版</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0c1a;color:#e8e0f0;min-height:100vh;padding-bottom:80px}
-.header{background:linear-gradient(135deg,#1a1530,#2d1b4e);padding:20px 16px 16px;text-align:center;border-bottom:1px solid #3d2e5f;position:sticky;top:0;z-index:50}
+:root{--bg:#0f0c1a;--card:#1a1530;--border:#2d2348;--border-active:#5d4e7f;--text:#e8e0f0;--text-dim:#8a7aa0;--text-bright:#d4c5f0;--accent:#8b5cf6;--accent-dark:#6b3fa0;--accent-grad:linear-gradient(135deg,#6b3fa0,#8b5cf6);--danger:#e88;--success:#6dd58c;--radius:12px;--transition:.2s ease}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;-webkit-tap-highlight-color:transparent}
+.header{background:linear-gradient(135deg,#1a1530,#2d1b4e);padding:20px 16px 16px;text-align:center;border-bottom:1px solid #3d2e5f;position:sticky;top:0;z-index:50;backdrop-filter:blur(10px)}
 .header h1{font-size:20px;color:#c9b8e8;font-weight:600}
 .header .sub{font-size:12px;color:#8a7aa0;margin-top:4px}
 .container{max-width:600px;margin:0 auto;padding:16px}
-.card{background:#1a1530;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid #2d2348;transition:border-color .2s;display:block;text-decoration:none;color:inherit}
-.card:active{border-color:#5d4e7f}
-.entry-title{font-size:16px;color:#d4c5f0;font-weight:600;margin-bottom:4px}
+.card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;border:1px solid var(--border);transition:border-color var(--transition)}
+.card:active{border-color:var(--border-active)}
+.entry-title{font-size:16px;color:var(--text-bright);font-weight:600;margin-bottom:4px}
 .entry-time{font-size:12px;color:#7a6b9a;margin-bottom:8px}
 .tag-badge{display:inline-block;background:#2d1b4e;color:#b8a0d8;font-size:11px;padding:3px 8px;border-radius:6px;margin:2px 3px 2px 0}
 .tag-badge.highlight{background:#4a2d7a;color:#e0c8ff}
 .section-title{font-size:14px;color:#9a8ab8;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1px}
+.system-tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;margin:1px;background:#2d1b4e;color:#b8a0d8}
 .stats-bar{display:flex;align-items:center;gap:4px;margin:4px 0}
 .stats-bar .count{font-size:12px;color:#c9a0e8;min-width:30px}
 .stats-bar .label{font-size:11px;color:#b8a0d8;flex:1;word-break:break-all}
 .stats-bar .bar{height:16px;background:#4a2d7a;border-radius:3px;min-width:2px}
 .form-group{margin-bottom:14px}
 .form-group label{display:block;font-size:13px;color:#9a8ab8;margin-bottom:6px}
-.form-group input,.form-group textarea{width:100%;background:#0f0c1a;border:1px solid #2d2348;border-radius:8px;padding:12px;color:#e8e0f0;font-size:15px}
-.form-group input:focus,.form-group textarea:focus{outline:none;border-color:#5d4e7f}
+.form-group input,.form-group textarea,.form-group select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:15px}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--border-active)}
 .form-group textarea{resize:vertical;min-height:100px}
-.btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}
-.btn-primary{background:linear-gradient(135deg,#6b3fa0,#8b5cf6);color:#fff}
+.form-row{display:flex;gap:8px}
+.form-row .form-group{flex:1}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;transition:opacity var(--transition)}
+.btn-primary{background:var(--accent-grad);color:#fff}
 .btn-secondary{background:#2d2348;color:#c9b8e8;margin-top:8px}
 .btn:active{opacity:.85}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#1a1530;border-top:1px solid #2d2348;display:flex;max-width:600px;margin:0 auto;z-index:100}
-.nav-item{flex:1;text-align:center;padding:8px;color:#6a5b8a;text-decoration:none;font-size:12px;cursor:pointer}
-.nav-item.active{color:#a78bfa}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;max-width:600px;margin:0 auto;z-index:100}
+.nav-item{flex:1;text-align:center;padding:8px;color:#6a5b8a;text-decoration:none;font-size:12px;cursor:pointer;transition:color var(--transition)}
+.nav-item.active{color:var(--accent)}
 .nav-icon{font-size:20px;display:block;margin-bottom:2px}
 .empty{text-align:center;padding:40px 20px;color:#6a5b8a}
-.detail-content{background:#0f0c1a;border-radius:8px;padding:14px;margin:12px 0;font-size:15px;line-height:1.7;white-space:pre-wrap;color:#d4c5f0}
-.tag-section{margin-top:16px}
+.detail-content{background:var(--bg);border-radius:8px;padding:14px;margin:12px 0;font-size:15px;line-height:1.7;white-space:pre-wrap;color:var(--text-bright)}
+.tag-section{margin-top:12px}
 .tag-dim{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1f1838;font-size:13px}
 .tag-dim .key{color:#8a7aa0}
-.tag-dim .val{color:#d4c5f0;text-align:right;max-width:60%;word-break:break-all}
+.tag-dim .val{color:var(--text-bright);text-align:right;max-width:60%;word-break:break-all}
 .search-box{display:flex;gap:8px;margin-bottom:16px}
-.search-box input{flex:1;background:#0f0c1a;border:1px solid #2d2348;border-radius:8px;padding:12px;color:#e8e0f0;font-size:15px}
-.search-box input:focus{outline:none;border-color:#5d4e7f}
-.search-box button{background:#6b3fa0;border:none;border-radius:8px;padding:0 20px;color:#fff;font-size:15px;cursor:pointer}
-.profile-card{background:linear-gradient(135deg,#1a1530,#2d1b4e);border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid #3d2e5f}
+.search-box input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:15px}
+.search-box input:focus{outline:none;border-color:var(--border-active)}
+.search-box button{background:var(--accent-dark);border:none;border-radius:8px;padding:0 20px;color:#fff;font-size:15px;cursor:pointer}
+.profile-card{background:linear-gradient(135deg,#1a1530,#2d1b4e);border-radius:var(--radius);padding:16px;margin-bottom:16px;border:1px solid #3d2e5f}
 .profile-name{font-size:18px;color:#e0c8ff;font-weight:600}
 .profile-info{font-size:13px;color:#8a7aa0;margin-top:4px}
-.progress-bar{margin-top:8px;height:6px;background:#0f0c1a;border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,#6b3fa0,#8b5cf6)}
+.progress-bar{margin-top:8px;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent-grad)}
 .page{display:none}
 .page.active{display:block}
+.sys-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.sys-card{background:var(--card);border-radius:10px;padding:14px;border:1px solid var(--border);cursor:pointer;transition:border-color var(--transition)}
+.sys-card:active{border-color:var(--border-active)}
+.sys-card .icon{font-size:24px;margin-bottom:6px}
+.sys-card .name{font-size:14px;color:var(--text-bright);font-weight:600}
+.sys-card .dims{font-size:11px;color:#7a6b9a;margin-top:2px}
+.sys-card .status{font-size:10px;margin-top:4px}
+.sys-card .status.on{color:var(--success)}
+.sys-card .status.off{color:#6a5b8a}
+.collapsible{cursor:pointer;padding:10px 0;display:flex;justify-content:space-between;align-items:center}
+.collapsible .arrow{transition:transform var(--transition);font-size:12px;color:#8a7aa0}
+.collapsible.open .arrow{transform:rotate(180deg)}
+.collapsible-content{display:none;padding-top:4px}
+.collapsible-content.show{display:block}
+.loading{text-align:center;padding:20px;color:#8a7aa0}
 </style>
 </head>
 <body>
-<div class="header"><h1>🔮 术数日记</h1><div class="sub">用千年术数标记你的每一天</div></div>
-<div class="container" id="app"></div>
+<div class="header"><h1>🔮 术数日记 · 集成版</h1><div class="sub">十三术数系统 · 标记你的每一天</div></div>
+<div class="container" id="app"><div class="loading">⏳ 加载中...</div></div>
 <div class="bottom-nav" id="nav"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.js"></script>
 
 <script>
 // ============================================================
-// 经济周期标签系统 - JavaScript移植版
-// 源自: economic_cycle_label_dictionary.py v1.0
+// M13 集成版 - 共享工具库
 // ============================================================
+const GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const WUXING = ['金','木','水','火','土'];
+const SHENGXIAO = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
 
-const CYCLES = {
-    A: {start: 1927, intervals: [18, 20, 16]},
-    B: {start: 1926, intervals: [9, 10, 8]},
-    C: {start: 1924, intervals: [7, 11, 9]},
-};
-
-const PHASE_PRIORITY = {C: 0, B: 1, A: 2};
-const PHASE_CN = {A: 'A恐慌', B: 'B繁荣', C: 'C艰难'};
-const SEGMENT_TYPES = {
-    'C,B': 'C→B', 'B,A': 'B→A', 'A,C': 'A→C', 'B,C': 'B→C',
-};
-const WINDOW_TYPES = {'C→B':'买入','B→A':'卖出','A→C':'持币','B→C':'观望'};
-const ACTION_MAP = {
-    'C→B,早期':'建仓','C→B,中期':'加仓','C→B,晚期':'持有',
-    'B→A,早期':'持有','B→A,中期':'减仓','B→A,晚期':'清仓',
-    'A→C,早期':'空仓','A→C,中期':'观望','A→C,晚期':'准备',
-    'B→C,早期':'持有','B→C,中期':'观望','B→C,晚期':'准备建仓',
-};
-const TYPE_TO_JSON_KEY = {'C→B':'C_to_B','B→A':'B_to_A','A→C':'A_to_C','B→C':'B_to_C'};
-
-// 历史事件数据
-const HISTORY = {
-    C_to_B: [
-        {start:2023,end:2026,event:"AI爆发/ChatGPT革命"},
-        {start:2012,end:2016,event:"移动互联网爆发"},
-        {start:2005,end:2007,event:"Web2.0社交网络"},
-        {start:1996,end:1999,event:"互联网普及"},
-        {start:1985,end:1989,event:"个人电脑普及"},
-        {start:1978,end:1980,event:"改革开放"},
-        {start:1969,end:1972,event:"经济复苏"},
-        {start:1958,end:1962,event:"大跃进调整"},
-        {start:1951,end:1953,event:"战后重建"},
-        {start:1942,end:1945,event:"二战末期"},
-        {start:1931,end:1935,event:"大萧条恢复"},
-        {start:1924,end:1926,event:"一战后繁荣"},
-    ],
-    B_to_A: [
-        {start:2016,end:2019,event:"贸易战/科技脱钩"},
-        {start:2007,end:2019,event:"次贷危机到长期泡沫"},
-        {start:1999,end:2007,event:"互联网泡沫到房地产泡沫"},
-        {start:1989,end:1999,event:"苏联解体后繁荣到亚洲金融危机"},
-        {start:1980,end:1981,event:"短暂繁荣到衰退"},
-        {start:1972,end:1981,event:"滞胀时期"},
-        {start:1962,end:1965,event:"越战升级"},
-        {start:1953,end:1965,event:"战后繁荣顶点"},
-        {start:1945,end:1945,event:"二战胜利到冷战开始"},
-        {start:1935,end:1945,event:"大萧条恢复到二战"},
-        {start:1926,end:1927,event:"咆哮二十年代顶点到萧条"},
-    ],
-    A_to_C: [
-        {start:2019,end:2023,event:"疫情/供应链危机"},
-        {start:1999,end:2005,event:"互联网泡沫破裂"},
-        {start:1981,end:1985,event:"沃尔克衰退"},
-        {start:1965,end:1969,event:"社会动荡"},
-        {start:1945,end:1951,event:"战后调整/冷战开始"},
-        {start:1927,end:1931,event:"大萧条"},
-    ],
-    B_to_C: [
-        {start:2007,end:2012,event:"金融危机到欧债危机"},
-        {start:1989,end:1996,event:"苏联解体到亚洲金融危机"},
-        {start:1972,end:1978,event:"滞胀"},
-        {start:1953,end:1958,event:"朝鲜战争后调整"},
-        {start:1935,end:1942,event:"二战前"},
-    ],
-};
-
-function generateCycleYears(phase, minYear=1800, maxYear=2200) {
-    const cfg = CYCLES[phase];
-    const start = cfg.start;
-    const intervals = cfg.intervals;
-    const n = intervals.length;
-    const years = [];
-    
-    let year = start, idx = 0;
-    while (year <= maxYear) {
-        years.push(year);
-        year += intervals[idx % n];
-        idx++;
+function getGanzhi(year, month, day, hour, minute) {
+    if (typeof Lunar !== 'undefined') {
+        const solar = Solar.fromYmdHms(year, month, day, hour || 12, minute || 0, 0);
+        const lunar = solar.getLunar();
+        return {
+            yearGz: lunar.getYearInGanZhiExact(),
+            monthGz: lunar.getMonthInGanZhiExact(),
+            dayGz: lunar.getDayInGanZhiExact(),
+            hourGz: lunar.getTimeInGanZhi(),
+            lunar: lunar.toString(),
+            lunarMonth: lunar.getMonth(),
+            lunarDay: lunar.getDay(),
+            lunarYear: lunar.getYearInChinese(),
+            animal: lunar.getYearShengXiao(),
+            solarTerm: solar.getLunar().getJieQi() || ''
+        };
     }
-    
-    const revIntervals = [...intervals].reverse();
-    year = start; idx = 0;
-    while (year > minYear) {
-        year -= revIntervals[idx % n];
-        if (year >= minYear) years.push(year);
-        idx++;
-    }
-    
-    return [...new Set(years)].sort((a,b) => a - b);
-}
-
-let _allPoints = null;
-function getAllTurningPoints() {
-    if (_allPoints) return _allPoints;
-    const points = [];
-    for (const phase of ['A','B','C']) {
-        for (const y of generateCycleYears(phase)) {
-            points.push([y, phase]);
-        }
-    }
-    points.sort((a,b) => a[0] === b[0] ? PHASE_PRIORITY[a[1]] - PHASE_PRIORITY[b[1]] : a[0] - b[0]);
-    _allPoints = points;
-    return points;
-}
-
-function findCurrentSegment(year) {
-    const points = getAllTurningPoints();
-    let pastIdx = -1;
-    for (let i = 0; i < points.length; i++) {
-        if (points[i][0] <= year) pastIdx = i;
-        else break;
-    }
-    if (pastIdx === -1 || pastIdx + 1 >= points.length) return null;
-    
-    const [startYear, startPhase] = points[pastIdx];
-    const [endYear, endPhase] = points[pastIdx + 1];
-    const segType = SEGMENT_TYPES[`${startPhase},${endPhase}`];
-    if (!segType) return null;
-    
-    let nextSegType = null;
-    if (pastIdx + 2 < points.length) {
-        const nextEndPhase = points[pastIdx + 2][1];
-        nextSegType = SEGMENT_TYPES[`${endPhase},${nextEndPhase}`] || null;
-    }
-    
-    return {segment_type:segType, start_year:startYear, start_phase:startPhase,
-            end_year:endYear, end_phase:endPhase, total_years:endYear-startYear,
-            next_segment_type:nextSegType};
-}
-
-function findNearestPhase(year, phase) {
-    const years = generateCycleYears(phase);
-    let best = years[0], bestDist = Math.abs(years[0] - year);
-    for (const y of years) {
-        const d = Math.abs(y - year);
-        if (d < bestDist) { best = y; bestDist = d; }
-    }
-    return [best, bestDist];
-}
-
-function findPastSameSegments(segType, currentStart) {
-    const points = getAllTurningPoints();
-    const segs = [];
-    for (let i = 0; i < points.length - 1; i++) {
-        const [sy, sp] = points[i];
-        const [ey, ep] = points[i+1];
-        const st = SEGMENT_TYPES[`${sp},${ep}`];
-        if (st === segType && ey < currentStart) {
-            segs.push({start:sy, end:ey, length:ey-sy});
-        }
-    }
-    segs.sort((a,b) => b.end - a.end);
-    return segs;
-}
-
-function findEventInHistory(jsonKey, startYear, endYear) {
-    const entries = HISTORY[jsonKey] || [];
-    for (const e of entries) {
-        if (e.start === startYear && e.end === endYear) return e.event;
-    }
-    return '待记录';
-}
-
-function generateLabelsFromTimestamp(year, month, day, hour=12, minute=0) {
-    const seg = findCurrentSegment(year);
-    if (!seg) return {layers:{L1_周期定位:{错误:'无法定位当前段'}}, meta:{system_name:'economic_cycle',error:true}};
-    
-    const segType = seg.segment_type;
-    const startYear = seg.start_year;
-    const endYear = seg.end_year;
-    const totalYears = seg.total_years;
-    const elapsed = year - startYear;
-    const remaining = endYear - year;
-    const progress = totalYears > 0 ? Math.round(elapsed / totalYears * 1000) / 10 : 100.0;
-    
-    const [naYear, naDist] = findNearestPhase(year, 'A');
-    const [nbYear, nbDist] = findNearestPhase(year, 'B');
-    const [ncYear, ncDist] = findNearestPhase(year, 'C');
-    
-    const L1 = {
-        "当前段类型": segType,
-        "段起始年份": String(startYear),
-        "段起始阶段": PHASE_CN[seg.start_phase],
-        "段结束年份": String(endYear),
-        "段结束阶段": PHASE_CN[seg.end_phase],
-        "段总长度": String(totalYears),
-        "段已走年数": String(elapsed),
-        "段剩余年数": String(remaining),
-        "段进度": `${progress}%`,
-        "最近A恐慌": `${naYear}年(距${naDist}年)`,
-        "最近B繁荣": `${nbYear}年(距${nbDist}年)`,
-        "最近C艰难": `${ncYear}年(距${ncDist}年)`,
-    };
-    
-    let stage, risk;
-    if (progress <= 33.3) { stage = '早期'; risk = '低'; }
-    else if (progress <= 66.6) { stage = '中期'; risk = '中'; }
-    else { stage = '晚期'; risk = '高'; }
-    
-    const windowType = WINDOW_TYPES[segType];
-    const action = ACTION_MAP[`${segType},${stage}`] || '观望';
-    let nextWindowStr = '未知';
-    if (seg.next_segment_type) {
-        const nw = WINDOW_TYPES[seg.next_segment_type] || '未知';
-        nextWindowStr = `${nw}(${endYear}年起)`;
-    }
-    
-    const L5 = {
-        "窗口类型": windowType,
-        "窗口阶段": stage,
-        "操作建议": action,
-        "风险等级": risk,
-        "距窗口关闭": `${remaining}年`,
-        "下一窗口": nextWindowStr,
-    };
-    
-    const jsonKey = TYPE_TO_JSON_KEY[segType];
-    const pastSegs = findPastSameSegments(segType, startYear);
-    
-    let lastSegStr = '待记录', lastLastSegStr = '待记录';
-    if (pastSegs.length >= 1) {
-        const ps = pastSegs[0];
-        lastSegStr = `${ps.start}-${ps.end}年: ${findEventInHistory(jsonKey, ps.start, ps.end)}`;
-    }
-    if (pastSegs.length >= 2) {
-        const ps = pastSegs[1];
-        lastLastSegStr = `${ps.start}-${ps.end}年: ${findEventInHistory(jsonKey, ps.start, ps.end)}`;
-    }
-    
-    let avgStr = '待记录', vsAvg = '待记录';
-    if (pastSegs.length > 0) {
-        const avgLen = pastSegs.reduce((s,x) => s + x.length, 0) / pastSegs.length;
-        avgStr = `${avgLen.toFixed(1)}年`;
-        const diff = totalYears - avgLen;
-        if (Math.abs(diff) <= 1) vsAvg = '正常';
-        else if (diff > 1) vsAvg = `偏长(+${diff.toFixed(1)}年)`;
-        else vsAvg = `偏短(${diff.toFixed(1)}年)`;
-    }
-    
-    const L6 = {
-        "上一轮同段": lastSegStr,
-        "上上轮同段": lastLastSegStr,
-        "历史平均长度": avgStr,
-        "当前vs均值": vsAvg,
-    };
-    
-    return {layers:{"L1_周期定位":L1, "L5_投资窗口":L5, "L6_历史对照":L6},
-            meta:{system_name:"economic_cycle", system_name_cn:"经济周期"}};
-}
-
-function generateTags(year, month, day, hour=12, minute=0) {
-    const raw = generateLabelsFromTimestamp(year, month, day, hour, minute);
-    const tags = {};
-    const layers = raw.layers || {};
-    for (const [layerName, layerData] of Object.entries(layers)) {
-        if (typeof layerData === 'object') {
-            for (const [k, v] of Object.entries(layerData)) {
-                if (v !== null && v !== '') tags[`${layerName}.${k}`] = v;
-            }
-        }
-    }
-    const l1 = layers["L1_周期定位"] || {};
-    const l5 = layers["L5_投资窗口"] || {};
-    const parts = [];
-    if (l1["当前段类型"]) parts.push(l1["当前段类型"]);
-    if (l5["窗口类型"]) parts.push(`${l5["窗口类型"]}窗口`);
-    if (l1["段剩余年数"]) parts.push(`剩余${l1["段剩余年数"]}年`);
-    
-    return {
-        system_name: "经济周期",
-        dimension_count: Object.keys(tags).length,
-        tags: tags,
-        summary: parts.length > 0 ? parts.join(" | ") : "无摘要",
-    };
+    return null;
 }
 
 // ============================================================
-// 数据层 (localStorage)
+// 系统注册表
 // ============================================================
+const SYSTEM_LIST = [
+    {id:'economic_cycle', name:'经济周期', icon:'📈', dims:22, file:'systems/economic_cycle.js'},
+    {id:'tarot', name:'塔罗牌阵', icon:'🃏', dims:55, file:'systems/tarot.js'},
+    {id:'jyotish', name:'印度占星', icon:'🪐', dims:55, file:'systems/jyotish.js'},
+    {id:'canmou', name:'参考系统', icon:'📋', dims:114, file:'systems/canmou.js'},
+    {id:'taiyi', name:'太乙神数', icon:'☯', dims:158, file:'systems/taiyi.js'},
+    {id:'bazi', name:'八字四柱', icon:'🌳', dims:260, file:'systems/bazi.js'},
+    {id:'tongsheng', name:'通胜择日', icon:'📅', dims:249, file:'systems/tongsheng.js'},
+    {id:'zhongyi', name:'中医术数', icon:'⚕', dims:22, file:'systems/zhongyi.js'},
+    {id:'qita', name:'其他术数', icon:'🔮', dims:227, file:'systems/qita.js'},
+    {id:'yi_jing', name:'易经卦象', icon:'☰', dims:243, file:'systems/yi_jing.js'},
+    {id:'liuren', name:'大六壬', icon:'🌊', dims:284, file:'systems/liuren.js'},
+    {id:'qimen', name:'奇门遁甲', icon:'🌬', dims:417, file:'systems/qimen.js'},
+    {id:'ziwei', name:'紫微斗数', icon:'⭐', dims:455, file:'systems/ziwei.js'},
+];
 
+window.Systems = {};
+
+// 动态加载系统JS
+let systemsLoaded = 0;
+let systemsTotal = SYSTEM_LIST.length;
+
+function loadSystem(sys) {
+    return new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = sys.file + '?v=' + Date.now();
+        script.onload = () => { systemsLoaded++; resolve(); };
+        script.onerror = () => { systemsLoaded++; resolve(); };
+        document.head.appendChild(script);
+    });
+}
+
+async function loadAllSystems() {
+    await Promise.all(SYSTEM_LIST.map(s => loadSystem(s)));
+    renderHome();
+}
+
+// ============================================================
+// 日记数据管理
+// ============================================================
 function getProfile() {
-    return JSON.parse(localStorage.getItem('diary_profile') || 'null');
+    try { return JSON.parse(localStorage.getItem('m13_profile') || 'null'); } catch(e) { return null; }
 }
-function saveProfile(p) {
-    localStorage.setItem('diary_profile', JSON.stringify(p));
-}
+function saveProfile(p) { localStorage.setItem('m13_profile', JSON.stringify(p)); }
 function getEntries() {
-    return JSON.parse(localStorage.getItem('diary_entries') || '[]');
+    try { return JSON.parse(localStorage.getItem('m13_entries') || '[]'); } catch(e) { return []; }
 }
-function saveEntries(entries) {
-    localStorage.setItem('diary_entries', JSON.stringify(entries));
+function saveEntries(e) { localStorage.setItem('m13_entries', JSON.stringify(e)); }
+
+function generateAllTags(year, month, day, hour, minute) {
+    const profile = getProfile() || {};
+    const options = {
+        gender: profile.gender || 'male',
+        lat: profile.lat || 41.4,
+        lon: profile.lon || 119.6,
+        birth: profile.birth_date || ''
+    };
+    const ganzhi = getGanzhi(year, month, day, hour, minute);
+    if (ganzhi) options.ganzhi = ganzhi;
+
+    const results = {};
+    for (const sys of SYSTEM_LIST) {
+        try {
+            if (typeof window.Systems[sys.id] === 'function') {
+                results[sys.id] = window.Systems[sys.id](year, month, day, hour || 12, minute || 0, options);
+            }
+        } catch(e) {
+            results[sys.id] = { error: e.message, name: sys.name };
+        }
+    }
+    return results;
 }
 
 // ============================================================
 // 页面渲染
 // ============================================================
-
 const app = document.getElementById('app');
-const nav = document.getElementById('nav');
-
-const NAV_ITEMS = [
-    {id:'home', icon:'📔', label:'日记'},
-    {id:'write', icon:'✍️', label:'写日记'},
-    {id:'stats', icon:'📊', label:'统计'},
-    {id:'systems', icon:'🔮', label:'系统'},
-];
 
 function renderNav(active) {
-    nav.innerHTML = NAV_ITEMS.map(item => 
-        `<div class="nav-item ${active===item.id?'active':''}" onclick="navigate('${item.id}')">
-            <span class="nav-icon">${item.icon}</span>${item.label}
-        </div>`
+    const items = [
+        {id:'home', icon:'📖', label:'日记'},
+        {id:'overview', icon:'📊', label:'今日'},
+        {id:'systems', icon:'🔮', label:'系统'},
+        {id:'settings', icon:'⚙', label:'设置'},
+    ];
+    document.getElementById('nav').innerHTML = items.map(i =>
+        `<div class="nav-item ${active===i.id?'active':''}" onclick="navigate('${i.id}')"><span class="nav-icon">${i.icon}</span>${i.label}</div>`
     ).join('');
 }
 
-function navigate(page, param) {
+function navigate(page) {
     if (page === 'home') renderHome();
-    else if (page === 'write') renderWrite();
-    else if (page === 'stats') renderStats();
+    else if (page === 'overview') renderOverview();
     else if (page === 'systems') renderSystems();
-    else if (page === 'entry') renderEntry(param);
-    else if (page === 'search') renderSearch(param);
-    window.scrollTo(0, 0);
+    else if (page === 'settings') renderSettings();
 }
 
-function renderHome(searchQuery) {
-    const entries = getEntries().sort((a,b) => b.timestamp.localeCompare(a.timestamp));
-    const profile = getProfile();
-    let html = '';
-    
-    if (profile) {
-        html += `<div class="profile-card"><div class="profile-name">${profile.name||'匿名'}</div>`;
-        html += `<div class="profile-info">出生: ${profile.birth_date||'?'} ${profile.birth_time||''} · ${profile.birth_city||''}</div></div>`;
+function renderHome() {
+    const entries = getEntries();
+    let html = '<div class="search-box"><input id="searchInput" placeholder="搜索日记..." oninput="filterEntries(this.value)"><button onclick="showNewEntry()">➕</button></div>';
+
+    if (entries.length === 0) {
+        html += '<div class="empty"><div style="font-size:40px;margin-bottom:12px">📖</div><p>还没有日记</p><p style="font-size:13px;margin-top:8px">点击 ➕ 创建第一篇</p></div>';
     } else {
-        html += `<div class="card" style="text-align:center"><div class="section-title" style="margin-top:0">📋 初始化</div>`;
-        html += `<p style="font-size:13px;color:#8a7aa0;margin-bottom:12px">先录入出生信息（后续系统需要）</p>`;
-        html += `<input id="p_name" placeholder="姓名/昵称" style="width:100%;background:#0f0c1a;border:1px solid #2d2348;border-radius:8px;padding:10px;color:#e8e0f0;margin-bottom:8px">`;
-        html += `<input id="p_date" type="date" style="width:100%;background:#0f0c1a;border:1px solid #2d2348;border-radius:8px;padding:10px;color:#e8e0f0;margin-bottom:8px">`;
-        html += `<input id="p_time" type="time" style="width:100%;background:#0f0c1a;border:1px solid #2d2348;border-radius:8px;padding:10px;color:#e8e0f0;margin-bottom:8px">`;
-        html += `<input id="p_city" placeholder="出生城市" style="width:100%;background:#0f0c1a;border:1px solid #2d2348;border-radius:8px;padding:10px;color:#e8e0f0;margin-bottom:12px">`;
-        html += `<button class="btn btn-primary" onclick="initProfile()">保存信息</button></div>`;
-    }
-    
-    // 搜索框
-    html += `<div class="search-box"><input id="search_input" placeholder="搜索日记..." onkeydown="if(event.key==='Enter')navigate('search',document.getElementById('search_input').value)"><button onclick="navigate('search',document.getElementById('search_input').value)">搜索</button></div>`;
-    
-    if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        const results = entries.filter(e => {
-            const text = (e.title + ' ' + e.content).toLowerCase();
-            let tagText = '';
-            for (const st of Object.values(e.tags||{})) {
-                tagText += (st.summary||'') + ' ';
-                for (const v of Object.values(st.dimensions||{})) tagText += String(v) + ' ';
-            }
-            return text.includes(q) || tagText.toLowerCase().includes(q);
-        });
-        if (results.length > 0) {
-            html += `<div class="section-title">找到 ${results.length} 篇包含「${searchQuery}」的日记</div>`;
-            for (const e of results) html += entryCard(e);
-        } else {
-            html += `<div class="empty"><p>没有找到包含「${searchQuery}」的日记</p></div>`;
+        const sorted = entries.sort((a,b) => (b.timestamp||'').localeCompare(a.timestamp||''));
+        for (const e of sorted) {
+            const sysCount = Object.keys(e.tags || {}).filter(k => !e.tags[k].error).length;
+            const preview = (e.note || '').substring(0, 50);
+            html += `<div class="card" onclick="showEntry('${e.id}')">
+                <div class="entry-title">${e.timestamp || '?'}</div>
+                <div class="entry-time">${e.lunar || ''} · ${sysCount}系统已生成</div>
+                ${preview ? `<div style="font-size:13px;color:#b8a0d8;margin-top:4px">${preview}</div>` : ''}
+            </div>`;
         }
-    } else if (entries.length === 0) {
-        html += `<div class="empty"><div style="font-size:40px;margin-bottom:12px">📜</div><p>还没有日记</p><p style="margin-top:8px;font-size:13px">点击下方「写日记」开始记录</p></div>`;
-    } else {
-        html += `<div class="section-title">共 ${entries.length} 篇日记</div>`;
-        for (const e of entries) html += entryCard(e);
     }
-    
     app.innerHTML = html;
     renderNav('home');
 }
 
-function entryCard(e) {
-    let tagHtml = '';
-    for (const st of Object.values(e.tags||{})) {
-        if (st.summary) tagHtml += `<span class="tag-badge">${st.summary}</span>`;
-    }
-    return `<div class="card" onclick="navigate('entry','${e.id}')"><div class="entry-title">${e.title||'无标题'}</div><div class="entry-time">${e.timestamp||'?'}</div><div>${tagHtml}</div></div>`;
-}
-
-function initProfile() {
-    const name = document.getElementById('p_name').value.trim() || '匿名';
-    const date = document.getElementById('p_date').value;
-    const time = document.getElementById('p_time').value;
-    const city = document.getElementById('p_city').value.trim();
-    if (!date) { alert('请填写出生日期'); return; }
-    saveProfile({name, birth_date:date, birth_time:time||null, birth_city:city||null, created_at:new Date().toISOString()});
-    renderHome();
-}
-
-function renderWrite() {
+function showNewEntry() {
     const now = new Date();
-    const pad = n => String(n).padStart(2,'0');
-    const nowStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    
-    app.innerHTML = `<form onsubmit="submitDiary(event)">
-        <div class="form-group"><label>标题</label><input id="d_title" placeholder="今天发生了什么..." autofocus></div>
-        <div class="form-group"><label>内容</label><textarea id="d_content" placeholder="写下你的想法、经历、感受..."></textarea></div>
-        <div class="form-group"><label>事件时间</label><input id="d_time" value="${nowStr}" placeholder="YYYY-MM-DD HH:MM"></div>
-        <button type="submit" class="btn btn-primary">保存日记</button>
-    </form>`;
-    renderNav('write');
+    const ymd = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    let html = `<div class="card">
+        <div class="section-title" style="margin-top:0">📝 新日记</div>
+        <div class="form-group"><label>日期</label><input type="date" id="entryDate" value="${ymd}"></div>
+        <div class="form-row">
+            <div class="form-group"><label>时</label><select id="entryHour">
+                ${Array.from({length:24},(_,i)=>`<option value="${i}" ${i===now.getHours()?'selected':''}>${i}时</option>`).join('')}
+            </select></div>
+            <div class="form-group"><label>分</label><select id="entryMinute">
+                ${[0,15,30,45].map(m=>`<option value="${m}" ${m===0?'selected':''}>${m}分</option>`).join('')}
+            </select></div>
+        </div>
+        <div class="form-group"><label>心情/笔记</label><textarea id="entryNote" placeholder="今天的心情或想记录的事..."></textarea></div>
+        <button class="btn btn-primary" onclick="createEntry()">生成十三术数标签</button>
+        <button class="btn btn-secondary" onclick="renderHome()">取消</button>
+    </div>`;
+    app.innerHTML = html;
+    renderNav('home');
 }
 
-function submitDiary(e) {
-    e.preventDefault();
-    const title = document.getElementById('d_title').value.trim();
-    const content = document.getElementById('d_content').value.trim();
-    let timeStr = document.getElementById('d_time').value.trim();
-    if (!title) { alert('标题不能为空'); return; }
-    if (!timeStr) timeStr = new Date().toISOString().slice(0,16).replace('T',' ');
-    
-    let eventTime;
-    try { eventTime = new Date(timeStr); }
-    catch(e) { eventTime = new Date(); }
-    if (isNaN(eventTime)) eventTime = new Date();
-    
-    const tags = generateTags(eventTime.getFullYear(), eventTime.getMonth()+1, eventTime.getDate(), eventTime.getHours(), eventTime.getMinutes());
-    
-    const profile = getProfile();
-    const pad = n => String(n).padStart(2,'0');
-    const entryId = `${eventTime.getFullYear()}${pad(eventTime.getMonth()+1)}${pad(eventTime.getDate())}-${pad(eventTime.getHours())}${pad(eventTime.getMinutes())}${pad(eventTime.getSeconds())}`;
-    const tsStr = `${eventTime.getFullYear()}-${pad(eventTime.getMonth()+1)}-${pad(eventTime.getDate())} ${pad(eventTime.getHours())}:${pad(eventTime.getMinutes())}:${pad(eventTime.getSeconds())}`;
-    
+function createEntry() {
+    const date = document.getElementById('entryDate').value;
+    const hour = parseInt(document.getElementById('entryHour').value);
+    const minute = parseInt(document.getElementById('entryMinute').value);
+    const note = document.getElementById('entryNote').value;
+    if (!date) return alert('请选择日期');
+    const [y, m, d] = date.split('-').map(Number);
+    const tags = generateAllTags(y, m, d, hour, minute);
+    const ganzhi = getGanzhi(y, m, d, hour, minute);
     const entry = {
-        id: entryId,
-        timestamp: tsStr,
-        title: title,
-        content: content,
-        owner: profile ? profile.name : '匿名',
-        tags: { economic_cycle: { system_name: tags.system_name, dimension_count: tags.dimension_count, summary: tags.summary, dimensions: tags.tags } },
-        created_at: new Date().toISOString(),
+        id: 'e' + Date.now(),
+        timestamp: `${date} ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`,
+        lunar: ganzhi ? ganzhi.lunar : '',
+        ganzhi: ganzhi,
+        note: note,
+        tags: tags
     };
-    
     const entries = getEntries();
     entries.push(entry);
     saveEntries(entries);
-    
-    // 显示成功
-    app.innerHTML = `<div class="card" style="text-align:center">
-        <div style="font-size:40px;margin-bottom:12px">✅</div>
-        <div class="entry-title">日记已保存</div>
-        <div class="entry-time">${tsStr}</div>
-        <div style="margin:12px 0"><span class="tag-badge highlight">${tags.summary}</span></div>
-        <div style="font-size:13px;color:#8a7aa0;margin-bottom:16px">自动生成 ${tags.dimension_count} 维术数标签</div>
-        <div class="btn btn-primary" onclick="navigate('entry','${entryId}')">查看详情</div>
-        <div class="btn btn-secondary" onclick="navigate('write')">再写一篇</div>
-    </div>`;
-    renderNav('write');
+    showEntry(entry.id);
 }
 
-function renderEntry(entryId) {
-    const entries = getEntries();
-    const e = entries.find(x => x.id === entryId);
-    if (!e) { app.innerHTML = '<div class="card"><p>找不到这篇日记</p></div>'; renderNav('home'); return; }
-    
-    let html = `<div class="card"><div class="entry-title" style="font-size:18px">${e.title||'无标题'}</div><div class="entry-time">${e.timestamp||'?'} · ${e.owner||'匿名'}</div></div>`;
-    html += `<div class="detail-content">${e.content||'(无内容)'}</div>`;
-    
-    for (const [sid, st] of Object.entries(e.tags||{})) {
-        html += `<div class="card"><div class="section-title" style="margin-top:0">🔮 ${st.system_name||sid} · ${st.dimension_count||0}维</div>`;
-        if (st.summary) html += `<div style="margin:8px 0"><span class="tag-badge highlight">${st.summary}</span></div>`;
-        html += '<div class="tag-section">';
-        for (const [k, v] of Object.entries(st.dimensions||{})) {
-            html += `<div class="tag-dim"><span class="key">${k}</span><span class="val">${v}</span></div>`;
+function showEntry(entryId) {
+    const entry = getEntries().find(e => e.id === entryId);
+    if (!entry) { renderHome(); return; }
+
+    let html = `<div class="card">
+        <div class="entry-title">${entry.timestamp}</div>
+        <div class="entry-time">${entry.lunar || ''}</div>
+        ${entry.note ? `<div class="detail-content">${entry.note}</div>` : ''}
+    </div>`;
+
+    for (const sys of SYSTEM_LIST) {
+        const tag = entry.tags?.[sys.id];
+        if (!tag || tag.error) {
+            html += `<div class="card"><div class="collapsible" onclick="toggleCol(this)"><span>${sys.icon} ${sys.name}</span><span class="arrow">▼</span></div><div class="collapsible-content">${tag?.error ? '<span style="color:#e88">生成失败: '+tag.error+'</span>' : '<span style="color:#6a5b8a">未生成</span>'}</div></div>`;
+            continue;
         }
-        html += '</div></div>';
+        const dims = tag.dimensions || tag;
+        const keys = Object.keys(dims).filter(k => k !== 'error' && k !== 'name' && k !== 'summary');
+        let dimHtml = '';
+        for (const k of keys) {
+            const v = dims[k];
+            if (v == null || v === '') continue;
+            const vStr = typeof v === 'object' ? JSON.stringify(v) : String(v);
+            dimHtml += `<div class="tag-dim"><span class="key">${k}</span><span class="val">${vStr}</span></div>`;
+        }
+        html += `<div class="card">
+            <div class="collapsible" onclick="toggleCol(this)"><span>${sys.icon} ${sys.name} <span style="color:#7a6b9a;font-size:11px">(${keys.length}维)</span></span><span class="arrow">▼</span></div>
+            <div class="collapsible-content">${dimHtml || '<span style="color:#6a5b8a">无标签数据</span>'}</div>
+        </div>`;
     }
-    
-    html += `<div class="btn btn-secondary" onclick="navigate('home')">返回列表</div>`;
-    html += `<div class="btn btn-secondary" style="background:#3a1a1a;color:#e88" onclick="deleteEntry('${entryId}')">删除这篇日记</div>`;
-    
+
+    html += `<button class="btn btn-secondary" style="background:#3a1a1a;color:#e88" onclick="deleteEntry('${entry.id}')">删除这篇日记</button>`;
     app.innerHTML = html;
     renderNav('home');
 }
 
-function deleteEntry(entryId) {
-    if (!confirm('确定删除这篇日记？')) return;
-    let entries = getEntries().filter(x => x.id !== entryId);
-    saveEntries(entries);
-    navigate('home');
+function toggleCol(el) {
+    el.classList.toggle('open');
+    el.nextElementSibling.classList.toggle('show');
 }
 
-function renderStats() {
+function deleteEntry(entryId) {
+    if (!confirm('确定删除？')) return;
+    saveEntries(getEntries().filter(e => e.id !== entryId));
+    renderHome();
+}
+
+function filterEntries(q) {
+    const cards = app.querySelectorAll('.card');
     const entries = getEntries();
-    if (entries.length === 0) {
-        app.innerHTML = '<div class="empty"><div style="font-size:40px;margin-bottom:12px">📊</div><p>还没有日记数据</p></div>';
-        renderNav('stats'); return;
+    cards.forEach((card, i) => {
+        if (i === 0) return;
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(q.toLowerCase()) ? '' : 'none';
+    });
+}
+
+function renderOverview() {
+    const now = new Date();
+    const tags = generateAllTags(now.getFullYear(), now.getMonth()+1, now.getDate(), now.getHours(), 0);
+    const ganzhi = getGanzhi(now.getFullYear(), now.getMonth()+1, now.getDate(), now.getHours(), 0);
+
+    let html = `<div class="card"><div class="section-title" style="margin-top:0">📅 今日总览</div>`;
+    html += `<div class="tag-dim"><span class="key">公历</span><span class="val">${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${now.getHours()}时</span></div>`;
+    if (ganzhi) {
+        html += `<div class="tag-dim"><span class="key">农历</span><span class="val">${ganzhi.lunar}</span></div>`;
+        html += `<div class="tag-dim"><span class="key">年柱</span><span class="val">${ganzhi.yearGz}</span></div>`;
+        html += `<div class="tag-dim"><span class="key">月柱</span><span class="val">${ganzhi.monthGz}</span></div>`;
+        html += `<div class="tag-dim"><span class="key">日柱</span><span class="val">${ganzhi.dayGz}</span></div>`;
+        html += `<div class="tag-dim"><span class="key">时柱</span><span class="val">${ganzhi.hourGz}</span></div>`;
+        html += `<div class="tag-dim"><span class="key">生肖</span><span class="val">${ganzhi.animal}</span></div>`;
     }
-    
-    const tagCounter = {};
-    for (const e of entries) {
-        const st = (e.tags||{}).economic_cycle;
-        if (st) for (const [k,v] of Object.entries(st.dimensions||{})) {
-            const key = `${k}: ${v}`;
-            tagCounter[key] = (tagCounter[key]||0) + 1;
+    html += '</div>';
+
+    let okCount = 0, errCount = 0;
+    for (const sys of SYSTEM_LIST) {
+        const tag = tags[sys.id];
+        if (tag && !tag.error) {
+            okCount++;
+            const dims = tag.dimensions || tag;
+            const keys = Object.keys(dims).filter(k => k !== 'error' && k !== 'name' && k !== 'summary');
+            let dimHtml = '';
+            for (const k of keys.slice(0, 8)) {
+                const v = dims[k];
+                if (v == null || v === '') continue;
+                dimHtml += `<div class="tag-dim"><span class="key">${k}</span><span class="val">${typeof v === 'object' ? JSON.stringify(v).substring(0,60) : String(v).substring(0,60)}</span></div>`;
+            }
+            if (keys.length > 8) dimHtml += `<div style="font-size:11px;color:#7a6b9a;padding:4px 0">...还有${keys.length-8}个维度</div>`;
+            html += `<div class="card"><div class="collapsible" onclick="toggleCol(this)"><span>${sys.icon} ${sys.name} <span style="color:#7a6b9a;font-size:11px">(${keys.length}维)</span></span><span class="arrow">▼</span></div><div class="collapsible-content">${dimHtml}</div></div>`;
+        } else {
+            errCount++;
+            html += `<div class="card"><div style="color:#6a5b8a">${sys.icon} ${sys.name} — ${tag?.error || '加载中...'}</div></div>`;
         }
     }
-    const sortedTags = Object.entries(tagCounter).sort((a,b) => b[1]-a[1]).slice(0,30);
-    const maxCount = sortedTags.length > 0 ? sortedTags[0][1] : 1;
-    
-    const timestamps = entries.map(e => e.timestamp||'').sort();
-    const span = timestamps.length > 0 ? `${timestamps[0]} ~ ${timestamps[timestamps.length-1]}` : '';
-    
-    let html = `<div class="card"><div class="section-title" style="margin-top:0">📈 总览</div>`;
-    html += `<div class="tag-dim"><span class="key">日记总数</span><span class="val">${entries.length}</span></div>`;
-    html += `<div class="tag-dim"><span class="key">时间跨度</span><span class="val">${span}</span></div></div>`;
-    
-    if (sortedTags.length > 0) {
-        html += '<div class="card"><div class="section-title" style="margin-top:0">🏷️ 标签频率 TOP 30</div>';
-        for (const [tag, cnt] of sortedTags) {
-            const w = Math.max(2, Math.round(cnt/maxCount*120));
-            html += `<div class="stats-bar"><span class="count">${cnt}x</span><span class="label">${tag}</span><span class="bar" style="width:${w}px"></span></div>`;
-        }
-        html += '</div>';
-    }
-    
-    const common = sortedTags.filter(([_,c]) => c >= 2);
-    if (common.length > 0) {
-        html += '<div class="card"><div class="section-title" style="margin-top:0">🔍 共性发现</div>';
-        for (const [tag, cnt] of common) {
-            html += `<div style="padding:6px 0;font-size:14px;color:#d4c5f0">「${tag}」出现 <span style="color:#c9a0e8">${cnt}</span> 次</div>`;
-        }
-        html += '</div>';
-    } else {
-        html += '<div class="card"><div class="section-title" style="margin-top:0">🔍 共性发现</div><p style="color:#6a5b8a;font-size:13px">需要更多日记才能发现共性模式</p></div>';
-    }
-    
+    html += `<div class="card" style="text-align:center"><span style="color:${okCount===13?'#6dd58c':'#c9a0e8'}">✅ ${okCount}/13 系统已生成</span>${errCount>0?` · <span style="color:#e88">${errCount} 个待加载</span>`:''}</div>`;
     app.innerHTML = html;
-    renderNav('stats');
+    renderNav('overview');
 }
 
 function renderSystems() {
     const profile = getProfile();
-    const allSystems = [
-        ["经济周期",22,true],["塔罗牌阵",55,false],["印度占星",55,false],["参考系统",111,false],
-        ["太乙神数",152,false],["中医术数时间",158,false],["其他中国术数",178,false],["通胜择日",231,false],
-        ["易经卦象",232,false],["八字四柱",242,false],["大六壬",275,false],["奇门遁甲",372,false],["紫微斗数",449,false],
-    ];
-    
     let html = '';
     if (profile) {
-        html += `<div class="profile-card"><div class="profile-name">${profile.name||'匿名'}</div><div class="profile-info">出生: ${profile.birth_date||'?'} ${profile.birth_time||''} · ${profile.birth_city||''}</div></div>`;
+        html += `<div class="profile-card"><div class="profile-name">${profile.name||'匿名'}</div><div class="profile-info">${profile.birth_date||''} ${profile.birth_time||''} · ${profile.birth_city||''}</div></div>`;
     }
-    
-    const total = allSystems.reduce((s,[,d]) => s+d, 0);
-    const active = allSystems.filter(([, ,a]) => a).reduce((s,[,d]) => s+d, 0);
-    
-    html += `<div class="card"><div class="section-title" style="margin-top:0">📊 总进度</div>`;
-    html += `<div class="tag-dim"><span class="key">已接入</span><span class="val">1 / 13 系统</span></div>`;
-    html += `<div class="tag-dim"><span class="key">标签维度</span><span class="val">${active} / ${total} 维</span></div>`;
-    html += `<div class="progress-bar"><div class="progress-fill" style="width:${(active/total*100).toFixed(1)}%"></div></div></div>`;
-    
-    html += '<div class="section-title">十三术数系统</div>';
-    for (const [name, dims, act] of allSystems) {
-        const st = act ? '<span style="color:#6dd58c">✅ 已接入</span>' : '<span style="color:#6a5b8a">⏳ 待接入</span>';
-        html += `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="entry-title" style="font-size:15px">${act?'🔮':'🔒'} ${name}</div><div class="entry-time">${dims} 维度</div></div><div style="font-size:12px">${st}</div></div></div>`;
+
+    const loaded = SYSTEM_LIST.filter(s => typeof window.Systems[s.id] === 'function').length;
+    const totalDims = SYSTEM_LIST.reduce((s,x)=>s+x.dims,0);
+    const activeDims = SYSTEM_LIST.filter(s => typeof window.Systems[s.id] === 'function').reduce((s,x)=>s+x.dims,0);
+
+    html += `<div class="card"><div class="section-title" style="margin-top:0">📊 集成进度</div>`;
+    html += `<div class="tag-dim"><span class="key">已接入</span><span class="val">${loaded} / 13 系统</span></div>`;
+    html += `<div class="tag-dim"><span class="key">标签维度</span><span class="val">${activeDims} / ${totalDims} 维</span></div>`;
+    html += `<div class="progress-bar"><div class="progress-fill" style="width:${(activeDims/totalDims*100).toFixed(1)}%"></div></div></div>`;
+
+    html += '<div class="section-title">十三术数系统</div><div class="sys-grid">';
+    for (const sys of SYSTEM_LIST) {
+        const isOn = typeof window.Systems[sys.id] === 'function';
+        html += `<div class="sys-card" onclick="showSystemDetail('${sys.id}')">
+            <div class="icon">${sys.icon}</div>
+            <div class="name">${sys.name}</div>
+            <div class="dims">${sys.dims} 维度</div>
+            <div class="status ${isOn?'on':'off'}">${isOn?'✅ 已接入':'⏳ 加载中'}</div>
+        </div>`;
     }
-    
+    html += '</div>';
     app.innerHTML = html;
     renderNav('systems');
 }
 
+function showSystemDetail(sysId) {
+    const sys = SYSTEM_LIST.find(s => s.id === sysId);
+    if (!sys) return;
+    const now = new Date();
+    let html = `<div class="card"><div class="section-title" style="margin-top:0">${sys.icon} ${sys.name}</div>`;
+
+    if (typeof window.Systems[sysId] === 'function') {
+        try {
+            const profile = getProfile() || {};
+            const options = {gender: profile.gender || 'male', lat: 41.4, lon: 119.6};
+            const ganzhi = getGanzhi(now.getFullYear(), now.getMonth()+1, now.getDate(), 12, 0);
+            if (ganzhi) options.ganzhi = ganzhi;
+            const result = window.Systems[sysId](now.getFullYear(), now.getMonth()+1, now.getDate(), 12, 0, options);
+            const dims = result.dimensions || result;
+            const keys = Object.keys(dims).filter(k => k !== 'error' && k !== 'name' && k !== 'summary');
+            html += `<div class="tag-dim"><span class="key">维度数</span><span class="val">${keys.length}</span></div>`;
+            html += `<div class="tag-dim"><span class="key">状态</span><span class="val" style="color:#6dd58c">✅ 运行正常</span></div></div>`;
+            html += `<div class="card"><div class="section-title" style="margin-top:0">今日标签预览</div>`;
+            for (const k of keys) {
+                const v = dims[k];
+                if (v == null || v === '') continue;
+                const vStr = typeof v === 'object' ? JSON.stringify(v) : String(v);
+                html += `<div class="tag-dim"><span class="key">${k}</span><span class="val">${vStr.substring(0,80)}</span></div>`;
+            }
+            html += '</div>';
+        } catch(e) {
+            html += `<div class="tag-dim"><span class="key">状态</span><span class="val" style="color:#e88">❌ ${e.message}</span></div></div>`;
+        }
+    } else {
+        html += `<div class="tag-dim"><span class="key">状态</span><span class="val" style="color:#6a5b8a">⏳ 模块加载中</span></div></div>`;
+    }
+    html += `<button class="btn btn-secondary" onclick="renderSystems()">返回系统列表</button>`;
+    app.innerHTML = html;
+    renderNav('systems');
+}
+
+function renderSettings() {
+    const profile = getProfile() || {};
+    let html = `<div class="card">
+        <div class="section-title" style="margin-top:0">👤 个人信息</div>
+        <div class="form-group"><label>昵称</label><input id="pName" value="${profile.name||''}" placeholder="你的名字"></div>
+        <div class="form-group"><label>出生日期</label><input type="date" id="pDate" value="${profile.birth_date||''}"></div>
+        <div class="form-row">
+            <div class="form-group"><label>出生时</label><select id="pHour">${Array.from({length:24},(_,i)=>`<option value="${i}" ${String(profile.birth_hour)===String(i)?'selected':''}>${i}时</option>`).join('')}</select></div>
+            <div class="form-group"><label>性别</label><select id="pGender"><option value="male" ${profile.gender==='male'?'selected':''}>男</option><option value="female" ${profile.gender==='female'?'selected':''}>女</option></select></div>
+        </div>
+        <div class="form-group"><label>出生城市</label><input id="pCity" value="${profile.birth_city||''}" placeholder="如：辽宁朝阳"></div>
+        <div class="form-row">
+            <div class="form-group"><label>纬度</label><input id="pLat" value="${profile.lat||41.4}" type="number" step="0.1"></div>
+            <div class="form-group"><label>经度</label><input id="pLon" value="${profile.lon||119.6}" type="number" step="0.1"></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveProfileBtn()">保存</button>
+    </div>`;
+
+    const entries = getEntries();
+    html += `<div class="card"><div class="section-title" style="margin-top:0">💾 数据管理</div>`;
+    html += `<div class="tag-dim"><span class="key">日记数量</span><span class="val">${entries.length}</span></div>`;
+    html += `<div class="tag-dim"><span class="key">存储大小</span><span class="val">${(JSON.stringify(entries).length/1024).toFixed(1)} KB</span></div>`;
+    html += `<button class="btn btn-secondary" onclick="exportData()">导出数据</button>`;
+    html += `<button class="btn btn-secondary" onclick="importData()">导入数据</button></div>`;
+
+    html += `<div class="card" style="text-align:center"><div style="font-size:12px;color:#6a5b8a">术数日记 M13 集成版 · 13系统${SYSTEM_LIST.reduce((s,x)=>s+x.dims,0)}维</div></div>`;
+
+    app.innerHTML = html;
+    renderNav('settings');
+}
+
+function saveProfileBtn() {
+    const p = {
+        name: document.getElementById('pName').value,
+        birth_date: document.getElementById('pDate').value,
+        birth_hour: document.getElementById('pHour').value,
+        gender: document.getElementById('pGender').value,
+        birth_city: document.getElementById('pCity').value,
+        lat: parseFloat(document.getElementById('pLat').value) || 41.4,
+        lon: parseFloat(document.getElementById('pLon').value) || 119.6,
+    };
+    saveProfile(p);
+    alert('已保存');
+    renderSettings();
+}
+
+function exportData() {
+    const data = JSON.stringify({profile: getProfile(), entries: getEntries()});
+    const blob = new Blob([data], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `m13_diary_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+}
+
+function importData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            try {
+                const data = JSON.parse(ev.target.result);
+                if (data.profile) saveProfile(data.profile);
+                if (data.entries) saveEntries(data.entries);
+                alert('导入成功');
+                renderSettings();
+            } catch(err) { alert('导入失败：格式错误'); }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
 // 启动
-renderHome();
+loadAllSystems();
 </script>
 </body>
 </html>
