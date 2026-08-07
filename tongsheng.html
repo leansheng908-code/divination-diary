@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>通胜择日 · 术数日记</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a1a14;color:#c8e6c9;font-family:'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh}
+.header{text-align:center;padding:30px 20px;background:linear-gradient(135deg,#0d2818,#1a4a2e)}
+.header h1{color:#58d68d;font-size:28px;margin-bottom:8px}
+.header p{color:#7fb3d5;font-size:14px;color:#52be80}
+.container{max-width:900px;margin:0 auto;padding:20px}
+.input-area{background:#0d2818;border-radius:12px;padding:20px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;border:1px solid #1e8449}
+.input-area label{color:#58d68d;font-size:13px;display:block;margin-bottom:4px}
+.input-area input{background:#0a1a14;border:1px solid #27ae60;color:#c8e6c9;padding:8px 12px;border-radius:6px;font-size:16px;width:80px}
+.input-area input:focus{outline:none;border-color:#58d68d}
+.btn{background:linear-gradient(135deg,#1e8449,#27ae60);color:#fff;border:none;padding:10px 30px;border-radius:8px;font-size:16px;cursor:pointer;transition:all .3s}
+.btn:hover{background:linear-gradient(135deg,#27ae60,#2ecc71)}
+/* Core display area */
+.core-display{background:#0d2818;border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid #1e8449}
+.core-big{display:flex;justify-content:center;align-items:center;gap:30px;margin-bottom:20px;flex-wrap:wrap}
+.big-item{text-align:center;min-width:90px}
+.big-item .big-label{color:#52be80;font-size:12px;margin-bottom:6px}
+.big-item .big-value{font-size:36px;font-weight:bold}
+.big-item .big-sub{font-size:12px;margin-top:4px}
+.ji-color{color:#58d68d}
+.xiong-color{color:#e74c3c}
+.ping-color{color:#f39c12}
+.daji-color{color:#2ecc71}
+.daxiong-color{color:#c0392b}
+.huangdao-color{color:#f1c40f}
+.heidao-color{color:#95a5a6}
+.highlight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:12px}
+.highlight-item{background:#0a1a14;padding:10px 14px;border-radius:8px;border-left:3px solid #27ae60}
+.highlight-item .label{color:#52be80;font-size:11px}
+.highlight-item .value{color:#e8f6f3;font-size:15px;font-weight:bold;margin-top:2px}
+.highlight-item.warning{border-left-color:#e74c3c}
+.highlight-item.warning .value{color:#e74c3c}
+/* Optimization cards */
+.opt-section{margin-bottom:20px}
+.opt-card{background:#0d2818;border:1px solid #1e8449;border-radius:8px;padding:14px 18px;margin-bottom:8px}
+.opt-card .opt-title{color:#58d68d;font-size:14px;font-weight:bold}
+.opt-card .opt-desc{color:#aab7c4;font-size:13px;margin-top:6px;line-height:1.6}
+.opt-card .opt-detail{color:#c8e6c9;font-size:13px;margin-top:4px}
+.opt-card.danger{border-color:#c0392b;background:#2c1410}
+.opt-card.danger .opt-title{color:#e74c3c}
+.opt-card.danger .opt-desc{color:#f5b7b1}
+.verdict-box{background:#0d2818;border-radius:10px;padding:18px;margin-bottom:16px;text-align:center;border:2px solid #27ae60}
+.verdict-box .verdict-level{font-size:28px;font-weight:bold;margin-bottom:6px}
+.verdict-box .verdict-desc{font-size:14px;color:#aab7c4}
+.verdict-box .verdict-factors{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:10px}
+.factor-badge{display:inline-block;padding:3px 12px;border-radius:12px;font-size:12px}
+.factor-da-xiong{background:#3d1410;color:#e74c3c;border:1px solid #c0392b}
+.factor-zhong-xiong{background:#3d2914;color:#f0c040;border:1px solid #e67e22}
+.factor-ji-shen{background:#0d2818;color:#58d68d;border:1px solid #27ae60}
+/* Layer panels */
+.layer{background:#0e2818;border-radius:8px;margin-bottom:8px;overflow:hidden;border:1px solid #1a3a2a}
+.layer-header{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.2s}
+.layer-header:hover{background:rgba(39,174,96,0.08)}
+.layer-header .layer-title{color:#58d68d;font-size:14px;font-weight:bold}
+.layer-header .layer-arrow{color:#52be80;transition:transform 0.3s}
+.layer-header.open .layer-arrow{transform:rotate(90deg)}
+.layer-body{max-height:0;overflow:hidden;transition:max-height 0.3s ease}
+.layer-body.open{max-height:6000px;overflow-y:auto}
+.layer-content{padding:12px 16px}
+.kv{display:flex;flex-wrap:wrap;gap:6px}
+.kv-item{background:#0a1a14;padding:4px 10px;border-radius:4px;font-size:12px}
+.kv-item .k{color:#52be80}.kv-item .v{color:#e8f6f3;margin-left:4px}
+.kv-item.active{background:#0d3818;border:1px solid #27ae60}
+.kv-item.active .v{color:#58d68d}
+.table-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.table-row .row-label{color:#58d68d;font-size:12px;font-weight:bold;min-width:60px}
+.shensha-badge{display:inline-block;background:#0d3818;color:#58d68d;padding:3px 10px;border-radius:12px;font-size:12px;margin:3px}
+.shensha-badge.inactive{background:#1a2a1a;color:#555}
+.shensha-badge.active{background:#1e8449;color:#fff;font-weight:bold}
+.shensha-badge.xiong{background:#3d1410;color:#e74c3c}
+.shensha-badge.xiong.active{background:#c0392b;color:#fff;font-weight:bold}
+.warning-box{background:#3d1410;border:1px solid #c0392b;border-radius:8px;padding:10px 14px;margin:8px 0;color:#e74c3c;font-size:13px;font-weight:bold}
+.footer{text-align:center;padding:20px;color:#1e6b3a;font-size:12px}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>通胜择日排盘</h1>
+<p>系统⑦ · 246维 · v1.1-optimized · 17层结构 + 5项理论驱动优化</p>
+</div>
+<div class="container">
+<div class="input-area">
+<div><label>年份</label><input type="number" id="year" value="2026" min="1900" max="2100"></div>
+<div><label>月份</label><input type="number" id="month" value="8" min="1" max="12"></div>
+<div><label>日期</label><input type="number" id="day" value="7" min="1" max="31"></div>
+<div><label>时辰</label><input type="number" id="hour" value="18" min="0" max="23"></div>
+<button class="btn" onclick="generate()">择日推演</button>
+</div>
+<div id="output"></div>
+</div>
+<div class="footer">通胜择日记忆标签字典 · 246维度 · 17层 · 5项优化 · 术数日记</div>
+<script>
+// ============================================================
+// Part 1: 基础数据表（从Python源码移植）
+// ============================================================
+var DIZHI=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+var TIANGAN=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+
+// --- 建除十二神 ---
+var JIANCHU=["建","除","满","平","定","执","破","危","成","收","开","闭"];
+var JIANCHU_ATTR={
+"建":{"jixiong":"黑道","desc":"万物生育之日","yi":"赴任/上任","ji":"动土/开仓"},
+"除":{"jixiong":"黄道","desc":"除旧布新之日","yi":"治病/清扫/出行","ji":"嫁娶"},
+"满":{"jixiong":"黑道","desc":"丰满圆满之日","yi":"祭祀/祈福","ji":"嫁娶/安葬"},
+"平":{"jixiong":"黑道","desc":"平平无奇之日","yi":"修造/动土","ji":"开渠/掘井"},
+"定":{"jixiong":"黄道","desc":"安定守成之日","yi":"冠笄/立券/交易","ji":"出行/词讼"},
+"执":{"jixiong":"黄道","desc":"执持守固之日","yi":"捕捉/狩猎","ji":"开市/立券"},
+"破":{"jixiong":"大凶","desc":"破坏衰败之日","yi":"破屋/坏垣","ji":"万事不宜"},
+"危":{"jixiong":"黄道","desc":"危险但可成之日","yi":"祭祀/祈福/安床","ji":"登山/乘船"},
+"成":{"jixiong":"大吉","desc":"成就成功之日","yi":"嫁娶/开市/入学/迁居","ji":"词讼"},
+"收":{"jixiong":"黑道","desc":"收敛收藏之日","yi":"纳财/捕捉/开市","ji":"出行/安葬"},
+"开":{"jixiong":"大吉","desc":"开张通达之日","yi":"开业/嫁娶/出行/迁居","ji":"安葬"},
+"闭":{"jixiong":"大凶","desc":"封闭停滞之日","yi":"筑堤/塞穴","ji":"万事不宜"}
+};
+
+// --- 二十八宿 ---
+var ERSHIBA_XIU=[
+{name:"角",xiang:"青龙",fangwei:"东",wuxing:"木",jixiong:"吉",desc:"造作婚嫁添人口",yi:"造作/嫁娶/出行",ji:"葬埋"},
+{name:"亢",xiang:"青龙",fangwei:"东",wuxing:"金",jixiong:"凶",desc:"婚姻不吉有灾殃",yi:"祭祀",ji:"嫁娶/修造"},
+{name:"氐",xiang:"青龙",fangwei:"东",wuxing:"土",jixiong:"凶",desc:"凡事不吉有忧愁",yi:"种植",ji:"嫁娶/出行"},
+{name:"房",xiang:"青龙",fangwei:"东",wuxing:"日",jixiong:"吉",desc:"田园进益人口安",yi:"祈福/嫁娶/造作",ji:"葬埋"},
+{name:"心",xiang:"青龙",fangwei:"东",wuxing:"月",jixiong:"凶",desc:"凶恶之星惹灾殃",yi:"祭祀",ji:"嫁娶/出行"},
+{name:"尾",xiang:"青龙",fangwei:"东",wuxing:"火",jixiong:"吉",desc:"造作百事皆如意",yi:"造作/嫁娶",ji:"葬埋"},
+{name:"箕",xiang:"青龙",fangwei:"东",wuxing:"水",jixiong:"吉",desc:"造作仓廪福寿长",yi:"造仓/掘井",ji:"嫁娶"},
+{name:"斗",xiang:"玄武",fangwei:"北",wuxing:"木",jixiong:"凶",desc:"婚姻祭祀不吉昌",yi:"开渠/穿井",ji:"嫁娶/葬埋"},
+{name:"牛",xiang:"玄武",fangwei:"北",wuxing:"金",jixiong:"凶",desc:"凡事不利有灾殃",yi:"祭祀",ji:"嫁娶/动土"},
+{name:"女",xiang:"玄武",fangwei:"北",wuxing:"土",jixiong:"凶",desc:"凡事不吉有忧愁",yi:"学艺",ji:"嫁娶/造作"},
+{name:"虚",xiang:"玄武",fangwei:"北",wuxing:"日",jixiong:"凶",desc:"葬埋不可用此日",yi:"祭祀",ji:"葬埋/出行"},
+{name:"危",xiang:"玄武",fangwei:"北",wuxing:"月",jixiong:"凶",desc:"凡事不利招灾殃",yi:"祭祀",ji:"登山/乘船"},
+{name:"室",xiang:"玄武",fangwei:"北",wuxing:"火",jixiong:"吉",desc:"造作婚嫁福禄昌",yi:"造作/嫁娶/迁居",ji:"葬埋"},
+{name:"壁",xiang:"玄武",fangwei:"北",wuxing:"水",jixiong:"吉",desc:"造作嫁娶事事昌",yi:"造作/嫁娶/入宅",ji:"葬埋"},
+{name:"奎",xiang:"白虎",fangwei:"西",wuxing:"木",jixiong:"凶",desc:"凡事不吉有忧愁",yi:"学艺",ji:"嫁娶/造作"},
+{name:"娄",xiang:"白虎",fangwei:"西",wuxing:"金",jixiong:"吉",desc:"婚姻祭祀大吉昌",yi:"嫁娶/祭祀/造作",ji:"葬埋"},
+{name:"胃",xiang:"白虎",fangwei:"西",wuxing:"土",jixiong:"吉",desc:"造作嫁娶福禄昌",yi:"造作/嫁娶",ji:"葬埋"},
+{name:"昴",xiang:"白虎",fangwei:"西",wuxing:"日",jixiong:"凶",desc:"凡事不吉有灾殃",yi:"祭祀",ji:"嫁娶/出行"},
+{name:"毕",xiang:"白虎",fangwei:"西",wuxing:"月",jixiong:"吉",desc:"造作婚嫁皆如意",yi:"造作/嫁娶/开市",ji:"葬埋"},
+{name:"觜",xiang:"白虎",fangwei:"西",wuxing:"火",jixiong:"凶",desc:"凡事不吉有忧愁",yi:"祭祀",ji:"嫁娶/动土"},
+{name:"参",xiang:"白虎",fangwei:"西",wuxing:"水",jixiong:"吉",desc:"造作婚嫁福禄昌",yi:"造作/嫁娶",ji:"葬埋"},
+{name:"井",xiang:"朱雀",fangwei:"南",wuxing:"木",jixiong:"吉",desc:"造作婚嫁皆如意",yi:"造作/嫁娶/祭祀",ji:"葬埋"},
+{name:"鬼",xiang:"朱雀",fangwei:"南",wuxing:"金",jixiong:"凶",desc:"葬埋不可用此日",yi:"祭祀",ji:"嫁娶/葬埋"},
+{name:"柳",xiang:"朱雀",fangwei:"南",wuxing:"土",jixiong:"凶",desc:"凡事不吉有忧愁",yi:"种植",ji:"嫁娶/造作"},
+{name:"星",xiang:"朱雀",fangwei:"南",wuxing:"日",jixiong:"凶",desc:"凡事不吉有灾殃",yi:"祭祀",ji:"嫁娶/出行"},
+{name:"张",xiang:"朱雀",fangwei:"南",wuxing:"月",jixiong:"吉",desc:"造作婚嫁福禄昌",yi:"造作/嫁娶/入宅",ji:"葬埋"},
+{name:"翼",xiang:"朱雀",fangwei:"南",wuxing:"火",jixiong:"凶",desc:"凡事不吉有忧愁",yi:"祭祀",ji:"嫁娶/造作"},
+{name:"轸",xiang:"朱雀",fangwei:"南",wuxing:"水",jixiong:"吉",desc:"造作婚嫁事事昌",yi:"造作/嫁娶/出行",ji:"葬埋"}
+];
+
+// --- 十二黄黑道 ---
+var HUANG_HEI_DAO={
+"青龙":{"dao":"黄道","jixiong":"吉","desc":"吉神，宜造作/嫁娶/出行"},
+"明堂":{"dao":"黄道","jixiong":"吉","desc":"吉神，宜造作/嫁娶/上任"},
+"金匮":{"dao":"黄道","jixiong":"吉","desc":"吉神，宜嫁娶/纳财/开市"},
+"天德":{"dao":"黄道","jixiong":"吉","desc":"吉神，宜祈福/祭祀/嫁娶"},
+"玉堂":{"dao":"黄道","jixiong":"吉","desc":"吉神，宜入宅/安床/开市"},
+"司命":{"dao":"黄道","jixiong":"吉","desc":"吉神，宜祭祀/祈福/安葬"},
+"白虎":{"dao":"黑道","jixiong":"凶","desc":"凶神，忌嫁娶/出行"},
+"天刑":{"dao":"黑道","jixiong":"凶","desc":"凶神，忌上任/词讼"},
+"朱雀":{"dao":"黑道","jixiong":"凶","desc":"凶神，忌词讼/出行"},
+"天牢":{"dao":"黑道","jixiong":"凶","desc":"凶神，忌祭祀/上任"},
+"玄武":{"dao":"黑道","jixiong":"凶","desc":"凶神，忌嫁娶/安葬"},
+"勾陈":{"dao":"黑道","jixiong":"凶","desc":"凶神，忌造作/嫁娶"}
+};
+var HUANG_HEI_ORDER=["青龙","明堂","天刑","朱雀","金匮","天德","白虎","玉堂","天牢","玄武","司命","勾陈"];
+
+// --- 六十甲子纳音五行 (30种) ---
+var NAYIN={
+"甲子乙丑":"海中金","丙寅丁卯":"炉中火","戊辰己巳":"大林木",
+"庚午辛未":"路旁土","壬申癸酉":"剑锋金","甲戌乙亥":"山头火",
+"丙子丁丑":"涧下水","戊寅己卯":"城头土","庚辰辛巳":"白蜡金",
+"壬午癸未":"杨柳木","甲申乙酉":"泉中水","丙戌丁亥":"屋上土",
+"戊子己丑":"霹雳火","庚寅辛卯":"松柏木","壬辰癸巳":"长流水",
+"甲午乙未":"沙中金","丙申丁酉":"山下火","戊戌己亥":"平地木",
+"庚子辛丑":"壁上土","壬寅癸卯":"金箔金","甲辰乙巳":"覆灯火",
+"丙午丁未":"天河水","戊申己酉":"大驿土","庚戌辛亥":"钗钏金",
+"壬子癸丑":"桑柘木","甲寅乙卯":"大溪水","丙辰丁巳":"沙中土",
+"戊午己未":"天上火","庚申辛酉":"石榴木","壬戌癸亥":"大海水"
+};
+
+// --- 六冲/六合/三合/六害 ---
+var LIUCHONG={"子":"午","丑":"未","寅":"申","卯":"酉","辰":"戌","巳":"亥"};
+var LIUHE={"子":"丑","寅":"亥","卯":"戌","辰":"酉","巳":"申","午":"未"};
+var LIUHAI={"子":"未","丑":"午","寅":"巳","卯":"辰","申":"亥","酉":"戌"};
+var SANHE={"申子辰":"水局","亥卯未":"木局","寅午戌":"火局","巳酉丑":"金局"};
+var SANSHA={"申子辰":"巳午未","亥卯未":"申酉戌","寅午戌":"亥子丑","巳酉丑":"寅卯辰"};
+
+// --- 天乙贵人 ---
+var TIANYI_GUIREN={"甲":"丑未","乙":"子申","丙":"亥酉","丁":"亥酉","戊":"丑未",
+"己":"子申","庚":"丑未","辛":"午寅","壬":"卯巳","癸":"卯巳"};
+
+// --- 喜神方位 ---
+var XISHEN_FANGWEI={"甲":"艮(东北)","乙":"乾(西北)","丙":"坤(西南)","丁":"离(正南)",
+"戊":"巽(东南)","己":"艮(东北)","庚":"乾(西北)","辛":"坤(西南)",
+"壬":"离(正南)","癸":"巽(东南)"};
+
+// --- 财神方位 ---
+var CAISHEN_FANGWEI={"甲":"东北","乙":"东北","丙":"正西","丁":"正西",
+"戊":"正北","己":"正北","庚":"正东","辛":"正东",
+"壬":"正南","癸":"正南"};
+
+// --- 六曜 ---
+var LIUYAO=["大安","赤口","先胜","友引","先负","佛灭"];
+var LIUYAO_ATTR={
+"大安":{"jixiong":"大吉","desc":"万事大吉","yi":"婚嫁/开业/搬家/入学","ji":""},
+"赤口":{"jixiong":"凶","desc":"午时吉余凶","yi":"正午行事","ji":"火/刃/开业"},
+"先胜":{"jixiong":"吉","desc":"上午吉下午凶","yi":"上午急事","ji":"下午行事"},
+"友引":{"jixiong":"吉","desc":"早晚吉午凶","yi":"婚嫁","ji":"丧事"},
+"先负":{"jixiong":"平","desc":"上午凶下午吉","yi":"下午行事","ji":"上午急事/争讼"},
+"佛灭":{"jixiong":"大凶","desc":"万事凶","yi":"无","ji":"万事不宜"}
+};
+
+// --- 二十四山 ---
+var ERSHISI_SHAN=[
+{shan:"壬",gua:"坎",wuxing:"水",yuan:"地",desc:"正北偏东"},
+{shan:"子",gua:"坎",wuxing:"水",yuan:"天",desc:"正北"},
+{shan:"癸",gua:"坎",wuxing:"水",yuan:"人",desc:"正北偏西"},
+{shan:"丑",gua:"艮",wuxing:"土",yuan:"天",desc:"东北偏北"},
+{shan:"艮",gua:"艮",wuxing:"土",yuan:"人",desc:"东北"},
+{shan:"寅",gua:"艮",wuxing:"土",yuan:"地",desc:"东北偏东"},
+{shan:"甲",gua:"震",wuxing:"木",yuan:"地",desc:"正东偏北"},
+{shan:"卯",gua:"震",wuxing:"木",yuan:"天",desc:"正东"},
+{shan:"乙",gua:"震",wuxing:"木",yuan:"人",desc:"正东偏南"},
+{shan:"辰",gua:"巽",wuxing:"木",yuan:"天",desc:"东南偏东"},
+{shan:"巽",gua:"巽",wuxing:"木",yuan:"人",desc:"东南"},
+{shan:"巳",gua:"巽",wuxing:"木",yuan:"地",desc:"东南偏南"},
+{shan:"丙",gua:"离",wuxing:"火",yuan:"地",desc:"正南偏东"},
+{shan:"午",gua:"离",wuxing:"火",yuan:"天",desc:"正南"},
+{shan:"丁",gua:"离",wuxing:"火",yuan:"人",desc:"正南偏西"},
+{shan:"未",gua:"坤",wuxing:"土",yuan:"天",desc:"西南偏南"},
+{shan:"坤",gua:"坤",wuxing:"土",yuan:"人",desc:"西南"},
+{shan:"申",gua:"坤",wuxing:"土",yuan:"地",desc:"西南偏西"},
+{shan:"庚",gua:"兑",wuxing:"金",yuan:"地",desc:"正西偏南"},
+{shan:"酉",gua:"兑",wuxing:"金",yuan:"天",desc:"正西"},
+{shan:"辛",gua:"兑",wuxing:"金",yuan:"人",desc:"正西偏北"},
+{shan:"戌",gua:"乾",wuxing:"金",yuan:"天",desc:"西北偏西"},
+{shan:"乾",gua:"乾",wuxing:"金",yuan:"人",desc:"西北"},
+{shan:"亥",gua:"乾",wuxing:"金",yuan:"地",desc:"西北偏北"}
+];
+
+// --- 五行生克 ---
+var WUXING_SHENG={"金":"水","水":"木","木":"火","火":"土","土":"金"};
+var WUXING_KE={"金":"木","木":"土","土":"水","水":"火","火":"金"};
+
+// --- 月建 ---
+var YUEJIAN=["寅","卯","辰","巳","午","未","申","酉","戌","亥","子","丑"];
+
+// --- 四离四绝 ---
+var SLJJ={"四离":["春分","夏至","秋分","冬至"],"四绝":["立春","立夏","立秋","立冬"],"desc":"季节交替大凶之日，逢吉不吉逢凶必凶"};
+
+// --- 优化: 天德/月德/天赦查表 ---
+var TIANDE_TABLE={"寅":"丁","卯":"申","辰":"壬","巳":"辛","午":"亥","未":"甲","申":"癸","酉":"寅","戌":"丙","亥":"乙","子":"巳","丑":"庚"};
+var YUEDE_TABLE={"寅":"丙","卯":"甲","辰":"壬","巳":"庚","午":"丙","未":"甲","申":"壬","酉":"庚","戌":"丙","亥":"甲","子":"壬","丑":"庚"};
+var TIANSHA_DAYS=["戊寅","甲午","戊申","甲子"];
+
+// --- 优化: 节气近似日期 ---
+var JIEQI_DATES=[[2,4],[3,6],[4,5],[5,6],[6,6],[7,7],[8,8],[9,8],[10,8],[11,7],[12,7],[1,6]];
+var MONTH_ZHI_BY_JIEQI=["寅","卯","辰","巳","午","未","申","酉","戌","亥","子","丑"];
+
+// --- 优化: 四离四绝节气近似 ---
+var JIEQI_APPROX={"立春":[2,4],"春分":[3,20],"立夏":[5,5],"夏至":[6,21],"立秋":[8,7],"秋分":[9,22],"立冬":[11,7],"冬至":[12,21]};
+
+// ============================================================
+// Part 2: 计算函数（从Python源码移植）
+// ============================================================
+
+function solarToGanzhi(year,month,day){
+var base=new Date(2024,0,1);
+var target=new Date(year,month-1,day);
+var daysDiff=Math.round((target-base)/86400000);
+var dayIdx=((daysDiff%60)+60)%60;
+var dayGan=TIANGAN[dayIdx%10];
+var dayZhi=DIZHI[dayIdx%12];
+var dayGz=dayGan+dayZhi;
+var feb4=new Date(year,1,4);
+var yearGan,yearZhi;
+if(target<feb4){
+yearGan=TIANGAN[((year-1-2024)%10+10)%10];
+yearZhi=DIZHI[((year-1-2024)%12+12)%12];
+}else{
+yearGan=TIANGAN[((year-2024)%10+10)%10];
+yearZhi=DIZHI[((year-2024)%12+12)%12];
+}
+return{yearGz:yearGan+yearZhi,monthGz:"估算",dayGz:dayGz,dayGan:dayGan,dayZhi:dayZhi,dayIdx:dayIdx};
+}
+
+function calcMonthZhi(year,month,day){
+var targetMd=[month,day];
+for(var i=0;i<12;i++){
+var nextI=(i+1)%12;
+var cur=JIEQI_DATES[i];
+var nxt=JIEQI_DATES[nextI];
+if(cur[0]>nxt[0]||(cur[0]==nxt[0]&&cur[1]>nxt[1])){
+if(compareMd(targetMd,cur)>=0||compareMd(targetMd,nxt)<0){
+return MONTH_ZHI_BY_JIEQI[i];
+}
+}else{
+if(compareMd(targetMd,cur)>=0&&compareMd(targetMd,nxt)<0){
+return MONTH_ZHI_BY_JIEQI[i];
+}
+}
+}
+if(compareMd(targetMd,[1,6])>=0&&compareMd(targetMd,[2,4])<0){return"丑";}
+return"寅";
+}
+
+function compareMd(a,b){
+if(a[0]!=b[0])return a[0]-b[0];
+return a[1]-b[1];
+}
+
+function solarToLunarMd(year,month,day){
+var lunarBase=new Date(1900,0,31);
+var target=new Date(year,month-1,day);
+var daysDiff=Math.round((target-lunarBase)/86400000);
+if(daysDiff<0)return[1,1];
+var lunarMonthAvg=29.53059;
+var totalMonths=Math.floor(daysDiff/lunarMonthAvg);
+var remainingDays=daysDiff-Math.floor(totalMonths*lunarMonthAvg);
+var lunarMonth=(totalMonths%12)+1;
+var lunarDay=remainingDays+1;
+if(lunarDay>30){lunarMonth=(lunarMonth%12)+1;lunarDay-=30;}
+if(lunarDay<1)lunarDay=1;
+return[lunarMonth,lunarDay];
+}
+
+function calcLiuyaoLunar(year,month,day){
+var md=solarToLunarMd(year,month,day);
+var lunarMonth=md[0],lunarDay=md[1];
+var remainder=(lunarMonth+lunarDay)%6;
+var result=LIUYAO[remainder];
+return{liuyao:result,jixiong:LIUYAO_ATTR[result].jixiong,desc:LIUYAO_ATTR[result].desc,lunarMonth:lunarMonth,lunarDay:lunarDay};
+}
+
+function calcXiuPrecise(year,month,day){
+var xiuBase=new Date(2024,0,1);
+var target=new Date(year,month-1,day);
+var daysDiff=Math.round((target-xiuBase)/86400000);
+var xiuIndex=((daysDiff%28)+28)%28;
+var xiu=ERSHIBA_XIU[xiuIndex];
+return{name:xiu.name,xiang:xiu.xiang,fangwei:xiu.fangwei,wuxing:xiu.wuxing,jixiong:xiu.jixiong,desc:xiu.desc,yi:xiu.yi,ji:xiu.ji,xuIndex:xiuIndex+1};
+}
+
+function calcJishen(monthZhi,dayGan,dayZhi){
+var dayGz=dayGan+dayZhi;
+var tiande=TIANDE_TABLE[monthZhi]||"无";
+var yuede=YUEDE_TABLE[monthZhi]||"无";
+var isTiansha=false;
+for(var i=0;i<TIANSHA_DAYS.length;i++){if(TIANSHA_DAYS[i]==dayGz){isTiansha=true;break;}}
+var tianyi=TIANYI_GUIREN[dayGan]||"无";
+var jiCount=0;
+if(tiande==dayGan)jiCount++;
+if(yuede==dayGan)jiCount++;
+if(isTiansha)jiCount++;
+if(tianyi!="无")jiCount++;
+return{tiande:tiande,tiandeLin:tiande==dayGan?"是":"否",yuede:yuede,yuedeLin:yuede==dayGan?"是":"否",tiansha:isTiansha?"是":"否",tianyi:tianyi,jiCount:jiCount};
+}
+
+function checkSiliSijue(year,month,day){
+var target=new Date(year,month-1,day);
+var results=[];
+for(var name in JIEQI_APPROX){
+var jq=JIEQI_APPROX[name];
+var jieqiDate=new Date(year,jq[0]-1,jq[1]);
+var prevDay=new Date(jieqiDate.getTime()-86400000);
+if(target.getTime()==prevDay.getTime()){
+if(name=="春分"||name=="夏至"||name=="秋分"||name=="冬至"){
+results.push("四离日（"+name+"前一日）");
+}else if(name=="立春"||name=="立夏"||name=="立秋"||name=="立冬"){
+results.push("四绝日（"+name+"前一日）");
+}
+}
+}
+return{isHit:results.length>0?"是":"否",detail:results.length>0?results.join("; "):"无"};
+}
+
+function calcComprehensiveYiji(jianchu,huangHei,xiuJixiong,liuyaoJixiong,isSuiPo,isYuePo,siliSijue,jishenCount){
+var level1Xiong=[];
+var level2Xiong=[];
+var level3Ji=[];
+if(isSuiPo)level1Xiong.push("岁破日");
+if(isYuePo)level1Xiong.push("月破日");
+if(siliSijue)level1Xiong.push("四离四绝日");
+if(jianchu=="破"||jianchu=="闭")level1Xiong.push(jianchu+"日(大凶)");
+var heidaoNames=["白虎","天刑","朱雀","天牢","玄武","勾陈"];
+for(var i=0;i<heidaoNames.length;i++){if(huangHei==heidaoNames[i]){level2Xiong.push(huangHei+"(黑道)");break;}}
+if(xiuJixiong=="凶")level2Xiong.push("凶宿值日");
+if(liuyaoJixiong=="大凶"||liuyaoJixiong=="凶")level2Xiong.push(liuyaoJixiong+"六曜");
+var huangdaoNames=["青龙","明堂","金匮","天德","玉堂","司命"];
+for(var i=0;i<huangdaoNames.length;i++){if(huangHei==huangdaoNames[i]){level3Ji.push(huangHei+"(黄道)");break;}}
+if(xiuJixiong=="吉")level3Ji.push("吉宿值日");
+if(liuyaoJixiong=="大吉"||liuyaoJixiong=="吉")level3Ji.push(liuyaoJixiong+"六曜");
+if(jianchu=="成"||jianchu=="开")level3Ji.push(jianchu+"日(大吉)");
+if(jianchu=="除"||jianchu=="危"||jianchu=="定"||jianchu=="执")level3Ji.push(jianchu+"日(黄道)");
+if(jishenCount>0)level3Ji.push("吉神"+jishenCount+"位临日");
+var verdict,verdictDesc;
+if(level1Xiong.length>0){verdict="大凶";verdictDesc="诸事不宜";}
+else if(level2Xiong.length>=2){verdict="凶";verdictDesc="凶煞叠加，重大事项不宜";}
+else if(level2Xiong.length>0){
+if(level3Ji.length>=2){verdict="平";verdictDesc="凶吉参半，吉神可解，常规可行";}
+else{verdict="小凶";verdictDesc="有凶煞无吉解，谨慎行事";}
+}
+else if(level3Ji.length>=3){verdict="大吉";verdictDesc="吉神汇聚，宜办大事";}
+else if(level3Ji.length>0){verdict="吉";verdictDesc="吉神临日，诸事可行";}
+else{verdict="平";verdictDesc="平淡无奇，常规可行";}
+return{verdict:verdict,verdictDesc:verdictDesc,level1Xiong:level1Xiong,level2Xiong:level2Xiong,level3Ji:level3Ji};
+}
+
+function getJianchu(dayZhi,monthZhi){
+var jianPos=DIZHI.indexOf(monthZhi);
+var dayPos=DIZHI.indexOf(dayZhi);
+if(jianPos<0)jianPos=0;
+if(dayPos<0)dayPos=0;
+var offset=((dayPos-jianPos)%12+12)%12;
+return JIANCHU[offset];
+}
+
+function getHuangHeiDao(dayZhi){
+var zhiIdx=DIZHI.indexOf(dayZhi);
+if(zhiIdx<0)zhiIdx=0;
+return HUANG_HEI_ORDER[zhiIdx%12];
+}
+
+function getNayin(dayGan,dayZhi){
+var key=dayGan+dayZhi;
+for(var k in NAYIN){if(k.indexOf(key)>=0)return NAYIN[k];}
+return"未知";
+}
+
+function getRichong(dayZhi){return LIUCHONG[dayZhi]||"未知";}
+function getRiha(dayZhi){return LIUHAI[dayZhi]||"未知";}
+function getSuiPo(yearZhi,dayZhi){var yearChong=LIUCHONG[yearZhi]||"";return dayZhi==yearChong;}
+function getYuePo(monthZhi,dayZhi){var monthChong=LIUCHONG[monthZhi]||"";return dayZhi==monthChong;}
+function getSanShaFangwei(yearZhi){for(var k in SANSHA){if(k.indexOf(yearZhi)>=0)return SANSHA[k];}return"未知";}
+
+// ============================================================
+// Part 3: 辅助渲染函数
+// ============================================================
+
+function toggleLayer(header){
+header.classList.toggle('open');
+header.nextElementSibling.classList.toggle('open');
+}
+
+function gc(k,v,active){
+var cls=active?'kv-item active':'kv-item';
+return'<span class="'+cls+'"><span class="k">'+k+'</span><span class="v">'+v+'</span></span>';
+}
+
+function jixiongColor(jx){
+if(jx=="大吉"||jx=="吉")return'daji-color';
+if(jx=="大凶")return'daxiong-color';
+if(jx=="凶")return'xiong-color';
+if(jx=="黑道")return'heidao-color';
+if(jx=="黄道")return'huangdao-color';
+return'ping-color';
+}
+
+function layerHtml(title,contentFn){
+return'<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><span class="layer-title">'+title+'</span><span class="layer-arrow">▶</span></div><div class="layer-body"><div class="layer-content">'+contentFn()+'</div></div></div>';
+}
+
+// ============================================================
+// Part 4: 主生成函数
+// ============================================================
+
+function generate(){
+var year=parseInt(document.getElementById('year').value)||2026;
+var month=parseInt(document.getElementById('month').value)||8;
+var day=parseInt(document.getElementById('day').value)||7;
+var hour=parseInt(document.getElementById('hour').value)||18;
+
+var gz=solarToGanzhi(year,month,day);
+var yearGz=gz.yearGz,dayGz=gz.dayGz,dayGan=gz.dayGan,dayZhi=gz.dayZhi;
+var yearZhi=yearGz.charAt(yearGz.length-1);
+var monthZhi=calcMonthZhi(year,month,day);
+var monthGanZhi=monthZhi;
+
+var jianchu=getJianchu(dayZhi,monthZhi);
+var huangHei=getHuangHeiDao(dayZhi);
+var nayin=getNayin(dayGan,dayZhi);
+var richong=getRichong(dayZhi);
+var riha=getRiha(dayZhi);
+var isSuiPo=getSuiPo(yearZhi,dayZhi);
+var isYuePo=getYuePo(monthZhi,dayZhi);
+var sanSha=getSanShaFangwei(yearZhi);
+var xishen=XISHEN_FANGWEI[dayGan]||"未知";
+var caishen=CAISHEN_FANGWEI[dayGan]||"未知";
+var tianyi=TIANYI_GUIREN[dayGan]||"未知";
+
+// 优化计算
+var liuyaoResult=calcLiuyaoLunar(year,month,day);
+var xiuResult=calcXiuPrecise(year,month,day);
+var jishenResult=calcJishen(monthZhi,dayGan,dayZhi);
+var siliResult=checkSiliSijue(year,month,day);
+var comprehensive=calcComprehensiveYiji(jianchu,huangHei,xiuResult.jixiong,liuyaoResult.jixiong,isSuiPo,isYuePo,siliResult.isHit=="是",jishenResult.jiCount);
+
+var jianchuAttr=JIANCHU_ATTR[jianchu]||{};
+var huangHeiAttr=HUANG_HEI_DAO[huangHei]||{};
+
+var html='';
+
+// --- 核心展示区 ---
+html+='<div class="core-display">';
+html+='<div class="core-big">';
+html+='<div class="big-item"><div class="big-label">建除值日</div><div class="big-value '+jixiongColor(jianchuAttr.jixiong)+'">'+jianchu+'</div><div class="big-sub">'+(jianchuAttr.jixiong||'')+'</div></div>';
+html+='<div class="big-item"><div class="big-label">黄黑道</div><div class="big-value '+(huangHeiAttr.jixiong=='吉'?'ji-color':'xiong-color')+'">'+huangHei+'</div><div class="big-sub '+(huangHeiAttr.dao=='黄道'?'huangdao-color':'heidao-color')+'">'+(huangHeiAttr.dao||'')+'</div></div>';
+html+='<div class="big-item"><div class="big-label">二十八宿</div><div class="big-value '+(xiuResult.jixiong=='吉'?'ji-color':'xiong-color')+'">'+xiuResult.name+'</div><div class="big-sub">'+xiuResult.xiang+' · 第'+xiuResult.xuIndex+'宿</div></div>';
+html+='<div class="big-item"><div class="big-label">六曜</div><div class="big-value '+jixiongColor(liuyaoResult.jixiong)+'">'+liuyaoResult.liuyao+'</div><div class="big-sub">农历'+liuyaoResult.lunarMonth+'月'+liuyaoResult.lunarDay+'日</div></div>';
+html+='<div class="big-item"><div class="big-label">纳音五行</div><div class="big-value ji-color" style="font-size:24px">'+nayin+'</div><div class="big-sub">'+dayGz+'</div></div>';
+html+='</div>';
+
+html+='<div class="highlight-grid">';
+html+='<div class="highlight-item"><div class="label">日干支</div><div class="value">'+dayGz+'</div></div>';
+html+='<div class="highlight-item"><div class="label">年干支</div><div class="value">'+yearGz+'</div></div>';
+html+='<div class="highlight-item"><div class="label">月支</div><div class="value">'+monthZhi+'</div></div>';
+html+='<div class="highlight-item"><div class="label">日冲</div><div class="value">冲'+richong+'</div></div>';
+if(isSuiPo)html+='<div class="highlight-item warning"><div class="label">岁破</div><div class="value">⚠ 岁破日</div></div>';
+if(isYuePo)html+='<div class="highlight-item warning"><div class="label">月破</div><div class="value">⚠ 月破日</div></div>';
+html+='<div class="highlight-item"><div class="label">喜神方位</div><div class="value">'+xishen+'</div></div>';
+html+='<div class="highlight-item"><div class="label">财神方位</div><div class="value">'+caishen+'</div></div>';
+html+='</div>';
+html+='</div>';
+
+// --- 五项优化卡片 ---
+html+='<div class="opt-section">';
+
+// 综合判定优先显示
+var vColor=comprehensive.verdict=='大吉'?'daji-color':comprehensive.verdict=='大凶'?'daxiong-color':comprehensive.verdict=='凶'?'xiong-color':comprehensive.verdict=='吉'?'ji-color':'ping-color';
+html+='<div class="verdict-box" style="border-color:'+(comprehensive.verdict=='大凶'||comprehensive.verdict=='凶'?'#c0392b':comprehensive.verdict=='大吉'||comprehensive.verdict=='吉'?'#27ae60':'#f39c12')+'">';
+html+='<div class="verdict-level '+vColor+'">'+comprehensive.verdict+'</div>';
+html+='<div class="verdict-desc">'+comprehensive.verdictDesc+'</div>';
+html+='<div class="verdict-factors">';
+if(comprehensive.level1Xiong.length>0){
+for(var i=0;i<comprehensive.level1Xiong.length;i++){html+='<span class="factor-badge factor-da-xiong">⚠ '+comprehensive.level1Xiong[i]+'</span>';}
+}
+if(comprehensive.level2Xiong.length>0){
+for(var i=0;i<comprehensive.level2Xiong.length;i++){html+='<span class="factor-badge factor-zhong-xiong">'+comprehensive.level2Xiong[i]+'</span>';}
+}
+if(comprehensive.level3Ji.length>0){
+for(var i=0;i<comprehensive.level3Ji.length;i++){html+='<span class="factor-badge factor-ji-shen">✦ '+comprehensive.level3Ji[i]+'</span>';}
+}
+html+='</div></div>';
+
+// 优化#1
+html+='<div class="opt-card">';
+html+='<div class="opt-title">优化#1 六曜农历计算</div>';
+html+='<div class="opt-desc">使用农历月日计算六曜（非公历），农历'+liuyaoResult.lunarMonth+'月'+liuyaoResult.lunarDay+'日 → ('+liuyaoResult.lunarMonth+'+'+liuyaoResult.lunarDay+')%6='+((liuyaoResult.lunarMonth+liuyaoResult.lunarDay)%6)+'</div>';
+html+='<div class="opt-detail">六曜：<b>'+liuyaoResult.liuyao+'</b>（'+liuyaoResult.jixiong+'）— '+liuyaoResult.desc+'</div>';
+html+='</div>';
+
+// 优化#2
+html+='<div class="opt-card">';
+html+='<div class="opt-title">优化#2 二十八宿精确值日</div>';
+html+='<div class="opt-desc">基准日2024-01-01=角宿（第1宿），按天数差精确推算</div>';
+html+='<div class="opt-detail">值宿：<b>'+xiuResult.name+'宿</b>（'+xiuResult.xiang+'）第'+xiuResult.xuIndex+'宿 · '+xiuResult.wuxing+' · '+xiuResult.jixiong+' — '+xiuResult.desc+'</div>';
+html+='</div>';
+
+// 优化#3
+html+='<div class="opt-card">';
+html+='<div class="opt-title">优化#3 天德/月德/天赦实际计算</div>';
+html+='<div class="opt-desc">按月支'+monthZhi+'查表，对比日干'+dayGan+'判断是否临日</div>';
+var linHtml='';
+if(jishenResult.tiandeLin=="是")linHtml+='<span class="shensha-badge active">天德临日（'+jishenResult.tiande+'）</span>';
+else linHtml+='<span class="shensha-badge inactive">天德未临（需'+jishenResult.tiande+'日）</span>';
+if(jishenResult.yuedeLin=="是")linHtml+='<span class="shensha-badge active">月德临日（'+jishenResult.yuede+'）</span>';
+else linHtml+='<span class="shensha-badge inactive">月德未临（需'+jishenResult.yuede+'日）</span>';
+if(jishenResult.tiansha=="是")linHtml+='<span class="shensha-badge active">天赦日</span>';
+else linHtml+='<span class="shensha-badge inactive">非天赦日</span>';
+html+='<div class="opt-detail">'+linHtml+'</div>';
+html+='</div>';
+
+// 优化#4
+if(siliResult.isHit=="是"){
+html+='<div class="opt-card danger">';
+html+='<div class="opt-title">⚠ 优化#4 四离四绝检测 — 命中！</div>';
+html+='<div class="opt-desc">'+siliResult.detail+' — '+SLJJ.desc+'</div>';
+html+='</div>';
+}else{
+html+='<div class="opt-card">';
+html+='<div class="opt-title">优化#4 四离四绝检测</div>';
+html+='<div class="opt-desc">检查立春/春分/立夏/夏至/立秋/秋分/立冬/冬至前一日</div>';
+html+='<div class="opt-detail">结果：'+siliResult.isHit+' — '+siliResult.detail+'</div>';
+html+='</div>';
+}
+
+// 优化#5
+html+='<div class="opt-card">';
+html+='<div class="opt-title">优化#5 综合宜忌分层评估</div>';
+html+='<div class="opt-desc">三层评估：大凶（岁破/月破/四离四绝/破闭日）→ 中凶（黑道+凶宿+佛灭赤口）→ 吉神加分（黄道+吉宿+成开日+天德月德）</div>';
+html+='<div class="opt-detail">综合判定：<b class="'+vColor+'">'+comprehensive.verdict+'</b> — '+comprehensive.verdictDesc+'</div>';
+if(comprehensive.level1Xiong.length>0)html+='<div class="opt-detail" style="color:#e74c3c">大凶因素：'+comprehensive.level1Xiong.join('；')+'</div>';
+if(comprehensive.level2Xiong.length>0)html+='<div class="opt-detail" style="color:#f0c040">中凶因素：'+comprehensive.level2Xiong.join('；')+'</div>';
+if(comprehensive.level3Ji.length>0)html+='<div class="opt-detail" style="color:#58d68d">吉神加分：'+comprehensive.level3Ji.join('；')+'</div>';
+html+='</div>';
+
+html+='</div>';
+
+// --- 17层可折叠面板 ---
+html+='<div id="layers">';
+
+// L1 基础排盘
+html+=layerHtml('L1 基础排盘（16维）',function(){
+var s='';
+s+='<div class="kv">';
+s+=gc('年干支',yearGz);s+=gc('月支',monthZhi);s+=gc('日干支',dayGz);
+s+=gc('日干',dayGan);s+=gc('日支',dayZhi);s+=gc('年支',yearZhi);
+s+=gc('建除值日',jianchu,true);s+=gc('二十八宿',xiuResult.name+'宿('+xiuResult.xiang+')',true);
+s+=gc('黄黑道',huangHei,true);s+=gc('纳音五行',nayin,true);
+s+=gc('六曜',liuyaoResult.liuyao,true);s+=gc('日冲','冲'+richong);s+=gc('日害','害'+riha);
+s+=gc('喜神方位',xishen);s+=gc('财神方位',caishen);
+s+='</div>';
+return s;
+});
+
+// L2 建除十二神
+html+=layerHtml('L2 建除十二神（12维）',function(){
+var s='';
+for(var i=0;i<JIANCHU.length;i++){
+var name=JIANCHU[i];
+var attr=JIANCHU_ATTR[name];
+var isActive=name==jianchu;
+s+='<div class="table-row">';
+s+='<span class="row-label '+jixiongColor(attr.jixiong)+'">'+name+'</span>';
+s+=gc('黄黑道',attr.jixiong,isActive);
+s+=gc('描述',attr.desc,isActive);
+s+=gc('宜',attr.yi,isActive);
+s+=gc('忌',attr.ji,isActive);
+if(isActive)s+='<span class="shensha-badge active">今日值日</span>';
+s+='</div>';
+}
+return s;
+});
+
+// L3 二十八宿
+html+=layerHtml('L3 二十八宿（28维）',function(){
+var s='';
+for(var i=0;i<ERSHIBA_XIU.length;i++){
+var xiu=ERSHIBA_XIU[i];
+var isActive=xiu.name==xiuResult.name;
+s+='<div class="table-row">';
+s+='<span class="row-label '+(xiu.jixiong=='吉'?'ji-color':'xiong-color')+'">'+(i+1)+'.'+xiu.name+'</span>';
+s+=gc('四象',xiu.xiang,isActive);s+=gc('方位',xiu.fangwei,isActive);
+s+=gc('五行',xiu.wuxing,isActive);s+=gc('吉凶',xiu.jixiong,isActive);
+s+=gc('描述',xiu.desc,isActive);s+=gc('宜',xiu.yi,isActive);s+=gc('忌',xiu.ji,isActive);
+if(isActive)s+='<span class="shensha-badge active">今日值宿</span>';
+s+='</div>';
+}
+return s;
+});
+
+// L4 黄黑道神
+html+=layerHtml('L4 黄黑道十二神（12维）',function(){
+var s='';
+for(var i=0;i<HUANG_HEI_ORDER.length;i++){
+var name=HUANG_HEI_ORDER[i];
+var attr=HUANG_HEI_DAO[name];
+var isActive=name==huangHei;
+var cls=attr.jixiong=='吉'?'shensha-badge active':'shensha-badge xiong active';
+s+='<div class="table-row">';
+s+='<span class="'+(attr.jixiong=='吉'?'ji-color':'xiong-color')+'" style="min-width:60px;font-weight:bold">'+name+'</span>';
+s+=gc('道',attr.dao,isActive);s+=gc('吉凶',attr.jixiong,isActive);
+s+=gc('描述',attr.desc,isActive);
+if(isActive)s+='<span class="'+cls+'">今日值神</span>';
+s+='</div>';
+}
+return s;
+});
+
+// L5 纳音五行
+html+=layerHtml('L5 六十甲子纳音五行（30维）',function(){
+var s='';
+var idx=0;
+for(var k in NAYIN){
+var v=NAYIN[k];
+var isActive=v==nayin;
+s+='<div class="table-row">';
+s+='<span class="row-label" style="min-width:80px">'+k+'</span>';
+s+=gc('纳音',v,isActive);s+=gc('五行',v.charAt(v.length-1),isActive);
+if(isActive)s+='<span class="shensha-badge active">今日纳音</span>';
+s+='</div>';
+idx++;
+}
+return s;
+});
+
+// L6 六曜系统
+html+=layerHtml('L6 六曜系统（6维）',function(){
+var s='';
+for(var i=0;i<LIUYAO.length;i++){
+var name=LIUYAO[i];
+var attr=LIUYAO_ATTR[name];
+var isActive=name==liuyaoResult.liuyao;
+s+='<div class="table-row">';
+s+='<span class="row-label '+jixiongColor(attr.jixiong)+'">'+name+'</span>';
+s+=gc('吉凶',attr.jixiong,isActive);s+=gc('描述',attr.desc,isActive);
+s+=gc('宜',attr.yi||'—',isActive);
+if(attr.ji)s+=gc('忌',attr.ji,isActive);
+if(isActive)s+='<span class="shensha-badge active">今日六曜</span>';
+s+='</div>';
+}
+return s;
+});
+
+// L7 二十四山
+html+=layerHtml('L7 二十四山（24维）',function(){
+var s='';
+for(var i=0;i<ERSHISI_SHAN.length;i++){
+var shan=ERSHISI_SHAN[i];
+var isActive=shan.shan==dayZhi||shan.shan==dayGan;
+s+='<div class="table-row">';
+s+='<span class="row-label">'+shan.shan+'</span>';
+s+=gc('卦',shan.gua,isActive);s+=gc('五行',shan.wuxing,isActive);
+s+=gc('三元',shan.yuan,isActive);s+=gc('方位',shan.desc,isActive);
+if(isActive)s+='<span class="shensha-badge active">今日相关</span>';
+s+='</div>';
+}
+return s;
+});
+
+// L8 吉神系统
+html+=layerHtml('L8 吉神系统（12维）',function(){
+var s='';
+s+='<div class="table-row"><span class="row-label">天乙贵人</span>'+gc('方位',tianyi)+'</div>';
+s+='<div class="table-row"><span class="row-label">喜神</span>'+gc('方位',xishen)+'</div>';
+s+='<div class="table-row"><span class="row-label">财神</span>'+gc('方位',caishen)+'</div>';
+s+='<div class="table-row"><span class="row-label">天德</span>'+gc('贵人',jishenResult.tiande)+(jishenResult.tiandeLin=="是"?'<span class="shensha-badge active">临日</span>':'<span class="shensha-badge inactive">未临</span>')+'</div>';
+s+='<div class="table-row"><span class="row-label">月德</span>'+gc('贵人',jishenResult.yuede)+(jishenResult.yuedeLin=="是"?'<span class="shensha-badge active">临日</span>':'<span class="shensha-badge inactive">未临</span>')+'</div>';
+s+='<div class="table-row"><span class="row-label">岁德</span>'+gc('desc','岁德星，年吉神')+'</div>';
+s+='<div class="table-row"><span class="row-label">天赦</span>'+(jishenResult.tiansha=="是"?'<span class="shensha-badge active">今日天赦</span>':'<span class="shensha-badge inactive">非天赦日</span>')+'</div>';
+s+='<div class="table-row"><span class="row-label">福星</span>'+gc('desc','福星贵人')+'</div>';
+s+='<div class="table-row"><span class="row-label">天官</span>'+gc('desc','天官贵人，赐福之神')+'</div>';
+s+='<div class="table-row"><span class="row-label">青龙</span>'+(huangHei=="青龙"?'<span class="shensha-badge active">今日值神</span>':'<span class="shensha-badge inactive">—</span>')+'</div>';
+s+='<div class="table-row"><span class="row-label">明堂</span>'+(huangHei=="明堂"?'<span class="shensha-badge active">今日值神</span>':'<span class="shensha-badge inactive">—</span>')+'</div>';
+s+='<div class="table-row"><span class="row-label">金匮</span>'+(huangHei=="金匮"?'<span class="shensha-badge active">今日值神</span>':'<span class="shensha-badge inactive">—</span>')+'</div>';
+return s;
+});
+
+// L9 凶煞系统
+html+=layerHtml('L9 凶煞系统（12维）',function(){
+var s='';
+s+='<div class="table-row"><span class="row-label">太岁</span>'+gc('方位',yearZhi)+(isSuiPo?'<span class="shensha-badge xiong active">今日冲太岁</span>':'<span class="shensha-badge inactive">未冲</span>')+'</div>';
+s+='<div class="table-row"><span class="row-label">岁破</span>'+(isSuiPo?'<span class="shensha-badge xiong active">今日岁破</span>':'<span class="shensha-badge inactive">否</span>')+'</div>';
+s+='<div class="table-row"><span class="row-label">月破</span>'+(isYuePo?'<span class="shensha-badge xiong active">今日月破</span>':'<span class="shensha-badge inactive">否</span>')+'</div>';
+s+='<div class="table-row"><span class="row-label">三煞</span>'+gc('方位',sanSha)+'</div>';
+s+='<div class="table-row"><span class="row-label">日冲</span>'+gc('冲',richong)+'</div>';
+s+='<div class="table-row"><span class="row-label">日害</span>'+gc('害',riha)+'</div>';
+s+='<div class="table-row"><span class="row-label">四离四绝</span>'+(siliResult.isHit=="是"?'<span class="shensha-badge xiong active">'+siliResult.detail+'</span>':'<span class="shensha-badge inactive">否</span>')+'</div>';
+var heidaoList=["白虎","天刑","朱雀","天牢","玄武","勾陈"];
+for(var i=0;i<heidaoList.length;i++){
+var name=heidaoList[i];
+s+='<div class="table-row"><span class="row-label xiong-color">'+name+'</span>'+(huangHei==name?'<span class="shensha-badge xiong active">今日值神</span>':'<span class="shensha-badge inactive">—</span>')+'</div>';
+}
+return s;
+});
+
+// L10 地支关系
+html+=layerHtml('L10 地支关系（12维）',function(){
+var s='';
+for(var i=0;i<DIZHI.length;i++){
+var dz=DIZHI[i];
+var isActive=dz==dayZhi;
+s+='<div class="table-row">';
+s+='<span class="row-label">'+dz+'</span>';
+s+=gc('六冲',LIUCHONG[dz]||'',isActive);
+s+=gc('六合',LIUHE[dz]||'',isActive);
+s+=gc('六害',LIUHAI[dz]||'',isActive);
+if(isActive)s+='<span class="shensha-badge active">今日日支</span>';
+s+='</div>';
+}
+return s;
+});
+
+// L11 三合三煞
+html+=layerHtml('L11 三合三煞（8维）',function(){
+var s='';
+for(var k in SANHE){
+var isActive=k.indexOf(yearZhi)>=0;
+s+='<div class="table-row"><span class="row-label">三合_'+k+'</span>'+gc('局',SANHE[k],isActive)+gc('desc',k+'三合'+SANHE[k],isActive)+'</div>';
+}
+for(var k in SANSHA){
+var isActive=k.indexOf(yearZhi)>=0;
+s+='<div class="table-row"><span class="row-label">三煞_'+k+'</span>'+gc('煞方',SANSHA[k],isActive)+gc('desc',k+'年三煞在'+SANSHA[k],isActive)+'</div>';
+}
+return s;
+});
+
+// L12 择日宜忌
+html+=layerHtml('L12 择日宜忌（10维）',function(){
+var s='';
+s+='<div class="kv">';
+s+=gc('建除宜',jianchuAttr.yi||'');s+=gc('建除忌',jianchuAttr.ji||'');
+s+=gc('建除吉凶',jianchuAttr.jixiong||'');
+s+=gc('星宿宜',xiuResult.yi);s+=gc('星宿忌',xiuResult.ji);
+s+=gc('星宿吉凶',xiuResult.jixiong);
+s+=gc('黄黑道吉凶',huangHeiAttr.jixiong||'');
+s+=gc('岁破',isSuiPo?'是':'否',isSuiPo);
+s+=gc('月破',isYuePo?'是':'否',isYuePo);
+s+=gc('综合吉凶',comprehensive.verdict,true);
+s+='</div>';
+return s;
+});
+
+// L13 五行分析
+html+=layerHtml('L13 五行分析（10维）',function(){
+var s='';
+var dayGanWx=['木','火','土','金','水'][TIANGAN.indexOf(dayGan)%5];
+var dayZhiWx=['水','土','木','木','土','火','火','土','金','金','土','水'][DIZHI.indexOf(dayZhi)];
+var nayinWx=nayin.charAt(nayin.length-1);
+s+='<div class="kv">';
+s+=gc('日干五行',dayGanWx);s+=gc('日支五行',dayZhiWx);
+s+=gc('纳音五行',nayin);s+=gc('纳音属性',nayinWx);
+s+=gc('纳音生',WUXING_SHENG[nayinWx]||'?');
+s+=gc('纳音克',WUXING_KE[nayinWx]||'?');
+s+=gc('年支五行',['水','土','木','木','土','火','火','土','金','金','土','水'][DIZHI.indexOf(yearZhi)]);
+s+=gc('月支五行',['水','土','木','木','土','火','火','土','金','金','土','水'][DIZHI.indexOf(monthZhi)]);
+s+=gc('日支冲',richong);s+=gc('日支合',LIUHE[dayZhi]||'');
+s+='</div>';
+return s;
+});
+
+// L14 时辰择吉
+html+=layerHtml('L14 时辰择吉（12维）',function(){
+var s='';
+var hourZhiList=['子','子','丑','丑','寅','寅','卯','卯','辰','辰','巳','巳','午','午','未','未','申','申','酉','酉','戌','戌','亥','亥'];
+var currentHourZhi=hourZhiList[hour];
+for(var i=0;i<DIZHI.length;i++){
+var dz=DIZHI[i];
+var shenName=HUANG_HEI_ORDER[(DIZHI.indexOf(dayZhi)+i)%12];
+var shenAttr=HUANG_HEI_DAO[shenName]||{};
+var isActive=dz==currentHourZhi;
+s+='<div class="table-row">';
+s+='<span class="row-label '+(shenAttr.jixiong=='吉'?'ji-color':'xiong-color')+'">'+dz+'时</span>';
+s+=gc('值神',shenName,isActive);s+=gc('黄黑道',shenAttr.dao||'',isActive);
+s+=gc('吉凶',shenAttr.jixiong||'',isActive);
+if(isActive)s+='<span class="shensha-badge active">当前时辰</span>';
+s+='</div>';
+}
+return s;
+});
+
+// L15 民俗择日
+html+=layerHtml('L15 民俗择日（10维）',function(){
+var s='';
+var comprehensiveAdvice=(isSuiPo||isYuePo||jianchu=='破'||jianchu=='闭')?'诸事不宜':'宜'+(jianchuAttr.yi||'');
+s+='<div class="kv">';
+s+=gc('建除口诀','建满平收黑，除危定执黄；成开皆可用，闭破不相当');
+s+=gc('今日建除',jianchu+'日('+(jianchuAttr.jixiong||'')+')',true);
+s+=gc('今日星宿',xiuResult.name+'宿('+xiuResult.jixiong+')',true);
+s+=gc('今日黄黑道',huangHei+'('+(huangHeiAttr.jixiong||'')+')',true);
+s+=gc('今日纳音',nayin,true);
+s+=gc('今日六曜',liuyaoResult.liuyao+'('+liuyaoResult.jixiong+')',true);
+s+=gc('岁破日',isSuiPo?'是':'否',isSuiPo);
+s+=gc('月破日',isYuePo?'是':'否',isYuePo);
+s+=gc('日冲生肖','冲'+richong);
+s+=gc('综合建议',comprehensiveAdvice,true);
+s+='</div>';
+if(isSuiPo||isYuePo||siliResult.isHit=="是"){
+s+='<div class="warning-box">⚠ '+SLJJ.desc+'</div>';
+}
+return s;
+});
+
+// L16 星宿分类
+html+=layerHtml('L16 星宿分类宜忌（7维）',function(){
+var s='';
+var categories={
+"木宿(角井奎斗)":{"宜":"开业嫁娶栽种","忌":"拆屋伐木"},
+"金宿(亢鬼娄牛)":{"宜":"讨债签约五金","忌":"破土放贷"},
+"土宿(氐柳胃女)":{"宜":"建房安葬囤货","忌":"迁居拆改"},
+"日宿(房星昴虚)":{"宜":"祈福出行开市","忌":"官非久病"},
+"月宿(心张毕危)":{"宜":"经商求医水产","忌":"破土造坟"},
+"火宿(尾翼觜室)":{"宜":"拆旧冶炼驱邪","忌":"入宅蓄水"},
+"水宿(箕轸参壁)":{"宜":"开渠水路远行","忌":"生火筑台"}
+};
+for(var k in categories){
+var xiuWx=xiuResult.wuxing;
+var isActive=false;
+if(k.indexOf(xiuResult.name)>=0)isActive=true;
+s+='<div class="table-row"><span class="row-label">'+k+'</span>'+gc('宜',categories[k].yi,isActive)+gc('忌',categories[k].ji,isActive);
+if(isActive)s+='<span class="shensha-badge active">今日所属</span>';
+s+='</div>';
+}
+return s;
+});
+
+// L17 盘面总评
+html+=layerHtml('L17 盘面总评（10维）',function(){
+var jiCount=0,xiongCount=0;
+if(jianchuAttr.jixiong=="黄道"||jianchuAttr.jixiong=="大吉")jiCount++;
+else if(jianchuAttr.jixiong=="黑道"||jianchuAttr.jixiong=="大凶")xiongCount++;
+if(xiuResult.jixiong=="吉")jiCount++;
+else if(xiuResult.jixiong=="凶")xiongCount++;
+if(huangHeiAttr.jixiong=="吉")jiCount++;
+else if(huangHeiAttr.jixiong=="凶")xiongCount++;
+if(liuyaoResult.jixiong=="大吉"||liuyaoResult.jixiong=="吉")jiCount++;
+else if(liuyaoResult.jixiong=="大凶"||liuyaoResult.jixiong=="凶")xiongCount++;
+if(isSuiPo)xiongCount+=2;
+if(isYuePo)xiongCount++;
+var overallJx=jiCount>xiongCount?'吉':(xiongCount>jiCount?'凶':'平');
+var s='';
+s+='<div class="kv">';
+s+=gc('整体吉凶',overallJx,true);
+s+=gc('建除总评',jianchu+'日-'+(jianchuAttr.jixiong||''),true);
+s+=gc('星宿总评',xiuResult.name+'宿-'+xiuResult.jixiong,true);
+s+=gc('黄黑道总评',huangHei+'-'+(huangHeiAttr.jixiong||''),true);
+s+=gc('六曜总评',liuyaoResult.liuyao+'-'+liuyaoResult.jixiong,true);
+s+=gc('纳音',nayin);
+s+=gc('日冲','冲'+richong);
+s+=gc('吉数',jiCount);
+s+=gc('凶数',xiongCount);
+s+=gc('综合建议',xiongCount>=3?'诸事不宜':(jiCount>=4?'大吉日':'平日常规'),true);
+s+='</div>';
+return s;
+});
+
+html+='</div>';
+
+document.getElementById('output').innerHTML=html;
+}
+
+// 页面加载时自动生成
+generate();
+</script>
+</body>
+</html>
