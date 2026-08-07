@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🔮 术数日记</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0c1a;color:#e8e0f0;min-height:100vh;padding-bottom:80px}
+.header{background:linear-gradient(135deg,#1a1530,#2d1b4e);padding:20px 16px 16px;text-align:center;border-bottom:1px solid #3d2e5f;position:sticky;top:0;z-index:50}
+.header h1{font-size:20px;color:#c9b8e8;font-weight:600}
+.header .sub{font-size:12px;color:#8a7aa0;margin-top:4px}
+.container{max-width:600px;margin:0 auto;padding:16px}
+.card{background:#1a1530;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid #2d2348;transition:border-color .2s;display:block;text-decoration:none;color:inherit}
+.card:active{border-color:#5d4e7f}
+.entry-title{font-size:16px;color:#d4c5f0;font-weight:600;margin-bottom:4px}
+.entry-time{font-size:12px;color:#7a6b9a;margin-bottom:8px}
+.tag-badge{display:inline-block;background:#2d1b4e;color:#b8a0d8;font-size:11px;padding:3px 8px;border-radius:6px;margin:2px 3px 2px 0}
+.tag-badge.highlight{background:#4a2d7a;color:#e0c8ff}
+.section-title{font-size:14px;color:#9a8ab8;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1px}
+.stats-bar{display:flex;align-items:center;gap:4px;margin:4px 0}
+.stats-bar .count{font-size:12px;color:#c9a0e8;min-width:30px}
+.stats-bar .label{font-size:11px;color:#b8a0d8;flex:1;word-break:break-all}
+.stats-bar .bar{height:16px;background:#4a2d7a;border-radius:3px;min-width:2px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;color:#9a8ab8;margin-bottom:6px}
+.form-group input,.form-group textarea{width:100%;background:#0f0c1a;border:1px solid #2d2348;border-radius:8px;padding:12px;color:#e8e0f0;font-size:15px}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:#5d4e7f}
+.form-group textarea{resize:vertical;min-height:100px}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,#6b3fa0,#8b5cf6);color:#fff}
+.btn-secondary{background:#2d2348;color:#c9b8e8;margin-top:8px}
+.btn:active{opacity:.85}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#1a1530;border-top:1px solid #2d2348;display:flex;max-width:600px;margin:0 auto;z-index:100}
+.nav-item{flex:1;text-align:center;padding:8px;color:#6a5b8a;text-decoration:none;font-size:12px;cursor:pointer}
+.nav-item.active{color:#a78bfa}
+.nav-icon{font-size:20px;display:block;margin-bottom:2px}
+.empty{text-align:center;padding:40px 20px;color:#6a5b8a}
+.detail-content{background:#0f0c1a;border-radius:8px;padding:14px;margin:12px 0;font-size:15px;line-height:1.7;white-space:pre-wrap;color:#d4c5f0}
+.tag-section{margin-top:16px}
+.tag-dim{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1f1838;font-size:13px}
+.tag-dim .key{color:#8a7aa0}
+.tag-dim .val{color:#d4c5f0;text-align:right;max-width:60%;word-break:break-all}
+.search-box{display:flex;gap:8px;margin-bottom:16px}
+.search-box input{flex:1;background:#0f0c1a;border:1px solid #2d2348;border-radius:8px;padding:12px;color:#e8e0f0;font-size:15px}
+.search-box input:focus{outline:none;border-color:#5d4e7f}
+.search-box button{background:#6b3fa0;border:none;border-radius:8px;padding:0 20px;color:#fff;font-size:15px;cursor:pointer}
+.profile-card{background:linear-gradient(135deg,#1a1530,#2d1b4e);border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid #3d2e5f}
+.profile-name{font-size:18px;color:#e0c8ff;font-weight:600}
+.profile-info{font-size:13px;color:#8a7aa0;margin-top:4px}
+.progress-bar{margin-top:8px;height:6px;background:#0f0c1a;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#6b3fa0,#8b5cf6)}
+.page{display:none}
+.page.active{display:block}
+</style>
+</head>
+<body>
+<div class="header"><h1>🔮 术数日记</h1><div class="sub">用千年术数标记你的每一天</div></div>
+<div class="container" id="app"></div>
+<div class="bottom-nav" id="nav"></div>
+
+<script>
+// ============================================================
+// 经济周期标签系统 - JavaScript移植版
+// 源自: economic_cycle_label_dictionary.py v1.0
+// ============================================================
+
+const CYCLES = {
+    A: {start: 1927, intervals: [18, 20, 16]},
+    B: {start: 1926, intervals: [9, 10, 8]},
+    C: {start: 1924, intervals: [7, 11, 9]},
+};
+
+const PHASE_PRIORITY = {C: 0, B: 1, A: 2};
+const PHASE_CN = {A: 'A恐慌', B: 'B繁荣', C: 'C艰难'};
+const SEGMENT_TYPES = {
+    'C,B': 'C→B', 'B,A': 'B→A', 'A,C': 'A→C', 'B,C': 'B→C',
+};
+const WINDOW_TYPES = {'C→B':'买入','B→A':'卖出','A→C':'持币','B→C':'观望'};
+const ACTION_MAP = {
+    'C→B,早期':'建仓','C→B,中期':'加仓','C→B,晚期':'持有',
+    'B→A,早期':'持有','B→A,中期':'减仓','B→A,晚期':'清仓',
+    'A→C,早期':'空仓','A→C,中期':'观望','A→C,晚期':'准备',
+    'B→C,早期':'持有','B→C,中期':'观望','B→C,晚期':'准备建仓',
+};
+const TYPE_TO_JSON_KEY = {'C→B':'C_to_B','B→A':'B_to_A','A→C':'A_to_C','B→C':'B_to_C'};
+
+// 历史事件数据
+const HISTORY = {
+    C_to_B: [
+        {start:2023,end:2026,event:"AI爆发/ChatGPT革命"},
+        {start:2012,end:2016,event:"移动互联网爆发"},
+        {start:2005,end:2007,event:"Web2.0社交网络"},
+        {start:1996,end:1999,event:"互联网普及"},
+        {start:1985,end:1989,event:"个人电脑普及"},
+        {start:1978,end:1980,event:"改革开放"},
+        {start:1969,end:1972,event:"经济复苏"},
+        {start:1958,end:1962,event:"大跃进调整"},
+        {start:1951,end:1953,event:"战后重建"},
+        {start:1942,end:1945,event:"二战末期"},
+        {start:1931,end:1935,event:"大萧条恢复"},
+        {start:1924,end:1926,event:"一战后繁荣"},
+    ],
+    B_to_A: [
+        {start:2016,end:2019,event:"贸易战/科技脱钩"},
+        {start:2007,end:2019,event:"次贷危机到长期泡沫"},
+        {start:1999,end:2007,event:"互联网泡沫到房地产泡沫"},
+        {start:1989,end:1999,event:"苏联解体后繁荣到亚洲金融危机"},
+        {start:1980,end:1981,event:"短暂繁荣到衰退"},
+        {start:1972,end:1981,event:"滞胀时期"},
+        {start:1962,end:1965,event:"越战升级"},
+        {start:1953,end:1965,event:"战后繁荣顶点"},
+        {start:1945,end:1945,event:"二战胜利到冷战开始"},
+        {start:1935,end:1945,event:"大萧条恢复到二战"},
+        {start:1926,end:1927,event:"咆哮二十年代顶点到萧条"},
+    ],
+    A_to_C: [
+        {start:2019,end:2023,event:"疫情/供应链危机"},
+        {start:1999,end:2005,event:"互联网泡沫破裂"},
+        {start:1981,end:1985,event:"沃尔克衰退"},
+        {start:1965,end:1969,event:"社会动荡"},
+        {start:1945,end:1951,event:"战后调整/冷战开始"},
+        {start:1927,end:1931,event:"大萧条"},
+    ],
+    B_to_C: [
+        {start:2007,end:2012,event:"金融危机到欧债危机"},
+        {start:1989,end:1996,event:"苏联解体到亚洲金融危机"},
+        {start:1972,end:1978,event:"滞胀"},
+        {start:1953,end:1958,event:"朝鲜战争后调整"},
+        {start:1935,end:1942,event:"二战前"},
+    ],
+};
+
+function generateCycleYears(phase, minYear=1800, maxYear=2200) {
+    const cfg = CYCLES[phase];
+    const start = cfg.start;
+    const intervals = cfg.intervals;
+    const n = intervals.length;
+    const years = [];
+    
+    let year = start, idx = 0;
+    while (year <= maxYear) {
+        years.push(year);
+        year += intervals[idx % n];
+        idx++;
+    }
+    
+    const revIntervals = [...intervals].reverse();
+    year = start; idx = 0;
+    while (year > minYear) {
+        year -= revIntervals[idx % n];
+        if (year >= minYear) years.push(year);
+        idx++;
+    }
+    
+    return [...new Set(years)].sort((a,b) => a - b);
+}
+
+let _allPoints = null;
+function getAllTurningPoints() {
+    if (_allPoints) return _allPoints;
+    const points = [];
+    for (const phase of ['A','B','C']) {
+        for (const y of generateCycleYears(phase)) {
+            points.push([y, phase]);
+        }
+    }
+    points.sort((a,b) => a[0] === b[0] ? PHASE_PRIORITY[a[1]] - PHASE_PRIORITY[b[1]] : a[0] - b[0]);
+    _allPoints = points;
+    return points;
+}
+
+function findCurrentSegment(year) {
+    const points = getAllTurningPoints();
+    let pastIdx = -1;
+    for (let i = 0; i < points.length; i++) {
+        if (points[i][0] <= year) pastIdx = i;
+        else break;
+    }
+    if (pastIdx === -1 || pastIdx + 1 >= points.length) return null;
+    
+    const [startYear, startPhase] = points[pastIdx];
+    const [endYear, endPhase] = points[pastIdx + 1];
+    const segType = SEGMENT_TYPES[`${startPhase},${endPhase}`];
+    if (!segType) return null;
+    
+    let nextSegType = null;
+    if (pastIdx + 2 < points.length) {
+        const nextEndPhase = points[pastIdx + 2][1];
+        nextSegType = SEGMENT_TYPES[`${endPhase},${nextEndPhase}`] || null;
+    }
+    
+    return {segment_type:segType, start_year:startYear, start_phase:startPhase,
+            end_year:endYear, end_phase:endPhase, total_years:endYear-startYear,
+            next_segment_type:nextSegType};
+}
+
+function findNearestPhase(year, phase) {
+    const years = generateCycleYears(phase);
+    let best = years[0], bestDist = Math.abs(years[0] - year);
+    for (const y of years) {
+        const d = Math.abs(y - year);
+        if (d < bestDist) { best = y; bestDist = d; }
+    }
+    return [best, bestDist];
+}
+
+function findPastSameSegments(segType, currentStart) {
+    const points = getAllTurningPoints();
+    const segs = [];
+    for (let i = 0; i < points.length - 1; i++) {
+        const [sy, sp] = points[i];
+        const [ey, ep] = points[i+1];
+        const st = SEGMENT_TYPES[`${sp},${ep}`];
+        if (st === segType && ey < currentStart) {
+            segs.push({start:sy, end:ey, length:ey-sy});
+        }
+    }
+    segs.sort((a,b) => b.end - a.end);
+    return segs;
+}
+
+function findEventInHistory(jsonKey, startYear, endYear) {
+    const entries = HISTORY[jsonKey] || [];
+    for (const e of entries) {
+        if (e.start === startYear && e.end === endYear) return e.event;
+    }
+    return '待记录';
+}
+
+function generateLabelsFromTimestamp(year, month, day, hour=12, minute=0) {
+    const seg = findCurrentSegment(year);
+    if (!seg) return {layers:{L1_周期定位:{错误:'无法定位当前段'}}, meta:{system_name:'economic_cycle',error:true}};
+    
+    const segType = seg.segment_type;
+    const startYear = seg.start_year;
+    const endYear = seg.end_year;
+    const totalYears = seg.total_years;
+    const elapsed = year - startYear;
+    const remaining = endYear - year;
+    const progress = totalYears > 0 ? Math.round(elapsed / totalYears * 1000) / 10 : 100.0;
+    
+    const [naYear, naDist] = findNearestPhase(year, 'A');
+    const [nbYear, nbDist] = findNearestPhase(year, 'B');
+    const [ncYear, ncDist] = findNearestPhase(year, 'C');
+    
+    const L1 = {
+        "当前段类型": segType,
+        "段起始年份": String(startYear),
+        "段起始阶段": PHASE_CN[seg.start_phase],
+        "段结束年份": String(endYear),
+        "段结束阶段": PHASE_CN[seg.end_phase],
+        "段总长度": String(totalYears),
+        "段已走年数": String(elapsed),
+        "段剩余年数": String(remaining),
+        "段进度": `${progress}%`,
+        "最近A恐慌": `${naYear}年(距${naDist}年)`,
+        "最近B繁荣": `${nbYear}年(距${nbDist}年)`,
+        "最近C艰难": `${ncYear}年(距${ncDist}年)`,
+    };
+    
+    let stage, risk;
+    if (progress <= 33.3) { stage = '早期'; risk = '低'; }
+    else if (progress <= 66.6) { stage = '中期'; risk = '中'; }
+    else { stage = '晚期'; risk = '高'; }
+    
+    const windowType = WINDOW_TYPES[segType];
+    const action = ACTION_MAP[`${segType},${stage}`] || '观望';
+    let nextWindowStr = '未知';
+    if (seg.next_segment_type) {
+        const nw = WINDOW_TYPES[seg.next_segment_type] || '未知';
+        nextWindowStr = `${nw}(${endYear}年起)`;
+    }
+    
+    const L5 = {
+        "窗口类型": windowType,
+        "窗口阶段": stage,
+        "操作建议": action,
+        "风险等级": risk,
+        "距窗口关闭": `${remaining}年`,
+        "下一窗口": nextWindowStr,
+    };
+    
+    const jsonKey = TYPE_TO_JSON_KEY[segType];
+    const pastSegs = findPastSameSegments(segType, startYear);
+    
+    let lastSegStr = '待记录', lastLastSegStr = '待记录';
+    if (pastSegs.length >= 1) {
+        const ps = pastSegs[0];
+        lastSegStr = `${ps.start}-${ps.end}年: ${findEventInHistory(jsonKey, ps.start, ps.end)}`;
+    }
+    if (pastSegs.length >= 2) {
+        const ps = pastSegs[1];
+        lastLastSegStr = `${ps.start}-${ps.end}年: ${findEventInHistory(jsonKey, ps.start, ps.end)}`;
+    }
+    
+    let avgStr = '待记录', vsAvg = '待记录';
+    if (pastSegs.length > 0) {
+        const avgLen = pastSegs.reduce((s,x) => s + x.length, 0) / pastSegs.length;
+        avgStr = `${avgLen.toFixed(1)}年`;
+        const diff = totalYears - avgLen;
+        if (Math.abs(diff) <= 1) vsAvg = '正常';
+        else if (diff > 1) vsAvg = `偏长(+${diff.toFixed(1)}年)`;
+        else vsAvg = `偏短(${diff.toFixed(1)}年)`;
+    }
+    
+    const L6 = {
+        "上一轮同段": lastSegStr,
+        "上上轮同段": lastLastSegStr,
+        "历史平均长度": avgStr,
+        "当前vs均值": vsAvg,
+    };
+    
+    return {layers:{"L1_周期定位":L1, "L5_投资窗口":L5, "L6_历史对照":L6},
+            meta:{system_name:"economic_cycle", system_name_cn:"经济周期"}};
+}
+
+function generateTags(year, month, day, hour=12, minute=0) {
+    const raw = generateLabelsFromTimestamp(year, month, day, hour, minute);
+    const tags = {};
+    const layers = raw.layers || {};
+    for (const [layerName, layerData] of Object.entries(layers)) {
+        if (typeof layerData === 'object') {
+            for (const [k, v] of Object.entries(layerData)) {
+                if (v !== null && v !== '') tags[`${layerName}.${k}`] = v;
+            }
+        }
+    }
+    const l1 = layers["L1_周期定位"] || {};
+    const l5 = layers["L5_投资窗口"] || {};
+    const parts = [];
+    if (l1["当前段类型"]) parts.push(l1["当前段类型"]);
+    if (l5["窗口类型"]) parts.push(`${l5["窗口类型"]}窗口`);
+    if (l1["段剩余年数"]) parts.push(`剩余${l1["段剩余年数"]}年`);
+    
+    return {
+        system_name: "经济周期",
+        dimension_count: Object.keys(tags).length,
+        tags: tags,
+        summary: parts.length > 0 ? parts.join(" | ") : "无摘要",
+    };
+}
+
+// ============================================================
+// 数据层 (localStorage)
+// ============================================================
+
+function getProfile() {
+    return JSON.parse(localStorage.getItem('diary_profile') || 'null');
+}
+function saveProfile(p) {
+    localStorage.setItem('diary_profile', JSON.stringify(p));
+}
+function getEntries() {
+    return JSON.parse(localStorage.getItem('diary_entries') || '[]');
+}
+function saveEntries(entries) {
+    localStorage.setItem('diary_entries', JSON.stringify(entries));
+}
+
+// ============================================================
+// 页面渲染
+// ============================================================
+
+const app = document.getElementById('app');
+const nav = document.getElementById('nav');
+
+const NAV_ITEMS = [
+    {id:'home', icon:'📔', label:'日记'},
+    {id:'write', icon:'✍️', label:'写日记'},
+    {id:'stats', icon:'📊', label:'统计'},
+    {id:'systems', icon:'🔮', label:'系统'},
+];
+
+function renderNav(active) {
+    nav.innerHTML = NAV_ITEMS.map(item => 
+        `<div class="nav-item ${active===item.id?'active':''}" onclick="navigate('${item.id}')">
+            <span class="nav-icon">${item.icon}</span>${item.label}
+        </div>`
+    ).join('');
+}
+
+function navigate(page, param) {
+    if (page === 'home') renderHome();
+    else if (page === 'write') renderWrite();
+    else if (page === 'stats') renderStats();
+    else if (page === 'systems') renderSystems();
+    else if (page === 'entry') renderEntry(param);
+    else if (page === 'search') renderSearch(param);
+    window.scrollTo(0, 0);
+}
+
+function renderHome(searchQuery) {
+    const entries = getEntries().sort((a,b) => b.timestamp.localeCompare(a.timestamp));
+    const profile = getProfile();
+    let html = '';
+    
+    if (profile) {
+        html += `<div class="profile-card"><div class="profile-name">${profile.name||'匿名'}</div>`;
+        html += `<div class="profile-info">出生: ${profile.birth_date||'?'} ${profile.birth_time||''} · ${profile.birth_city||''}</div></div>`;
+    } else {
+        html += `<div class="card" style="text-align:center"><div class="section-title" style="margin-top:0">📋 初始化</div>`;
+        html += `<p style="font-size:13px;color:#8a7aa0;margin-bottom:12px">先录入出生信息（后续系统需要）</p>`;
+        html += `<input id="p_name" placeholder="姓名/昵称" style="width:100%;background:#0f0c1a;border:1px solid #2d2348;border-radius:8px;padding:10px;color:#e8e0f0;margin-bottom:8px">`;
+        html += `<input id="p_date" type="date" style="width:100%;background:#0f0c1a;border:1px solid #2d2348;border-radius:8px;padding:10px;color:#e8e0f0;margin-bottom:8px">`;
+        html += `<input id="p_time" type="time" style="width:100%;background:#0f0c1a;border:1px solid #2d2348;border-radius:8px;padding:10px;color:#e8e0f0;margin-bottom:8px">`;
+        html += `<input id="p_city" placeholder="出生城市" style="width:100%;background:#0f0c1a;border:1px solid #2d2348;border-radius:8px;padding:10px;color:#e8e0f0;margin-bottom:12px">`;
+        html += `<button class="btn btn-primary" onclick="initProfile()">保存信息</button></div>`;
+    }
+    
+    // 搜索框
+    html += `<div class="search-box"><input id="search_input" placeholder="搜索日记..." onkeydown="if(event.key==='Enter')navigate('search',document.getElementById('search_input').value)"><button onclick="navigate('search',document.getElementById('search_input').value)">搜索</button></div>`;
+    
+    if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const results = entries.filter(e => {
+            const text = (e.title + ' ' + e.content).toLowerCase();
+            let tagText = '';
+            for (const st of Object.values(e.tags||{})) {
+                tagText += (st.summary||'') + ' ';
+                for (const v of Object.values(st.dimensions||{})) tagText += String(v) + ' ';
+            }
+            return text.includes(q) || tagText.toLowerCase().includes(q);
+        });
+        if (results.length > 0) {
+            html += `<div class="section-title">找到 ${results.length} 篇包含「${searchQuery}」的日记</div>`;
+            for (const e of results) html += entryCard(e);
+        } else {
+            html += `<div class="empty"><p>没有找到包含「${searchQuery}」的日记</p></div>`;
+        }
+    } else if (entries.length === 0) {
+        html += `<div class="empty"><div style="font-size:40px;margin-bottom:12px">📜</div><p>还没有日记</p><p style="margin-top:8px;font-size:13px">点击下方「写日记」开始记录</p></div>`;
+    } else {
+        html += `<div class="section-title">共 ${entries.length} 篇日记</div>`;
+        for (const e of entries) html += entryCard(e);
+    }
+    
+    app.innerHTML = html;
+    renderNav('home');
+}
+
+function entryCard(e) {
+    let tagHtml = '';
+    for (const st of Object.values(e.tags||{})) {
+        if (st.summary) tagHtml += `<span class="tag-badge">${st.summary}</span>`;
+    }
+    return `<div class="card" onclick="navigate('entry','${e.id}')"><div class="entry-title">${e.title||'无标题'}</div><div class="entry-time">${e.timestamp||'?'}</div><div>${tagHtml}</div></div>`;
+}
+
+function initProfile() {
+    const name = document.getElementById('p_name').value.trim() || '匿名';
+    const date = document.getElementById('p_date').value;
+    const time = document.getElementById('p_time').value;
+    const city = document.getElementById('p_city').value.trim();
+    if (!date) { alert('请填写出生日期'); return; }
+    saveProfile({name, birth_date:date, birth_time:time||null, birth_city:city||null, created_at:new Date().toISOString()});
+    renderHome();
+}
+
+function renderWrite() {
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    const nowStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    
+    app.innerHTML = `<form onsubmit="submitDiary(event)">
+        <div class="form-group"><label>标题</label><input id="d_title" placeholder="今天发生了什么..." autofocus></div>
+        <div class="form-group"><label>内容</label><textarea id="d_content" placeholder="写下你的想法、经历、感受..."></textarea></div>
+        <div class="form-group"><label>事件时间</label><input id="d_time" value="${nowStr}" placeholder="YYYY-MM-DD HH:MM"></div>
+        <button type="submit" class="btn btn-primary">保存日记</button>
+    </form>`;
+    renderNav('write');
+}
+
+function submitDiary(e) {
+    e.preventDefault();
+    const title = document.getElementById('d_title').value.trim();
+    const content = document.getElementById('d_content').value.trim();
+    let timeStr = document.getElementById('d_time').value.trim();
+    if (!title) { alert('标题不能为空'); return; }
+    if (!timeStr) timeStr = new Date().toISOString().slice(0,16).replace('T',' ');
+    
+    let eventTime;
+    try { eventTime = new Date(timeStr); }
+    catch(e) { eventTime = new Date(); }
+    if (isNaN(eventTime)) eventTime = new Date();
+    
+    const tags = generateTags(eventTime.getFullYear(), eventTime.getMonth()+1, eventTime.getDate(), eventTime.getHours(), eventTime.getMinutes());
+    
+    const profile = getProfile();
+    const pad = n => String(n).padStart(2,'0');
+    const entryId = `${eventTime.getFullYear()}${pad(eventTime.getMonth()+1)}${pad(eventTime.getDate())}-${pad(eventTime.getHours())}${pad(eventTime.getMinutes())}${pad(eventTime.getSeconds())}`;
+    const tsStr = `${eventTime.getFullYear()}-${pad(eventTime.getMonth()+1)}-${pad(eventTime.getDate())} ${pad(eventTime.getHours())}:${pad(eventTime.getMinutes())}:${pad(eventTime.getSeconds())}`;
+    
+    const entry = {
+        id: entryId,
+        timestamp: tsStr,
+        title: title,
+        content: content,
+        owner: profile ? profile.name : '匿名',
+        tags: { economic_cycle: { system_name: tags.system_name, dimension_count: tags.dimension_count, summary: tags.summary, dimensions: tags.tags } },
+        created_at: new Date().toISOString(),
+    };
+    
+    const entries = getEntries();
+    entries.push(entry);
+    saveEntries(entries);
+    
+    // 显示成功
+    app.innerHTML = `<div class="card" style="text-align:center">
+        <div style="font-size:40px;margin-bottom:12px">✅</div>
+        <div class="entry-title">日记已保存</div>
+        <div class="entry-time">${tsStr}</div>
+        <div style="margin:12px 0"><span class="tag-badge highlight">${tags.summary}</span></div>
+        <div style="font-size:13px;color:#8a7aa0;margin-bottom:16px">自动生成 ${tags.dimension_count} 维术数标签</div>
+        <div class="btn btn-primary" onclick="navigate('entry','${entryId}')">查看详情</div>
+        <div class="btn btn-secondary" onclick="navigate('write')">再写一篇</div>
+    </div>`;
+    renderNav('write');
+}
+
+function renderEntry(entryId) {
+    const entries = getEntries();
+    const e = entries.find(x => x.id === entryId);
+    if (!e) { app.innerHTML = '<div class="card"><p>找不到这篇日记</p></div>'; renderNav('home'); return; }
+    
+    let html = `<div class="card"><div class="entry-title" style="font-size:18px">${e.title||'无标题'}</div><div class="entry-time">${e.timestamp||'?'} · ${e.owner||'匿名'}</div></div>`;
+    html += `<div class="detail-content">${e.content||'(无内容)'}</div>`;
+    
+    for (const [sid, st] of Object.entries(e.tags||{})) {
+        html += `<div class="card"><div class="section-title" style="margin-top:0">🔮 ${st.system_name||sid} · ${st.dimension_count||0}维</div>`;
+        if (st.summary) html += `<div style="margin:8px 0"><span class="tag-badge highlight">${st.summary}</span></div>`;
+        html += '<div class="tag-section">';
+        for (const [k, v] of Object.entries(st.dimensions||{})) {
+            html += `<div class="tag-dim"><span class="key">${k}</span><span class="val">${v}</span></div>`;
+        }
+        html += '</div></div>';
+    }
+    
+    html += `<div class="btn btn-secondary" onclick="navigate('home')">返回列表</div>`;
+    html += `<div class="btn btn-secondary" style="background:#3a1a1a;color:#e88" onclick="deleteEntry('${entryId}')">删除这篇日记</div>`;
+    
+    app.innerHTML = html;
+    renderNav('home');
+}
+
+function deleteEntry(entryId) {
+    if (!confirm('确定删除这篇日记？')) return;
+    let entries = getEntries().filter(x => x.id !== entryId);
+    saveEntries(entries);
+    navigate('home');
+}
+
+function renderStats() {
+    const entries = getEntries();
+    if (entries.length === 0) {
+        app.innerHTML = '<div class="empty"><div style="font-size:40px;margin-bottom:12px">📊</div><p>还没有日记数据</p></div>';
+        renderNav('stats'); return;
+    }
+    
+    const tagCounter = {};
+    for (const e of entries) {
+        const st = (e.tags||{}).economic_cycle;
+        if (st) for (const [k,v] of Object.entries(st.dimensions||{})) {
+            const key = `${k}: ${v}`;
+            tagCounter[key] = (tagCounter[key]||0) + 1;
+        }
+    }
+    const sortedTags = Object.entries(tagCounter).sort((a,b) => b[1]-a[1]).slice(0,30);
+    const maxCount = sortedTags.length > 0 ? sortedTags[0][1] : 1;
+    
+    const timestamps = entries.map(e => e.timestamp||'').sort();
+    const span = timestamps.length > 0 ? `${timestamps[0]} ~ ${timestamps[timestamps.length-1]}` : '';
+    
+    let html = `<div class="card"><div class="section-title" style="margin-top:0">📈 总览</div>`;
+    html += `<div class="tag-dim"><span class="key">日记总数</span><span class="val">${entries.length}</span></div>`;
+    html += `<div class="tag-dim"><span class="key">时间跨度</span><span class="val">${span}</span></div></div>`;
+    
+    if (sortedTags.length > 0) {
+        html += '<div class="card"><div class="section-title" style="margin-top:0">🏷️ 标签频率 TOP 30</div>';
+        for (const [tag, cnt] of sortedTags) {
+            const w = Math.max(2, Math.round(cnt/maxCount*120));
+            html += `<div class="stats-bar"><span class="count">${cnt}x</span><span class="label">${tag}</span><span class="bar" style="width:${w}px"></span></div>`;
+        }
+        html += '</div>';
+    }
+    
+    const common = sortedTags.filter(([_,c]) => c >= 2);
+    if (common.length > 0) {
+        html += '<div class="card"><div class="section-title" style="margin-top:0">🔍 共性发现</div>';
+        for (const [tag, cnt] of common) {
+            html += `<div style="padding:6px 0;font-size:14px;color:#d4c5f0">「${tag}」出现 <span style="color:#c9a0e8">${cnt}</span> 次</div>`;
+        }
+        html += '</div>';
+    } else {
+        html += '<div class="card"><div class="section-title" style="margin-top:0">🔍 共性发现</div><p style="color:#6a5b8a;font-size:13px">需要更多日记才能发现共性模式</p></div>';
+    }
+    
+    app.innerHTML = html;
+    renderNav('stats');
+}
+
+function renderSystems() {
+    const profile = getProfile();
+    const allSystems = [
+        ["经济周期",22,true],["塔罗牌阵",55,false],["印度占星",55,false],["参考系统",111,false],
+        ["太乙神数",152,false],["中医术数时间",158,false],["其他中国术数",178,false],["通胜择日",231,false],
+        ["易经卦象",232,false],["八字四柱",242,false],["大六壬",275,false],["奇门遁甲",372,false],["紫微斗数",449,false],
+    ];
+    
+    let html = '';
+    if (profile) {
+        html += `<div class="profile-card"><div class="profile-name">${profile.name||'匿名'}</div><div class="profile-info">出生: ${profile.birth_date||'?'} ${profile.birth_time||''} · ${profile.birth_city||''}</div></div>`;
+    }
+    
+    const total = allSystems.reduce((s,[,d]) => s+d, 0);
+    const active = allSystems.filter(([, ,a]) => a).reduce((s,[,d]) => s+d, 0);
+    
+    html += `<div class="card"><div class="section-title" style="margin-top:0">📊 总进度</div>`;
+    html += `<div class="tag-dim"><span class="key">已接入</span><span class="val">1 / 13 系统</span></div>`;
+    html += `<div class="tag-dim"><span class="key">标签维度</span><span class="val">${active} / ${total} 维</span></div>`;
+    html += `<div class="progress-bar"><div class="progress-fill" style="width:${(active/total*100).toFixed(1)}%"></div></div></div>`;
+    
+    html += '<div class="section-title">十三术数系统</div>';
+    for (const [name, dims, act] of allSystems) {
+        const st = act ? '<span style="color:#6dd58c">✅ 已接入</span>' : '<span style="color:#6a5b8a">⏳ 待接入</span>';
+        html += `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="entry-title" style="font-size:15px">${act?'🔮':'🔒'} ${name}</div><div class="entry-time">${dims} 维度</div></div><div style="font-size:12px">${st}</div></div></div>`;
+    }
+    
+    app.innerHTML = html;
+    renderNav('systems');
+}
+
+// 启动
+renderHome();
+</script>
+</body>
+</html>
