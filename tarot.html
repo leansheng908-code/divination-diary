@@ -2360,6 +2360,12 @@ function generateLabels(year, month, day, hour, minute) {
     };
 }
 
+// ===== 折叠展开辅助函数 =====
+function toggleLayer(header) {
+    header.classList.toggle('open');
+    header.nextElementSibling.classList.toggle('open');
+}
+
 // ===== UI渲染 =====
 function drawAndShow() {
     const year = parseInt(document.getElementById("year").value);
@@ -2438,7 +2444,7 @@ function drawAndShow() {
         
         layersDiv.innerHTML += 
             "<div class='layer'>" +
-            "<div class='layer-header' onclick='this.classList.toggle("open");this.nextElementSibling.classList.toggle("open")'>" +
+            "<div class='layer-header' onclick='toggleLayer(this)'>" +
             "<h3>"+(layerTitles[layerName]||layerName)+"</h3><span class='arrow'>▶</span></div>" +
             "<div class='layer-body'>"+rows+"</div></div>";
     });
