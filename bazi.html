@@ -253,7 +253,7 @@ return res;
 function getWuxingBalance(pillars){
 var allGan=[pillars.year[0],pillars.month[0],pillars.day[0],pillars.hour[0]];
 var allZhi=[pillars.year[1],pillars.month[1],pillars.day[1],pillars.hour[1]];
-var dg=pillars.day[0];var wxCount={'木':0,'火':0,'土':0,'金':0,'水':0};
+var dg=pillars.day[0];var mz=pillars.month[1];var wxCount={'木':0,'火':0,'土':0,'金':0,'水':0};
 for(var i=0;i<4;i++){wxCount[GAN_WX[allGan[i]]]++}
 for(var i=0;i<4;i++){wxCount[ZHI_WX[allZhi[i]]]++;var cang=ZHI_CANG[allZhi[i]];for(var j=0;j<cang.length;j++)wxCount[GAN_WX[cang[j][0]]]+=0.5}
 var maxWx='',minWx='',maxV=-1,minV=999;
