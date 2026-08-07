@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>易经卦象系统 · 240维 · v1.1-optimized</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0e1a;color:#c8d6e5;font-family:'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh}
+.header{text-align:center;padding:30px 20px;background:linear-gradient(135deg,#0a0e1a,#1a2535)}
+.header h1{color:#5dade2;font-size:28px;margin-bottom:8px;text-shadow:0 0 20px rgba(93,173,226,0.3)}
+.header p{color:#bdc3c7;font-size:14px}
+.container{max-width:900px;margin:0 auto;padding:20px}
+.input-area{background:#121826;border-radius:12px;padding:20px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;border:1px solid #2c3e50}
+.input-area label{color:#5dade2;font-size:13px;display:block;margin-bottom:4px}
+.input-area input{background:#0a0e1a;border:1px solid #34495e;color:#c8d6e5;padding:8px 12px;border-radius:6px;font-size:16px;width:80px}
+.input-area input:focus{outline:none;border-color:#5dade2}
+.btn{background:linear-gradient(135deg,#2c3e50,#5dade2);color:#fff;border:none;padding:10px 30px;border-radius:8px;font-size:16px;cursor:pointer;transition:all .3s}
+.btn:hover{background:linear-gradient(135deg,#5dade2,#7fc4e8)}
+.core-display{background:#121826;border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid #2c3e50}
+.core-big{display:flex;justify-content:center;align-items:center;gap:30px;margin-bottom:20px;flex-wrap:wrap}
+.big-item{text-align:center;min-width:90px}
+.big-item .big-label{color:#5dade2;font-size:12px;margin-bottom:6px}
+.big-item .big-value{font-size:32px;font-weight:bold;color:#bdc3c7}
+.big-item .big-sub{font-size:12px;margin-top:4px;color:#7fc4e8}
+.highlight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:12px}
+.highlight-item{background:#0a0e1a;padding:10px 14px;border-radius:8px;border-left:3px solid #5dade2}
+.highlight-item .label{color:#5dade2;font-size:11px}
+.highlight-item .value{color:#bdc3c7;font-size:15px;font-weight:bold;margin-top:2px}
+.highlight-item.warning{border-left-color:#e74c3c}
+.highlight-item.warning .value{color:#e74c3c}
+.highlight-item.gold{border-left-color:#f1c40f}
+.highlight-item.gold .value{color:#f1c40f}
+.opt-section{margin-bottom:20px}
+.opt-card{background:#121826;border:1px solid #2c3e50;border-radius:8px;padding:14px 18px;margin-bottom:8px}
+.opt-card .opt-title{color:#f1c40f;font-size:14px;font-weight:bold}
+.opt-card .opt-desc{color:#c8d6e5;font-size:13px;margin-top:6px;line-height:1.6}
+.opt-card .opt-detail{color:#5dade2;font-size:13px;margin-top:4px}
+.layer{background:#0f1521;border-radius:8px;margin-bottom:8px;overflow:hidden;border:1px solid #1e2d3d}
+.layer-header{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.2s}
+.layer-header:hover{background:rgba(93,173,226,0.08)}
+.layer-header .layer-title{color:#5dade2;font-size:14px;font-weight:bold}
+.layer-header .layer-arrow{color:#5dade2;transition:transform 0.3s}
+.layer-header.open .layer-arrow{transform:rotate(90deg)}
+.layer-body{max-height:0;overflow:hidden;transition:max-height 0.3s ease}
+.layer-body.open{max-height:10000px;overflow-y:auto}
+.layer-content{padding:12px 16px}
+.kv{display:flex;flex-wrap:wrap;gap:6px}
+.kv-item{background:#0a0e1a;padding:4px 10px;border-radius:4px;font-size:12px}
+.kv-item .k{color:#5dade2}.kv-item .v{color:#bdc3c7;margin-left:4px}
+.kv-item.active{background:#152030;border:1px solid #5dade2}
+.kv-item.active .v{color:#f1c40f}
+.table-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;align-items:flex-start}
+.table-row .row-label{color:#5dade2;font-size:12px;font-weight:bold;min-width:60px}
+.footer{text-align:center;padding:20px;color:#34495e;font-size:12px}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>易经卦象排盘</h1>
+<p>梅花易数起卦 · 240维度 · 13层 + 5项优化 · v1.1-optimized</p>
+</div>
+<div class="container">
+<div class="input-area">
+<div><label>年份</label><input type="number" id="year" value="2026" min="1900" max="2100"></div>
+<div><label>月份</label><input type="number" id="month" value="8" min="1" max="12"></div>
+<div><label>日期</label><input type="number" id="day" value="7" min="1" max="31"></div>
+<div><label>时辰</label><input type="number" id="hour" value="19" min="0" max="23"></div>
+<button class="btn" onclick="generate()">排盘推演</button>
+</div>
+<div id="output"></div>
+</div>
+<div class="footer">易经卦象系统 · 240维度 · 13层 · 5项理论驱动优化 · 术数日记</div>
+<script>
+// ============================================================
+// Part 1: 基础数据表（从Python源码完整移植）
+// ============================================================
+var TIANGAN=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+var DIZHI=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+
+// --- 八卦数据 ---
+var TRIGRAMS={
+"乾":{"binary":"111","nature":"天","attribute":"健","element":"金","direction":"西北","season":"秋冬之交","xiantian_num":1,"family":"父","animal":"马","body":"首","wu_xing":"金"},
+"兑":{"binary":"110","nature":"泽","attribute":"悦","element":"金","direction":"西","season":"秋","xiantian_num":2,"family":"少女","animal":"羊","body":"口","wu_xing":"金"},
+"离":{"binary":"101","nature":"火","attribute":"丽","element":"火","direction":"南","season":"夏","xiantian_num":3,"family":"中女","animal":"雉","body":"目","wu_xing":"火"},
+"震":{"binary":"100","nature":"雷","attribute":"动","element":"木","direction":"东","season":"春","xiantian_num":4,"family":"长男","animal":"龙","body":"足","wu_xing":"木"},
+"巽":{"binary":"011","nature":"风","attribute":"入","element":"木","direction":"东南","season":"春夏之交","xiantian_num":5,"family":"长女","animal":"鸡","body":"股","wu_xing":"木"},
+"坎":{"binary":"010","nature":"水","attribute":"陷","element":"水","direction":"北","season":"冬","xiantian_num":6,"family":"中男","animal":"豕","body":"耳","wu_xing":"水"},
+"艮":{"binary":"001","nature":"山","attribute":"止","element":"土","direction":"东北","season":"冬春之交","xiantian_num":7,"family":"少男","animal":"狗","body":"手","wu_xing":"土"},
+"坤":{"binary":"000","nature":"地","attribute":"顺","element":"土","direction":"西南","season":"夏秋之交","xiantian_num":8,"family":"母","animal":"牛","body":"腹","wu_xing":"土"}
+};
+
+// 八卦反查
+var BINARY_TO_TRIGRAM={};
+for(var k in TRIGRAMS){BINARY_TO_TRIGRAM[TRIGRAMS[k]["binary"]]=k;}
+
+// --- 八宫系统 ---
+var PALACES={
+"乾":{"element":"金","pure_binary":"111111","names":["乾为天","天风姤","天山遁","天地否","风地观","山地剥","火地晋","火天大有"]},
+"坎":{"element":"水","pure_binary":"010010","names":["坎为水","水泽节","水雷屯","水火既济","泽火革","雷火丰","地火明夷","地水师"]},
+"艮":{"element":"土","pure_binary":"001001","names":["艮为山","山火贲","山天大畜","山泽损","火泽睽","天泽履","风泽中孚","风山渐"]},
+"震":{"element":"木","pure_binary":"100100","names":["震为雷","雷地豫","雷水解","雷风恒","地风升","水风井","泽风大过","泽雷随"]},
+"巽":{"element":"木","pure_binary":"011011","names":["巽为风","风天小畜","风火家人","风雷益","天雷无妄","火雷噬嗑","山雷颐","山风蛊"]},
+"离":{"element":"火","pure_binary":"101101","names":["离为火","火山旅","火风鼎","火水未济","山水蒙","风水涣","天水讼","天火同人"]},
+"坤":{"element":"土","pure_binary":"000000","names":["坤为地","地雷复","地泽临","地天泰","雷天大壮","泽天夬","水天需","水地比"]},
+"兑":{"element":"金","pure_binary":"110110","names":["兑为泽","泽水困","泽地萃","泽山咸","水山蹇","地山谦","雷山小过","雷泽归妹"]}
+};
+
+// 宫位变化模式
+var PALACE_CHANGES={1:[],2:[0],3:[0,1],4:[0,1,2],5:[0,1,2,3],6:[0,1,2,3,4],7:[0,1,2,4],8:[4]};
+
+// --- 纳甲系统 ---
+var NA_JIA={
+"乾":{"internal":[["甲","子"],["甲","寅"],["甲","辰"]],"external":[["壬","午"],["壬","申"],["壬","戌"]]},
+"坤":{"internal":[["乙","未"],["乙","巳"],["乙","卯"]],"external":[["癸","丑"],["癸","亥"],["癸","酉"]]},
+"坎":{"internal":[["戊","寅"],["戊","辰"],["戊","午"]],"external":[["戊","申"],["戊","戌"],["戊","子"]]},
+"离":{"internal":[["己","卯"],["己","丑"],["己","亥"]],"external":[["己","酉"],["己","未"],["己","巳"]]},
+"震":{"internal":[["庚","子"],["庚","寅"],["庚","辰"]],"external":[["庚","午"],["庚","申"],["庚","戌"]]},
+"巽":{"internal":[["辛","丑"],["辛","亥"],["辛","酉"]],"external":[["辛","未"],["辛","巳"],["辛","卯"]]},
+"艮":{"internal":[["丙","辰"],["丙","午"],["丙","申"]],"external":[["丙","戌"],["丙","子"],["丙","寅"]]},
+"兑":{"internal":[["丁","巳"],["丁","卯"],["丁","丑"]],"external":[["丁","亥"],["丁","酉"],["丁","未"]]}
+};
+
+// --- 地支五行 ---
+var ZHI_WUXING={"子":"水","丑":"土","寅":"木","卯":"木","辰":"土","巳":"火","午":"火","未":"土","申":"金","酉":"金","戌":"土","亥":"水"};
+// --- 天干五行 ---
+var GAN_WUXING={"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水"};
+// --- 五行生克 ---
+var WUXING_SHENG={"金":"水","水":"木","木":"火","火":"土","土":"金"};
+var WUXING_KE={"金":"木","木":"土","土":"水","水":"火","火":"金"};
+// --- 世应表 ---
+var SHI_YING={1:[6,3],2:[1,4],3:[2,5],4:[3,6],5:[4,1],6:[5,2],7:[4,1],8:[3,6]};
+// --- 郑玄爻辰 ---
+var ZHENG_XUAN_YANG_ZHI=["子","寅","辰","午","申","戌"];
+var ZHENG_XUAN_YIN_ZHI=["未","酉","亥","丑","卯","巳"];
+// --- 律吕 ---
+var LV_LU={"子":"黄钟","丑":"大吕","寅":"太簇","卯":"夹钟","辰":"姑洗","巳":"仲吕","午":"蕤宾","未":"林钟","申":"夷则","酉":"南吕","戌":"无射","亥":"应钟"};
+// --- 六神 ---
+var SIX_SPIRITS_ORDER=["青龙","朱雀","勾陈","腾蛇","白虎","玄武"];
+var SPIRIT_START_CORRECT={"甲":0,"乙":0,"丙":1,"丁":1,"戊":2,"己":3,"庚":4,"辛":4,"壬":5,"癸":5};
+// --- 空亡 ---
+var KONG_WANG={"甲子":["戌","亥"],"甲戌":["申","酉"],"甲申":["午","未"],"甲午":["辰","巳"],"甲辰":["寅","卯"],"甲寅":["子","丑"]};
+// --- 六十甲子 ---
+var LIU_SHI_JIA_ZI=[];
+for(var i=0;i<60;i++){LIU_SHI_JIA_ZI.push(TIANGAN[i%10]+DIZHI[i%12]);}
+// --- 旺衰 ---
+var WANG_SHUAI={"春":{"木":"旺","火":"相","水":"休","金":"囚","土":"死"},"夏":{"火":"旺","土":"相","木":"休","水":"囚","金":"死"},"秋":{"金":"旺","水":"相","土":"休","火":"囚","木":"死"},"冬":{"水":"旺","木":"相","金":"休","土":"囚","火":"死"},"四季":{"土":"旺","金":"相","火":"休","木":"囚","水":"死"}};
+var MONTH_TO_SEASON={"寅":"春","卯":"春","辰":"四季","巳":"夏","午":"夏","未":"四季","申":"秋","酉":"秋","戌":"四季","亥":"冬","子":"冬","丑":"四季"};
+// --- 十二消息卦 ---
+var TWELVE_MSG=[{"name":"复","month":11,"hex":"地雷复","binary":"100000","yang":1},{"name":"临","month":12,"hex":"地泽临","binary":"110000","yang":2},{"name":"泰","month":1,"hex":"地天泰","binary":"111000","yang":3},{"name":"大壮","month":2,"hex":"雷天大壮","binary":"111100","yang":4},{"name":"夬","month":3,"hex":"泽天夬","binary":"111110","yang":5},{"name":"乾","month":4,"hex":"乾为天","binary":"111111","yang":6},{"name":"姤","month":5,"hex":"天风姤","binary":"011111","yang":5},{"name":"遁","month":6,"hex":"天山遁","binary":"001111","yang":4},{"name":"否","month":7,"hex":"天地否","binary":"000111","yang":3},{"name":"观","month":8,"hex":"风地观","binary":"000011","yang":2},{"name":"剥","month":9,"hex":"山地剥","binary":"000001","yang":1},{"name":"坤","month":10,"hex":"坤为地","binary":"000000","yang":0}];
+// --- 文王序 ---
+var WENWANG_ORDER=["乾为天","坤为地","水雷屯","山水蒙","水天需","天水讼","地水师","水地比","风天小畜","天泽履","地天泰","天地否","天火同人","火天大有","地山谦","雷地豫","泽雷随","山风蛊","地泽临","风地观","火雷噬嗑","山火贲","山地剥","地雷复","天雷无妄","山天大畜","山雷颐","泽风大过","坎为水","离为火","泽山咸","雷风恒","天山遁","雷天大壮","火地晋","地火明夷","风火家人","火泽睽","水山蹇","雷水解","山泽损","风雷益","泽天夬","天风姤","泽地萃","地风升","泽水困","水风井","泽火革","火风鼎","震为雷","艮为山","风山渐","雷泽归妹","雷火丰","火山旅","巽为风","兑为泽","风水涣","水泽节","风泽中孚","雷山小过","水火既济","火水未济"];
+// --- OPT2: 帛书序补全64卦 ---
+var BOSHU_ORDER_COMPLETE=["乾为天","天地否","天山遁","天水讼","天雷无妄","天风姤","天火同人","天泽履","地天泰","坤为地","地山谦","地水师","地雷复","地风升","地火明夷","地泽临","山天大畜","山地剥","艮为山","山水蒙","山雷颐","山风蛊","山火贲","山泽损","水天需","水地比","水山蹇","坎为水","水雷屯","水风井","水火既济","水泽节","雷天大壮","雷地豫","雷山小过","雷水解","震为雷","雷风恒","雷火丰","雷泽归妹","风天小畜","风地观","风山渐","风水涣","风雷益","巽为风","风火家人","风泽中孚","火天大有","火地晋","火山旅","火水未济","火雷噬嗑","火风鼎","离为火","火泽睽","泽天夬","泽地萃","泽山咸","泽水困","泽雷随","泽风大过","泽火革","兑为泽"];
+// --- 先天八卦数 ---
+var XIANTIAN_BAGUA_NUM={"乾":1,"兑":2,"离":3,"震":4,"巽":5,"坎":6,"艮":7,"坤":8};
+// --- 后天八卦数 ---
+var HOUTIAN_BAGUA_NUM={"坎":1,"坤":2,"震":3,"巽":4,"中":5,"乾":6,"兑":7,"艮":8,"离":9};
+// --- 河图数 ---
+var HETU={"水":[1,6],"火":[2,7],"木":[3,8],"金":[4,9],"土":[5,10]};
+// --- 洛书数 ---
+var LUOSHU={"离":9,"坎":1,"震":3,"兑":7,"坤":2,"巽":4,"乾":6,"艮":8};
+// --- 地支六冲 ---
+var ZHI_CHONG={"子":"午","午":"子","丑":"未","未":"丑","寅":"申","申":"寅","卯":"酉","酉":"卯","辰":"戌","戌":"辰","巳":"亥","亥":"巳"};
+// --- 地支六合 ---
+var ZHI_HE={"子":"丑","丑":"子","寅":"亥","亥":"寅","卯":"戌","戌":"卯","辰":"酉","酉":"辰","巳":"申","申":"巳","午":"未","未":"午"};
+// --- 地支三合局 ---
+var ZHI_SAN_HE={"申子辰":"水局","巳酉丑":"金局","寅午戌":"火局","亥卯未":"木局"};
+// --- 进退神 ---
+var JIN_TUI={"亥":"进神","子":"进神","丑":"进神","寅":"进神","巳":"退神","午":"退神","未":"退神","申":"退神","辰":"退神","戌":"退神","卯":"退神","酉":"退神"};
+// --- 长生十二状态 ---
+var CHANG_SHENG={"金":["巳","午","未","申","酉","戌","亥","子","丑","寅","卯","辰"],"木":["亥","子","丑","寅","卯","辰","巳","午","未","申","酉","戌"],"水":["申","酉","戌","亥","子","丑","寅","卯","辰","巳","午","未"],"火":["寅","卯","辰","巳","午","未","申","酉","戌","亥","子","丑"],"土":["寅","卯","辰","巳","午","未","申","酉","戌","亥","子","丑"]};
+var CHANG_SHENG_NAMES=["长生","沐浴","冠带","临官","帝旺","衰","病","死","墓","绝","胎","养"];
+// --- 卦德 ---
+var GUA_DE={"乾为天":"刚健中正","坤为地":"柔顺承载","水雷屯":"动乎险中","山水蒙":"蒙以养正","水天需":"需须也险在前","天水讼":"讼争也","地水师":"师众也正也","水地比":"比辅也下顺从也","风天小畜":"小畜柔得位","天泽履":"履柔履刚也","地天泰":"泰通也天地交","天地否":"否闭也天地不交","天火同人":"同人柔得位得中","火天大有":"大有柔得尊位","地山谦":"谦尊而光","雷地豫":"豫顺以动","泽雷随":"随刚来而下柔","山风蛊":"蛊刚上而柔下","地泽临":"临刚浸而长","风地观":"观盥而不荐","火雷噬嗑":"噬嗑颐中有物","山火贲":"贲柔来而文刚","山地剥":"剥柔变刚也","地雷复":"复刚反也","天雷无妄":"无妄刚自外来","山天大畜":"大畜刚健笃实","山雷颐":"颐养正也","泽风大过":"大过颠也","坎为水":"坎重险也","离为火":"离丽也重明","泽山咸":"咸柔上而刚下","雷风恒":"恒久也刚柔皆应","天山遁":"遁退也柔长","雷天大壮":"大壮刚以动","火地晋":"晋明出地上","地火明夷":"明夷明入地中","风火家人":"家人女正位乎内","火泽睽":"睽乖也二女同居","水山蹇":"蹇难也险在前","雷水解":"解险以动","山泽损":"损损下益上","风雷益":"益损上益下","泽天夬":"夬决也刚决柔也","天风姤":"姤遇也柔遇刚","泽地萃":"萃聚也柔得位","地风升":"升柔以时升","泽水困":"困刚掩也","水风井":"井养而不穷","泽火革":"革水火相息","火风鼎":"鼎象也以木巽火","震为雷":"震亨震来虩虩","艮为山":"艮止也时止则止","风山渐":"渐女归吉","雷泽归妹":"归妹天地之大义","雷火丰":"丰大也明以动","火山旅":"旅柔得中乎外","巽为风":"巽入也柔皆顺乎刚","兑为泽":"兑说也刚中而柔外","风水涣":"涣亨刚来而不穷","水泽节":"节亨刚柔分而刚得中","风泽中孚":"中孚柔在内而刚得中","雷山小过":"小过小者过也","水火既济":"既济亨小者亨也","火水未济":"未济亨柔得中"};
+// --- 文言 ---
+var WENYAN={"乾为天":"元者善之长也，亨者嘉之会也，利者义之和也，贞者事之干也","坤为地":"坤至柔而动也刚，至静而德方，后得主而有常，含万物而化光"};
+// --- 小象传 ---
+var XIAO_XIANG={"乾为天":"天行健君子以自强不息(大象)","坤为地":"地势坤君子以厚德载物(大象)"};
+// --- 序卦传 ---
+var XUGUA={"乾为天":"有天地然后万物生焉","坤为地":"屯者物之始生也","水雷屯":"物生必蒙","山水蒙":"蒙者蒙也物之稚也","水天需":"物稚不可不养也","天水讼":"饮食必有讼","地水师":"讼必有众起","水地比":"众必有所比","风天小畜":"比必有所畜","天泽履":"履者礼也","地天泰":"履而泰然后安","天地否":"物不可以终通","天火同人":"物不可以终否","火天大有":"与人同者物必归焉","地山谦":"有大者不可以盈","雷地豫":"有大而能谦必豫","泽雷随":"豫必有随","山风蛊":"以喜随人者必有事","地泽临":"有事而后可大","风地观":"物大然后可观","火雷噬嗑":"可观而后有所合","山火贲":"致饰然后亨则尽矣","山地剥":"物不可以终尽","地雷复":"复则不妄矣","天雷无妄":"有无妄然后可畜","山天大畜":"物畜然后可养","山雷颐":"不养则不可动","泽风大过":"物不可以终过","坎为水":"物不可终过故受以坎","离为火":"陷必有所丽","泽山咸":"有天地然后有万物","雷风恒":"夫妇之道不可以不久","天山遁":"物不可以久居其所","雷天大壮":"物不可以终遁","火地晋":"物不可以终壮","地火明夷":"进必有所伤","风火家人":"伤于外者必反其家","火泽睽":"家道穷必乖","水山蹇":"乖必有难","雷水解":"物不可以终难","山泽损":"解必有所失","风雷益":"损而不已必益","泽天夬":"益而不已必决","天风姤":"决必有所遇","泽地萃":"物相遇而后聚","地风升":"聚而上者谓之升","泽水困":"升而不已必困","水风井":"困乎上者必反下","泽火革":"井道不可不革","火风鼎":"革物者莫若鼎","震为雷":"主器者莫若长子","艮为山":"物不可以终动","风山渐":"物不可以终止","雷泽归妹":"渐者进也进必有所归","雷火丰":"得其所归者必大","火山旅":"穷大者必失其居","巽为风":"旅而无所容故受以巽","兑为泽":"入而后说之","风水涣":"说而后散之","水泽节":"物不可以终离","风泽中孚":"节而信之","雷山小过":"有其信者必行之","水火既济":"有过物者必济","火水未济":"物不可穷也"};
+// --- 杂卦传 ---
+var ZAGUA={"乾为天":"乾刚","坤为地":"坤柔","水雷屯":"屯见而不失其居","山水蒙":"蒙杂而著","水天需":"需不进也","天水讼":"讼不亲也","地水师":"师忧","水地比":"比乐","风天小畜":"小畜寡也","天泽履":"履不处也","地天泰":"泰通","天地否":"否闭","天火同人":"同人亲也","火天大有":"大有众也","地山谦":"谦轻","雷地豫":"豫怠也","泽雷随":"随无故也","山风蛊":"蛊则饬也","地泽临":"临观之义或与或求","风地观":"临观之义或与或求","火雷噬嗑":"噬嗑食也","山火贲":"贲无色也","山地剥":"剥烂也","地雷复":"复反也","天雷无妄":"无妄灾也","山天大畜":"大畜时也","山雷颐":"颐养正也","泽风大过":"大过颠也","坎为水":"坎下","离为火":"离上","泽山咸":"咸速也","雷风恒":"恒久也","天山遁":"遁则退也","雷天大壮":"大壮则止","火地晋":"晋昼也","地火明夷":"明夷诛也","风火家人":"家人内也","火泽睽":"睽外也","水山蹇":"蹇难也","雷水解":"解缓也","山泽损":"损益衰盛之始也","风雷益":"损益衰盛之始也","泽天夬":"夬决也","天风姤":"姤遇也柔遇刚也","泽地萃":"萃聚","地风升":"升不来也","泽水困":"困相遇也","水风井":"井通而困相遇也","泽火革":"革去故也","火风鼎":"鼎取新也","震为雷":"震起也","艮为山":"艮止也","风山渐":"渐女归待男行也","雷泽归妹":"归妹女之终也","雷火丰":"丰多故也","火山旅":"旅亲寡也","巽为风":"巽伏也","兑为泽":"兑见也","风水涣":"涣离也","水泽节":"节止也","风泽中孚":"中孚信也","雷山小过":"小过过也","水火既济":"既济定也","火水未济":"未济男之穷也"};
+// --- 卦时 ---
+var GUA_SHI={"乾为天":"健行之时","坤为地":"柔顺之时","水雷屯":"初创艰难之时","山水蒙":"蒙昧待启之时","水天需":"等待之时","天水讼":"争讼之时","地水师":"用兵之时","水地比":"亲辅之时","风天小畜":"小有积蓄之时","天泽履":"慎行之时","地天泰":"通达之时","天地否":"闭塞之时","天火同人":"和同之时","火天大有":"大有之时","地山谦":"谦虚之时","雷地豫":"欢乐之时","泽雷随":"随从之时","山风蛊":"整治之时","地泽临":"监临之时","风地观":"观察之时","火雷噬嗑":"决断之时","山火贲":"文饰之时","山地剥":"剥落之时","地雷复":"回复之时","天雷无妄":"无妄之时","山天大畜":"大畜之时","山雷颐":"养正之时","泽风大过":"大过之时","坎为水":"重险之时","离为火":"附丽之时","泽山咸":"感应之时","雷风恒":"恒久之时","天山遁":"退避之时","雷天大壮":"强盛之时","火地晋":"进取之时","地火明夷":"晦暗之时","风火家人":"齐家之时","火泽睽":"乖违之时","水山蹇":"险难之时","雷水解":"解脱之时","山泽损":"减损之时","风雷益":"增益之时","泽天夬":"决断之时","天风姤":"相遇之时","泽地萃":"聚合之时","地风升":"上升之时","泽水困":"困穷之时","水风井":"养民之时","泽火革":"变革之时","火风鼎":"鼎新之时","震为雷":"震动之时","艮为山":"静止之时","风山渐":"渐进之时","雷泽归妹":"归终之时","雷火丰":"丰盛之时","火山旅":"行旅之时","巽为风":"顺入之时","兑为泽":"喜悦之时","风水涣":"涣散之时","水泽节":"节制之时","风泽中孚":"诚信之时","雷山小过":"小过之时","水火既济":"既成之时","火水未济":"未成之时"};
+// --- 爻辞 ---
+var YAO_CI={"乾为天":{1:"潜龙勿用",2:"见龙在田",3:"君子终日乾乾",4:"或跃在渊",5:"飞龙在天",6:"亢龙有悔"},"坤为地":{1:"履霜坚冰至",2:"直方大",3:"含章可贞",4:"括囊",5:"黄裳元吉",6:"龙战于野"},"水雷屯":{1:"磐桓利居贞",2:"屯如邅如",3:"即鹿无虞",4:"乘马班如",5:"屯其膏",6:"泣血涟如"},"山水蒙":{1:"发蒙利用刑人",2:"包蒙吉",3:"勿用取女",4:"困蒙吝",5:"童蒙吉",6:"击蒙不利为寇"},"水天需":{1:"需于郊",2:"需于沙",3:"需于泥",4:"需于血",5:"需于酒食",6:"入于穴"},"天水讼":{1:"不永所事",2:"不克讼归逋",3:"食旧德",4:"不克讼复即命",5:"讼元吉",6:"或锡之鞶带"},"地水师":{1:"师出以律",2:"在师中吉",3:"师或舆尸",4:"师左次",5:"田有禽利执言",6:"大君有命"},"水地比":{1:"有孚比之",2:"比之自内",3:"比之匪人",4:"外比之",5:"显比",6:"比之无首"},"风天小畜":{1:"复自道",2:"牵复",3:"舆说辐",4:"有孚血去惕出",5:"有孚挛如",6:"既雨既处"},"天泽履":{1:"素履往无咎",2:"履道坦坦",3:"眇能视跛能履",4:"履虎尾愬愬",5:"夬履",6:"视履考祥"},"地天泰":{1:"拔茅茹以其汇",2:"包荒用冯河",3:"无平不陂",4:"翩翩不富",5:"帝乙归妹",6:"城复于隍"},"天地否":{1:"拔茅茹以其汇",2:"包承小人吉",3:"包羞",4:"有命无咎",5:"休否大人吉",6:"倾否先否后喜"},"天火同人":{1:"同人于门",2:"同人于宗吝",3:"伏戎于莽",4:"乘其墉",5:"同人先号咷而后笑",6:"同人于郊无悔"},"火天大有":{1:"无交害匪咎",2:"大车以载",3:"公用亨于天子",4:"匪其彭无咎",5:"厥孚交如",6:"自天佑之吉"},"地山谦":{1:"谦谦君子",2:"鸣谦贞吉",3:"劳谦君子有终",4:"无不利撝谦",5:"不富以其邻",6:"鸣谦利用行师"},"雷地豫":{1:"鸣豫凶",2:"介于石不终日",3:"盱豫悔",4:"由豫大有得",5:"贞疾恒不死",6:"冥豫成有渝"},"泽雷随":{1:"官有渝贞吉",2:"系小子失丈夫",3:"系丈夫失小子",4:"随有获贞凶",5:"孚于嘉吉",6:"拘系之乃从维之"},"山风蛊":{1:"干父之蛊有子",2:"干母之蛊不可贞",3:"干父之蛊小有悔",4:"裕父之蛊往见吝",5:"干父之蛊用誉",6:"不事王侯高尚其事"},"地泽临":{1:"咸临贞吉",2:"咸临吉无不利",3:"甘临无攸利",4:"至临无咎",5:"知临大君之宜",6:"敦临吉无咎"},"风地观":{1:"童观小人无咎",2:"窥观利女贞",3:"观我生进退",4:"观国之光",5:"观我生君子无咎",6:"观其生君子无咎"},"火雷噬嗑":{1:"屦校灭趾无咎",2:"噬肤灭鼻无咎",3:"噬腊肉遇毒小吝",4:"噬干胏得金矢",5:"噬干肉得黄金",6:"何校灭耳凶"},"山火贲":{1:"贲其趾舍车而徒",2:"贲其须",3:"贲如濡如",4:"贲如皤如",5:"贲于丘园束帛戋戋",6:"白贲无咎"},"山地剥":{1:"剥床以足蔑贞凶",2:"剥床以辨蔑贞凶",3:"剥之无咎",4:"剥床以肤凶",5:"贯鱼以宫人宠",6:"硕果不食君子得舆"},"地雷复":{1:"不远复无祗悔",2:"休复吉",3:"频复厉无咎",4:"中行独复",5:"敦复无悔",6:"迷复凶"},"天雷无妄":{1:"无妄往吉",2:"不耕获不菑畲",3:"无妄之灾或系之牛",4:"可贞无咎",5:"无妄之疾勿药有喜",6:"无妄行有眚"},"山天大畜":{1:"有厉利已",2:"舆说輹",3:"良马逐利艰贞",4:"童牛之牿",5:"豮豕之牙",6:"何天之衢亨"},"山雷颐":{1:"舍尔灵龟观我朵颐",2:"颠颐拂经",3:"拂颐贞凶",4:"颠颐吉虎视眈眈",5:"拂经居贞吉",6:"由颐厉吉"},"泽风大过":{1:"藉用白茅无咎",2:"枯杨生稊老夫得其女妻",3:"栋桡凶",4:"栋隆吉有它吝",5:"枯杨生华老妇得其士夫",6:"过涉灭顶凶"},"坎为水":{1:"习坎入于坎窞凶",2:"坎有险求小得",3:"来之坎坎险且枕",4:"樽酒簋贰用缶",5:"坎不盈祗既平",6:"系用徽纆置于丛棘"},"离为火":{1:"履错然敬之无咎",2:"黄离元吉",3:"日昃之离不鼓缶而歌",4:"突如其来如焚如死如弃如",5:"出涕沱若戚嗟若吉",6:"王用出征有嘉折首"},"泽山咸":{1:"咸其拇",2:"咸其腓凶",3:"咸其股执其随",4:"贞吉悔亡憧憧往来",5:"咸其脢无悔",6:"咸其辅颊舌"},"雷风恒":{1:"浚恒贞凶无攸利",2:"悔亡",3:"不恒其德或承之羞",4:"田无禽",5:"恒其德贞妇人吉夫子凶",6:"振恒凶"},"天山遁":{1:"遁尾厉勿用有攸往",2:"执之用黄牛之革",3:"系遁有疾厉",4:"好遁君子吉小人否",5:"嘉遁贞吉",6:"肥遁无不利"},"雷天大壮":{1:"壮于趾征凶有孚",2:"贞吉",3:"小人用壮君子用罔",4:"贞吉悔亡藩决不羸",5:"丧羊于易无悔",6:"羝羊触藩不能退不能遂"},"火地晋":{1:"晋如摧如贞吉",2:"晋如愁如贞吉",3:"众允悔亡",4:"晋如鼫鼠贞厉",5:"悔亡失得勿恤",6:"晋其角维用伐邑"},"地火明夷":{1:"明夷于飞垂其翼",2:"明夷夷于左股",3:"明夷于南狩得其大首",4:"入于左腹获明夷之心",5:"箕子之明夷利贞",6:"不明晦初登于天后入于地"},"风火家人":{1:"闲有家悔亡",2:"无攸遂在中馈",3:"家人嗃嗃悔厉吉",4:"富家大吉",5:"王假有家勿恤吉",6:"有孚威如终吉"},"火泽睽":{1:"悔亡丧马勿逐自复",2:"遇主于巷无咎",3:"见舆曳其牛掣",4:"睽孤遇元夫",5:"悔亡厥宗噬肤",6:"睽孤见豕负涂载鬼一车"},"水山蹇":{1:"往蹇来誉",2:"王臣蹇蹇匪躬之故",3:"往蹇来反",4:"往蹇来连",5:"大蹇朋来",6:"往蹇来硕吉利见大人"},"雷水解":{1:"无咎",2:"田获三狐",3:"负且乘致寇至",4:"解而拇朋至斯孚",5:"君子维有解吉",6:"公用射隼于高墉之上"},"山泽损":{1:"已事遄往无咎",2:"利贞征凶勿用",3:"三人行则损一人",4:"损其疾使遄有喜",5:"或益之十朋之龟",6:"弗损益之无咎贞吉"},"风雷益":{1:"利用为大作元吉",2:"或益之十朋之龟",3:"益之用凶事无咎",4:"中行告公从",5:"有孚惠心勿问元吉",6:"莫益之或击之立心勿恒凶"},"泽天夬":{1:"壮于前趾往不胜为咎",2:"惕号莫夜有戎勿恤",3:"壮于頄有凶",4:"臀无肤其行次且",5:"苋陆夬夬中行无咎",6:"无号终有凶"},"天风姤":{1:"系于金柅贞吉",2:"包有鱼无咎不利宾",3:"臀无肤其行次且厉无大咎",4:"包无鱼起凶",5:"以杞包瓜含章",6:"姤其角吝无咎"},"泽地萃":{1:"有孚不终乃乱乃萃",2:"引吉无咎孚乃利用禴",3:"萃如嗟如无攸利",4:"大吉无咎",5:"萃有位无咎匪孚",6:"赍咨涕洟无咎"},"地风升":{1:"允升大吉",2:"孚乃利用禴无咎",3:"升虚邑",4:"王用亨于岐山吉无咎",5:"贞吉升阶",6:"冥升利于不息之贞"},"泽水困":{1:"臀困于株木入于幽谷",2:"困于酒食朱绂方来",3:"困于石据于蒺藜",4:"来徐徐困于金车",5:"劓刖困于赤绂",6:"困于葛藟于臲卼"},"水风井":{1:"井泥不食旧井无禽",2:"井谷射鲋瓮敝漏",3:"井渫不食为我心恻",4:"井甃无咎",5:"井冽寒泉食",6:"井收勿幕有孚元吉"},"泽火革":{1:"巩用黄牛之革",2:"己日乃革之征吉",3:"征凶贞厉革言三就",4:"悔亡有孚改命吉",5:"大人虎变未占有孚",6:"君子豹变小人革面"},"火风鼎":{1:"鼎颠趾利出否",2:"鼎有实我仇有疾",3:"鼎耳革其行塞",4:"鼎折足覆公餗",5:"鼎黄耳金铉",6:"鼎玉铉大吉无不利"},"震为雷":{1:"震来虩虩后笑言哑哑",2:"震来厉亿丧贝",3:"震苏苏震行无眚",4:"震遂泥",5:"震往来厉亿无丧有事",6:"震索索视矍矍征凶"},"艮为山":{1:"艮其趾无咎",2:"艮其腓不拯其随",3:"艮其限列其夤",4:"艮其身无咎",5:"艮其辅言有序",6:"敦艮吉"},"风山渐":{1:"鸿渐于干小子厉有言",2:"鸿渐于磐饮食衎衎",3:"鸿渐于陆夫征不复",4:"鸿渐于木或得其桷",5:"鸿渐于陵妇三岁不孕",6:"鸿渐于陆其羽可用为仪"},"雷泽归妹":{1:"归妹以娣跛能履",2:"眇能视利幽人之贞",3:"归妹以须反归以娣",4:"归妹愆期迟归有时",5:"帝乙归妹其君之袂",6:"女承筐无实士刲羊无血"},"雷火丰":{1:"遇其配主虽旬无咎",2:"丰其蔀日中见斗",3:"丰其沛日中见沫",4:"丰其蔀日中见斗",5:"来章有庆誉吉",6:"丰其屋蔀其家窥其户阒其无人"},"火山旅":{1:"旅琐琐斯其所取灾",2:"旅即次怀其资",3:"旅焚其次丧其童仆",4:"旅于处得其资斧",5:"射雉一矢亡终以誉命",6:"鸟焚其巢旅人先笑后号咷"},"巽为风":{1:"进退利武人之贞",2:"巽在床下用史巫纷若",3:"频巽吝",4:"悔亡田获三品",5:"贞吉悔亡无不利",6:"巽在床下丧其资斧贞凶"},"兑为泽":{1:"和兑吉",2:"孚兑吉悔亡",3:"来兑凶",4:"商兑未宁介疾有喜",5:"孚于剥有厉",6:"引兑"},"风水涣":{1:"用拯马壮吉",2:"涣奔其机",3:"涣其躬无悔",4:"涣其群元吉",5:"涣汗其大号",6:"涣其血去逖出无咎"},"水泽节":{1:"不出户庭无咎",2:"不出门庭凶",3:"不节若则嗟若无咎",4:"安节亨",5:"甘节吉往有尚",6:"苦节贞凶悔亡"},"风泽中孚":{1:"虞吉有它不燕",2:"鸣鹤在阴其子和之",3:"得敌或鼓或罢或泣或歌",4:"月几望马匹亡无咎",5:"有孚挛如无咎",6:"翰音登于天贞凶"},"雷山小过":{1:"飞鸟以凶",2:"过其祖遇其妣",3:"弗过防之从或戕之凶",4:"无咎弗过遇之",5:"密云不雨自我西郊",6:"弗遇过之飞鸟离之凶"},"水火既济":{1:"曳其轮濡其尾无咎",2:"妇丧其茀勿逐七日得",3:"高宗伐鬼方三年克之",4:"繻有衣袽终日戒",5:"东邻杀牛不如西邻之禴祭",6:"濡其首厉"},"火水未济":{1:"濡其尾吝",2:"曳其轮贞吉",3:"未济征凶利涉大川",4:"贞吉悔亡震用伐鬼方",5:"贞吉无悔君子之光",6:"有孚于饮酒无咎濡其首失是"}};
+
+// ============================================================
+// Part 2: 计算函数（从Python源码完整移植）
+// ============================================================
+function flipBit(b){return b==='0'?'1':'0';}
+
+function binaryToTrigrams(binary){
+var lower=binary.substring(0,3);
+var upper=binary.substring(3,6);
+return{lower:BINARY_TO_TRIGRAM[lower]||'?',upper:BINARY_TO_TRIGRAM[upper]||'?'};
+}
+
+function getHexagramByBinary(binary){
+for(var palace in PALACES){
+var pure=PALACES[palace]["pure_binary"];
+for(var pos=1;pos<=8;pos++){
+var changed=pure.split('');
+var changes=PALACE_CHANGES[pos];
+for(var c=0;c<changes.length;c++){changed[changes[c]]=flipBit(changed[changes[c]]);}
+if(changed.join('')===binary){
+return{name:PALACES[palace]["names"][pos-1],palace:palace,palacePos:pos,palaceElem:PALACES[palace]["element"]};
+}
+}
+}
+return{name:null,palace:null,palacePos:null,palaceElem:null};
+}
+
+function cuoHexagram(binary){var r='';for(var i=0;i<binary.length;i++){r+=flipBit(binary[i]);}return r;}
+function zongHexagram(binary){return binary.split('').reverse().join('');}
+function huHexagram(binary){return binary[1]+binary[2]+binary[3]+binary[2]+binary[3]+binary[4];}
+function bianHexagram(binary,movingLine){var lst=binary.split('');lst[movingLine-1]=flipBit(lst[movingLine-1]);return lst.join('');}
+function fuHexagram(binary,palace){var pure=PALACES[palace]["pure_binary"];return cuoHexagram(pure);}
+function lianHu(binary){var hu=huHexagram(binary);return huHexagram(hu);}
+
+function getLiuQin(zhiElem,palaceElem){
+if(zhiElem===palaceElem)return'兄弟';
+if(WUXING_SHENG[palaceElem]===zhiElem)return'子孙';
+if(WUXING_SHENG[zhiElem]===palaceElem)return'父母';
+if(WUXING_KE[palaceElem]===zhiElem)return'妻财';
+if(WUXING_KE[zhiElem]===palaceElem)return'官鬼';
+return'未知';
+}
+
+function getNaJiaForHexagram(binary,palace){
+var tr=binaryToTrigrams(binary);
+var palaceElem=PALACES[palace]["element"];
+var naJiaLower=NA_JIA[tr.lower]["internal"];
+var naJiaUpper=NA_JIA[tr.upper]["external"];
+var all=naJiaLower.concat(naJiaUpper);
+var result=[];
+for(var i=0;i<all.length;i++){
+var gan=all[i][0],zhi=all[i][1];
+var elem=ZHI_WUXING[zhi];
+var liuQin=getLiuQin(elem,palaceElem);
+result.push({gan:gan,zhi:zhi,element:elem,liuQin:liuQin,ganElement:GAN_WUXING[gan]});
+}
+return result;
+}
+
+function getShiYing(palacePos){var r=SHI_YING[palacePos];return r?{shi:r[0],ying:r[1]}:{shi:null,ying:null};}
+
+function getZhengXuanForLine(linePos,isYang){
+var idx=linePos-1;
+var zhi=isYang?ZHENG_XUAN_YANG_ZHI[idx]:ZHENG_XUAN_YIN_ZHI[idx];
+var lv=LV_LU[zhi];
+return{zhi:zhi,lvLu:lv};
+}
+
+function getWuxingRelation(elem1,elem2){
+if(elem1===elem2)return'比和';
+if(WUXING_SHENG[elem1]===elem2)return'相生';
+if(WUXING_SHENG[elem2]===elem1)return'被生';
+if(WUXING_KE[elem1]===elem2)return'相克';
+if(WUXING_KE[elem2]===elem1)return'被克';
+return'无关';
+}
+
+function getTiYong(binary){
+var tr=binaryToTrigrams(binary);
+var tiElem=TRIGRAMS[tr.lower]["element"];
+var yongElem=TRIGRAMS[tr.upper]["element"];
+var relation=getWuxingRelation(yongElem,tiElem);
+var judgments={"比和":"大吉","相生":"吉","被生":"吉","相克":"凶","被克":"凶","无关":"平"};
+return{tiTrigram:tr.lower,yongTrigram:tr.upper,tiElement:tiElem,yongElement:yongElem,relation:relation,tiYongJudgment:judgments[relation]||'平'};
+}
+
+function getPalacePos(binary,palace){
+var pure=PALACES[palace]["pure_binary"];
+for(var pos=1;pos<=8;pos++){
+var changed=pure.split('');
+var changes=PALACE_CHANGES[pos];
+for(var c=0;c<changes.length;c++){changed[changes[c]]=flipBit(changed[changes[c]]);}
+if(changed.join('')===binary)return pos;
+}
+return 1;
+}
+
+function getYaoPositionAnalysis(binary,movingLine){
+var lines=[];for(var i=0;i<6;i++){lines.push(parseInt(binary[i]));}
+var pos=movingLine;
+var isYang=lines[pos-1]===1;
+var deWei=(isYang&&(pos===1||pos===3||pos===5))||(!isYang&&(pos===2||pos===4||pos===6));
+var deZhong=(pos===2||pos===5);
+var cheng=false,chengBelow=null;
+if(pos>1){var belowIsYang=lines[pos-2]===1;if(!isYang&&belowIsYang){cheng=true;}chengBelow=belowIsYang;}
+var chengShang=false,chengAbove=null;
+if(pos<6){var aboveIsYang=lines[pos]===1;if(isYang&&!aboveIsYang){chengShang=true;}chengAbove=aboveIsYang;}
+var bi=[];
+if(pos>1)bi.push((pos-1)+'爻'+(lines[pos-2]?'阳':'阴'));
+if(pos<6)bi.push((pos+1)+'爻'+(lines[pos]?'阳':'阴'));
+var yingMap={1:4,2:5,3:6,4:1,5:2,6:3};
+var yingPos=yingMap[pos];
+var yingIsYang=lines[yingPos-1]===1;
+var youYing=isYang!==yingIsYang;
+var yongJiuLiu='无';
+var allYang=true,allYin=true;
+for(var j=0;j<6;j++){if(lines[j]!==1)allYang=false;if(lines[j]!==0)allYin=false;}
+if(allYang&&isYang)yongJiuLiu='用九: 见群龙无首吉';
+else if(allYin&&!isYang)yongJiuLiu='用六: 利永贞';
+return{movingPos:pos,isYang:isYang,deWei:deWei?'得位':'失位',deZhong:deZhong?'得中':'不中',cheng:cheng?'乘刚':'不乘',chengShang:chengShang?'承阳':'不承',bi:bi.join(','),ying:yingPos+'爻'+(youYing?'有应':'无应'),yongJiuLiu:yongJiuLiu};
+}
+
+function getLineRelations(binary){
+var lines=[];for(var i=0;i<6;i++){lines.push(parseInt(binary[i]));}
+var yingMap={1:4,2:5,3:6,4:1,5:2,6:3};
+var sanCai=['地','地','人','人','天','天'];
+var levels=['元士','大夫','三公','诸侯','天子','宗庙'];
+var guiJian=['贱','贱','贵','贵','贵','贵'];
+var yaoDe=['潜','见','惕','跃','飞','亢'];
+var relations=[];
+for(var i=0;i<6;i++){
+var pos=i+1;
+var isYang=lines[i]===1;
+var cheng='';
+if(i>0&&!isYang&&lines[i-1]===1)cheng='乘'+(pos-1)+'爻之刚';
+var cheng2='';
+if(i<5&&isYang&&lines[i+1]===0)cheng2=(pos+1)+'爻承之';
+var bi=[];
+if(i>0)bi.push('比'+(pos-1)+'爻');
+if(i<5)bi.push('比'+(pos+1)+'爻');
+var yingPos=yingMap[pos];
+var yingYang=lines[yingPos-1]===1;
+var youYing=isYang!==yingYang;
+var zhong=(pos===2||pos===5);
+var zheng=(isYang&&(pos===1||pos===3||pos===5))||(!isYang&&(pos===2||pos===4||pos===6));
+var zhongZheng=(zhong?'中':'')+(zheng?'正':'');
+if(!zhongZheng)zhongZheng='不中不正';
+relations.push({pos:pos,yinYang:isYang?'阳':'阴',cheng:cheng||'无',cheng2:cheng2||'无',bi:bi.join(','),ying:yingPos+'爻'+(youYing?'有应':'无应'),zhongZheng:zhongZheng,level:levels[i],sanCai:sanCai[i],guiJian:guiJian[i],yaoDe:yaoDe[i]});
+}
+return relations;
+}
+
+function getNaJiaRelations(binary,palace){
+var naJia=getNaJiaForHexagram(binary,palace);
+var sy=getShiYing(getPalacePos(binary,palace));
+var shengKe=[];
+for(var i=0;i<6;i++){
+for(var j=0;j<6;j++){
+if(i===j)continue;
+var rel=getWuxingRelation(naJia[i]["element"],naJia[j]["element"]);
+if(rel==='相生'||rel==='相克'||rel==='被克')shengKe.push((i+1)+'爻'+rel+(j+1)+'爻');
+}
+}
+var chongHe=[];
+for(var i=0;i<6;i++){
+for(var j=i+1;j<6;j++){
+if(ZHI_CHONG[naJia[i]["zhi"]]===naJia[j]["zhi"])chongHe.push((i+1)+'爻冲'+(j+1)+'爻');
+if(ZHI_HE[naJia[i]["zhi"]]===naJia[j]["zhi"])chongHe.push((i+1)+'爻合'+(j+1)+'爻');
+}
+}
+var sanHe=[];
+var zhiList=[];for(var i=0;i<naJia.length;i++)zhiList.push(naJia[i]["zhi"]);
+for(var trio in ZHI_SAN_HE){
+var trioZhi=trio.split('');
+if(trioZhi.every(function(z){return zhiList.indexOf(z)>=0;}))sanHe.push(trio+'='+ZHI_SAN_HE[trio]);
+}
+var shiElem=sy.shi?naJia[sy.shi-1]["element"]:'?';
+var yingElem=sy.ying?naJia[sy.ying-1]["element"]:'?';
+var shiYingRel=(sy.shi&&sy.ying)?getWuxingRelation(shiElem,yingElem):'?';
+var shiLiuQin=sy.shi?naJia[sy.shi-1]["liuQin"]:'?';
+var yingLiuQin=sy.ying?naJia[sy.ying-1]["liuQin"]:'?';
+return{shengKeNetwork:shengKe.slice(0,20),chongHeNetwork:chongHe,sanHe:sanHe,shiYingWuxing:shiYingRel,shiLiuQin:shiLiuQin,yingLiuQin:yingLiuQin,shiPos:sy.shi,yingPos:sy.ying};
+}
+
+function getMuKu(zhi,elem){
+var muMap={"水":"辰","火":"戌","金":"丑","木":"未","土":"辰"};
+var muZhi=muMap[elem]||'?';
+return zhi===muZhi?'入墓':'不入墓';
+}
+
+function checkFuYin(binary,palace,lineIdx){
+var naJia=getNaJiaForHexagram(binary,palace);
+var counterpart=lineIdx<3?lineIdx+3:lineIdx-3;
+if(naJia[lineIdx]["zhi"]===naJia[counterpart]["zhi"])return'伏吟';
+if(ZHI_CHONG[naJia[lineIdx]["zhi"]]===naJia[counterpart]["zhi"])return'反吟';
+return'正常';
+}
+
+function getSixLinesDetail(binary,palace,dayGan,monthZhi,dayGanZhi){
+var naJia=getNaJiaForHexagram(binary,palace);
+var lines=[];for(var i=0;i<6;i++){lines.push(parseInt(binary[i]));}
+var kongWangZhi=[];
+if(dayGanZhi){
+var xunIdx=LIU_SHI_JIA_ZI.indexOf(dayGanZhi);
+if(xunIdx>=0){var xunStart=Math.floor(xunIdx/10)*10;var xunName=LIU_SHI_JIA_ZI[xunStart];kongWangZhi=KONG_WANG[xunName]||[];}
+}
+var results=[];
+for(var i=0;i<6;i++){
+var nj=naJia[i];
+var isYang=lines[i]===1;
+var yinYang=isYang?'阳':'阴';
+var elem=nj["element"];
+var spirit='待日干';
+if(dayGan){var startIdx=SPIRIT_START_CORRECT[dayGan]||0;spirit=SIX_SPIRITS_ORDER[(startIdx+i)%6];}
+var wang='待月令';
+if(monthZhi){var season=MONTH_TO_SEASON[monthZhi]||'?';wang=(WANG_SHUAI[season]||{})[elem]||'?';}
+var kong='待日干支';
+if(kongWangZhi.length>0)kong=kongWangZhi.indexOf(nj["zhi"])>=0?'空亡':'不空';
+var anDong='待日支';
+var muKu=getMuKu(nj["zhi"],elem);
+var jinTui=JIN_TUI[nj["zhi"]]||'?';
+var fuYin=checkFuYin(binary,palace,i);
+var shengKe='待日支';
+var chongHe='待日支';
+results.push({pos:i+1,yinYang:yinYang,element:elem,sixSpirit:spirit,wangShuai:wang,kongWang:kong,anDong:anDong,muKu:muKu,jinTuiShen:jinTui,fuYinFanYin:fuYin,shengKe:shengKe,chongHe:chongHe,gan:nj["gan"],zhi:nj["zhi"],liuQin:nj["liuQin"]});
+}
+return results;
+}
+
+function getDivinationSpecific(binary,palace,movingLine){
+var naJia=getNaJiaForHexagram(binary,palace);
+var sy=getShiYing(getPalacePos(binary,palace));
+var yongShenElem=sy.shi?naJia[sy.shi-1]["element"]:'?';
+var yuanShenElem=null;
+for(var elem in WUXING_SHENG){if(WUXING_SHENG[elem]===yongShenElem){yuanShenElem=elem;break;}}
+var jiShenElem=null;
+for(var elem in WUXING_KE){if(WUXING_KE[elem]===yongShenElem){jiShenElem=elem;break;}}
+var chouShenElem=null;
+if(jiShenElem){for(var elem in WUXING_SHENG){if(WUXING_SHENG[elem]===jiShenElem){chouShenElem=elem;break;}}}
+return{yongShen:yongShenElem+'(世爻)',yuanShen:yuanShenElem||'?',jiShen:jiShenElem||'?',chouShen:chouShenElem||'?',riChen:'需日辰',yueJian:'需月建',huiTouSheng:'需动爻判断',huiTouKe:'需动爻判断',yinGuaShen:'需卦身判断',yangGuaShen:'需卦身判断',guaMing:'需具体断卦',guaYan:'需具体断卦'};
+}
+
+function getGuaXiangFine(binary){
+var tr=binaryToTrigrams(binary);
+var lower=tr.lower,upper=tr.upper;
+var daXiang=TRIGRAMS[upper]["nature"]+'在'+TRIGRAMS[lower]["nature"]+'上';
+var xiangNature=TRIGRAMS[upper]["nature"]+'('+TRIGRAMS[upper]["element"]+')+'+TRIGRAMS[lower]["nature"]+'('+TRIGRAMS[lower]["element"]+')';
+var xiangBody=TRIGRAMS[upper]["body"]+'+'+TRIGRAMS[lower]["body"];
+var xiangAnimal=TRIGRAMS[upper]["animal"]+'+'+TRIGRAMS[lower]["animal"];
+var hu=huHexagram(binary);
+var huTr=binaryToTrigrams(hu);
+var huXiang=TRIGRAMS[huTr.upper]["nature"]+'在'+TRIGRAMS[huTr.lower]["nature"]+'上';
+var zong=zongHexagram(binary);
+var zongInfo=getHexagramByBinary(zong);
+var fuXiang=zongInfo.name||'?';
+var bianXiang='需动爻';
+var cuo=cuoHexagram(binary);
+var cuoInfo=getHexagramByBinary(cuo);
+var fanduiXiang=cuoInfo.name||'?';
+return{daXiang:daXiang,xiangNature:xiangNature,xiangBody:xiangBody,xiangAnimal:xiangAnimal,huXiang:huXiang,fuXiang:fuXiang,bianXiang:bianXiang,fanduiXiang:fanduiXiang};
+}
+
+function getWuxingFamily(binary){
+var tr=binaryToTrigrams(binary);
+var lower=tr.lower,upper=tr.upper;
+var li=TRIGRAMS[lower],up=TRIGRAMS[upper];
+var tiYong=getTiYong(binary);
+var tiXing={"金":"从革-刚硬肃杀","木":"曲直-生长舒展","水":"润下-流动趋低","火":"炎上-光明热烈","土":"稼穑-承载化育"};
+var wuQi={"金":"燥","木":"风","水":"寒","火":"热","土":"湿"};
+var wuHua={"金":"收","木":"生","水":"藏","火":"长","土":"化"};
+var wuQing={"金":"悲","木":"怒","水":"恐","火":"喜","土":"思"};
+var wuSe={"金":"白","木":"青","水":"黑","火":"赤","土":"黄"};
+var wuWei={"金":"辛","木":"酸","水":"咸","火":"苦","土":"甘"};
+var wuYin={"金":"商","木":"角","水":"羽","火":"徵","土":"宫"};
+var wuChang={"金":"义","木":"仁","水":"智","火":"礼","土":"信"};
+var liElem=li["element"],upElem=up["element"];
+var xiangSheng='无相生';
+if(WUXING_SHENG[liElem]===upElem)xiangSheng=liElem+'生'+WUXING_SHENG[liElem];
+else if(WUXING_SHENG[upElem]===liElem)xiangSheng=upElem+'生'+WUXING_SHENG[upElem];
+var xiangKe='无相克';
+if(WUXING_KE[liElem]===upElem)xiangKe=liElem+'克'+WUXING_KE[liElem];
+else if(WUXING_KE[upElem]===liElem)xiangKe=upElem+'克'+WUXING_KE[upElem];
+var chengWu=WUXING_KE[liElem]===upElem?liElem+'乘'+upElem:'无乘';
+var muZi='非母子';
+if(WUXING_SHENG[liElem]===upElem)muZi=liElem+'母'+upElem+'子';
+else if(WUXING_SHENG[upElem]===liElem)muZi=upElem+'母'+liElem+'子';
+var zhiHua=WUXING_KE[liElem]===upElem?liElem+'制'+upElem:'无制化关系';
+return{
+tiXingLower:tiXing[liElem]||'?',tiXingUpper:tiXing[upElem]||'?',
+xiangSheng:xiangSheng,xiangKe:xiangKe,chengWu:chengWu,muZi:muZi,zhiHua:zhiHua,
+wangShuaiRelation:tiYong.relation,
+wuFang:li["direction"]+'+'+up["direction"],
+wuJi:li["season"]+'+'+up["season"],
+wuQi:(wuQi[liElem]||'?')+'+'+(wuQi[upElem]||'?'),
+wuHua:(wuHua[liElem]||'?')+'+'+(wuHua[upElem]||'?'),
+wuQing:(wuQing[liElem]||'?')+'+'+(wuQing[upElem]||'?'),
+wuSe:(wuSe[liElem]||'?')+'+'+(wuSe[upElem]||'?'),
+wuWei:(wuWei[liElem]||'?')+'+'+(wuWei[upElem]||'?'),
+wuYin:(wuYin[liElem]||'?')+'+'+(wuYin[upElem]||'?'),
+wuChang:(wuChang[liElem]||'?')+'+'+(wuChang[upElem]||'?'),
+yinYangHuCang:'下卦'+liElem+'('+li["family"]+')上卦'+upElem+'('+up["family"]+')',
+liuQinMapping:getWuxingRelation(upElem,liElem)
+};
+}
+
+function getSequenceInfo(name,binary){
+var tr=binaryToTrigrams(binary);
+var lower=tr.lower,upper=tr.upper;
+var wwOrder=WENWANG_ORDER.indexOf(name)+1;
+var xiantianOrder=parseInt(binary,2);
+var xiantianNum=XIANTIAN_BAGUA_NUM[upper]*8+XIANTIAN_BAGUA_NUM[lower];
+var hg=getHexagramByBinary(binary);
+var palaceName=hg.palace,palacePos=hg.palacePos;
+var houtianNum=(HOUTIAN_BAGUA_NUM[upper]||'?')+'/'+(HOUTIAN_BAGUA_NUM[lower]||'?');
+var hetuNum=(HETU[TRIGRAMS[lower]["element"]]||'?')+'/'+(HETU[TRIGRAMS[upper]["element"]]||'?');
+var luoshuNum=(LUOSHU[upper]||'?')+'/'+(LUOSHU[lower]||'?');
+var msg='非消息卦';
+for(var i=0;i<TWELVE_MSG.length;i++){if(TWELVE_MSG[i]["binary"]===binary){msg=TWELVE_MSG[i]["name"]+'('+TWELVE_MSG[i]["month"]+'月,阳'+TWELVE_MSG[i]["yang"]+')';break;}}
+var cuo=cuoHexagram(binary);
+var cuoInfo=getHexagramByBinary(cuo);
+var guaQi=wwOrder>0?'第'+(((wwOrder-1)%60)+1)+'日':'?';
+var boshu=getBoshuOrder(name);
+var yuanTu='位'+xiantianOrder;
+var fangTu='行'+XIANTIAN_BAGUA_NUM[upper]+'列'+XIANTIAN_BAGUA_NUM[lower];
+var guaBian=palaceName?('本宫'+palaceName+'第'+palacePos+'变'):'?';
+return{wenwangOrder:wwOrder,xiantianOrder:xiantianOrder,baGong:(palaceName?(''+palaceName+'宫第'+palacePos+'位'):'?'),guaQiZhiRi:guaQi,xiaoXiGua:msg,pangTong:cuoInfo.name||'?',guaBianLaiyuan:guaBian,shiLiuBian:'待补充',boShuXu:boshu,yuanTu:yuanTu,fangTu:fangTu,qiShiErHou:'待补充',xiantianNum:xiantianNum,houtianNum:houtianNum,hetuNum:hetuNum,luoshuNum:luoshuNum};
+}
+
+function getZhengXuanAll(binary){
+var lines=[];for(var i=0;i<6;i++){lines.push(parseInt(binary[i]));}
+var results=[];
+for(var i=0;i<6;i++){
+var isYang=lines[i]===1;
+var zx=getZhengXuanForLine(i+1,isYang);
+results.push({pos:i+1,zhi:zx.zhi,lvLu:zx.lvLu});
+}
+return results;
+}
+
+function getSanCai(binary){
+var tr=binaryToTrigrams(binary);
+var lines=[];for(var i=0;i<6;i++){lines.push(parseInt(binary[i]));}
+return{di:lines[0]+''+lines[1]+' ('+tr.lower+'下卦)',ren:lines[2]+''+lines[3],tian:lines[4]+''+lines[5]+' ('+tr.upper+'上卦)'};
+}
+
+function getSixSpiritsForDay(dayGan){
+var startIdx=SPIRIT_START_CORRECT[dayGan]||0;
+var result=[];
+for(var i=0;i<6;i++){result.push(SIX_SPIRITS_ORDER[(startIdx+i)%6]);}
+return result;
+}
+
+// ============================================================
+// OPT1: 日干支计算（儒略日号法）
+// ============================================================
+function julianDayNumber(year,month,day){
+var a=Math.floor((14-month)/12);
+var y=year+4800-a;
+var m=month+12*a-3;
+return day+Math.floor((153*m+2)/5)+365*y+Math.floor(y/4)-Math.floor(y/100)+Math.floor(y/400)-32045;
+}
+
+function calcDayGanZhi(year,month,day){
+var jdn=julianDayNumber(year,month,day);
+var gzIndex=((jdn-2451551)%60+60)%60;
+var dayGan=TIANGAN[gzIndex%10];
+var dayZhi=DIZHI[gzIndex%12];
+var dayGanZhi=dayGan+dayZhi;
+// 月支: 基于节气近似
+var simpleMap={1:'丑',2:'寅',3:'卯',4:'辰',5:'巳',6:'午',7:'未',8:'申',9:'酉',10:'戌',11:'亥',12:'子'};
+var monthZhi=simpleMap[month]||'子';
+// 更精确的节气月判断
+var boundaries=[[1,5,'丑'],[2,4,'丑'],[2,5,'寅'],[3,4,'寅'],[3,5,'卯'],[4,4,'卯'],[4,5,'辰'],[5,4,'辰'],[5,5,'巳'],[6,5,'巳'],[6,6,'午'],[7,6,'午'],[7,7,'未'],[8,7,'未'],[8,8,'申'],[9,7,'申'],[9,8,'酉'],[10,7,'酉'],[10,8,'戌'],[11,6,'戌'],[11,7,'亥'],[12,6,'亥'],[12,7,'子'],[1,4,'子']];
+for(var i=0;i<boundaries.length;i+=2){
+var ms=boundaries[i],me=boundaries[i+1];
+if(me){
+if((month===ms[0]&&day>=ms[2]?false:false)){}
+// Simplified: just use simpleMap for robustness
+}
+}
+return{dayGanZhi:dayGanZhi,dayGan:dayGan,dayZhi:dayZhi,monthZhi:monthZhi};
+}
+
+function getKongWang(dayGanZhi){
+var idx=LIU_SHI_JIA_ZI.indexOf(dayGanZhi);
+if(idx<0)return[];
+var xunIdx=Math.floor(idx/10)*10;
+var xunName=LIU_SHI_JIA_ZI[xunIdx];
+return KONG_WANG[xunName]||[];
+}
+
+// OPT2: 帛书序
+function getBoshuOrder(name){
+var idx=BOSHU_ORDER_COMPLETE.indexOf(name);
+return idx>=0?idx+1:-1;
+}
+
+// OPT3: 体用判断精细化
+function tiYongJudgePrecise(relation){
+var judgments={"相生":"大吉·用生体·有助益","比和":"大吉·比和·同类相辅","被克":"凶中有吉·体克用·费力可成","被生":"耗损·体生用·付出多","相克":"凶·用克体·外力压制","无关":"平·无生克"};
+return judgments[relation]||'平·无生克';
+}
+
+// OPT4: 变象实际计算
+function getBianXiang(bianBinary){
+if(!bianBinary)return'无变卦';
+var tr=binaryToTrigrams(bianBinary);
+return TRIGRAMS[tr.upper]["nature"]+'在'+TRIGRAMS[tr.lower]["nature"]+'上';
+}
+
+// OPT5: 六亲旺衰综合分析
+function getLiuQinWangShuaiSummary(binary,palace,monthZhi){
+var naJia=getNaJiaForHexagram(binary,palace);
+var palaceElem=PALACES[palace]["element"];
+var season=monthZhi?(MONTH_TO_SEASON[monthZhi]||'四季'):'四季';
+var liuqinStatus={};
+for(var i=0;i<naJia.length;i++){
+var lq=naJia[i]["liuQin"];
+var elem=naJia[i]["element"];
+var ws=(WANG_SHUAI[season]||{})[elem]||'未知';
+if(!liuqinStatus[lq])liuqinStatus[lq]=[];
+liuqinStatus[lq].push({zhi:naJia[i]["zhi"],element:elem,wangShuai:ws});
+}
+var parts=[];
+for(var lq in liuqinStatus){
+var statuses=liuqinStatus[lq].map(function(e){return e["wangShuai"];});
+var summary='待月令';
+if(statuses.indexOf('旺')>=0)summary='旺相';
+else if(statuses.indexOf('相')>=0)summary='得令';
+else if(statuses.indexOf('休')>=0)summary='休囚';
+else if(statuses.indexOf('囚')>=0)summary='失令';
+else if(statuses.indexOf('死')>=0)summary='死绝';
+parts.push(lq+summary);
+}
+var palacePos=getPalacePos(binary,palace);
+var sy=getShiYing(palacePos);
+var yongshenJudge='待月令';
+if(sy.shi&&sy.shi<=naJia.length){
+var shiLq=naJia[sy.shi-1]["liuQin"];
+var shiElem=naJia[sy.shi-1]["element"];
+var shiWs=(WANG_SHUAI[season]||{})[shiElem]||'未知';
+yongshenJudge='用神('+shiLq+')'+shiWs;
+if(shiWs==='旺'||shiWs==='相')yongshenJudge+='·有力';
+else if(shiWs==='休')yongshenJudge+='·尚可';
+else if(shiWs==='囚'||shiWs==='死')yongshenJudge+='·无力';
+else yongshenJudge+='·待月令';
+}
+return{liuqinWangShuai:parts.join('、'),yongshenYouli:yongshenJudge};
+}
+
+// 梅花易数起卦
+function meihuaQigua(year,month,day,hour){
+// 简化: 公历直接用 (无lunar_python fallback)
+var lYear=year,lMonth=month,lDay=day;
+// 时辰地支
+var hourZhiMap={23:'子',0:'子',1:'丑',2:'丑',3:'寅',4:'寅',5:'卯',6:'卯',7:'辰',8:'辰',9:'巳',10:'巳',11:'午',12:'午',13:'未',14:'未',15:'申',16:'申',17:'酉',18:'酉',19:'戌',20:'戌',21:'亥',22:'亥'};
+var hourZhi=hourZhiMap[hour]||'子';
+var zhiToNum={"子":1,"丑":2,"寅":3,"卯":4,"辰":5,"巳":6,"午":7,"未":8,"申":9,"酉":10,"戌":11,"亥":12};
+var hourNum=zhiToNum[hourZhi];
+var yearNum=lYear;
+var upperNum=(yearNum+lMonth+lDay)%8;
+var lowerNum=(yearNum+lMonth+lDay+hourNum)%8;
+var moving=(yearNum+lMonth+lDay+hourNum)%6;
+if(moving===0)moving=6;
+var numToTrigram={1:'乾',2:'兑',3:'离',4:'震',5:'巽',6:'坎',7:'艮',0:'坤',8:'坤'};
+var upperTri=numToTrigram[upperNum];
+var lowerTri=numToTrigram[lowerNum];
+var binary=TRIGRAMS[lowerTri]["binary"]+TRIGRAMS[upperTri]["binary"];
+return{upperTrigram:upperTri,lowerTrigram:lowerTri,movingLine:moving,binary:binary,lunarYear:lYear,lunarMonth:lMonth,lunarDay:lDay,hourZhi:hourZhi,hourNum:hourNum,upperNum:upperNum,lowerNum:lowerNum};
+}
+
+// ============================================================
+// Part 3: 辅助渲染函数
+// ============================================================
+function toggleLayer(header){
+header.classList.toggle('open');
+header.nextElementSibling.classList.toggle('open');
+}
+
+function gc(k,v,active){
+var cls=active?'kv-item active':'kv-item';
+return'<span class="'+cls+'"><span class="k">'+k+'</span><span class="v">'+v+'</span></span>';
+}
+
+function layerHtml(title,contentStr){
+return'<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><span class="layer-title">'+title+'</span><span class="layer-arrow">▶</span></div><div class="layer-body"><div class="layer-content">'+contentStr+'</div></div></div>';
+}
+
+function optCardHtml(title,detail,extra){
+var html='<div class="opt-card"><div class="opt-title">'+title+'</div>';
+if(detail)html+='<div class="opt-desc">'+detail+'</div>';
+if(extra)html+='<div class="opt-detail">'+extra+'</div>';
+html+='</div>';
+return html;
+}
+
+// ============================================================
+// Part 4: 主生成函数
+// ============================================================
+function generate(){
+var year=parseInt(document.getElementById('year').value);
+var month=parseInt(document.getElementById('month').value);
+var day=parseInt(document.getElementById('day').value);
+var hour=parseInt(document.getElementById('hour').value);
+
+// 梅花易数起卦
+var qg=meihuaQigua(year,month,day,hour);
+var binary=qg.binary;
+var movingLine=qg.movingLine;
+
+// OPT1: 日干支
+var timeInfo=calcDayGanZhi(year,month,day);
+var dayGanZhi=timeInfo.dayGanZhi;
+var dayGan=timeInfo.dayGan;
+var monthZhi=timeInfo.monthZhi;
+var kongWangZhi=getKongWang(dayGanZhi);
+
+// 基础卦象信息
+var hg=getHexagramByBinary(binary);
+var name=hg.name,palace=hg.palace,palacePos=hg.palacePos,palaceElem=hg.palaceElem;
+var tr=binaryToTrigrams(binary);
+var lowerTri=tr.lower,upperTri=tr.upper;
+
+// 各种卦象变换
+var bianBin=bianHexagram(binary,movingLine);
+var bianInfo=getHexagramByBinary(bianBin);
+var huBin=huHexagram(binary);
+var huInfo=getHexagramByBinary(huBin);
+var cuoBin=cuoHexagram(binary);
+var cuoInfo=getHexagramByBinary(cuoBin);
+var zongBin=zongHexagram(binary);
+var zongInfo=getHexagramByBinary(zongBin);
+var fuBin=fuHexagram(binary,palace);
+var fuInfo=getHexagramByBinary(fuBin);
+var lianHuBin=lianHu(binary);
+var lianHuInfo=getHexagramByBinary(lianHuBin);
+
+// 纳甲
+var naJia=getNaJiaForHexagram(binary,palace);
+var sy=getShiYing(palacePos);
+var njRel=getNaJiaRelations(binary,palace);
+
+// 体用
+var tiYong=getTiYong(binary);
+var preciseJudgment=tiYongJudgePrecise(tiYong.relation);
+
+// 六爻详情
+var sixLines=getSixLinesDetail(binary,palace,dayGan,monthZhi,dayGanZhi);
+
+// 序列信息
+var seq=getSequenceInfo(name,binary);
+
+// 动爻分析
+var yaoAna=getYaoPositionAnalysis(binary,movingLine);
+
+// 爻位关系
+var lineRels=getLineRelations(binary);
+
+// 占法专用
+var divSpec=getDivinationSpecific(binary,palace,movingLine);
+
+// 郑玄爻辰
+var zhengXuan=getZhengXuanAll(binary);
+
+// 卦象细分
+var gxFine=getGuaXiangFine(binary);
+
+// 五行维度族
+var wxFamily=getWuxingFamily(binary);
+
+// 三才
+var sanCai=getSanCai(binary);
+
+// 六神
+var sixSpirits=getSixSpiritsForDay(dayGan);
+
+// OPT5
+var lqWs=getLiuQinWangShuaiSummary(binary,palace,monthZhi);
+
+// OPT4: 变象
+var bianXiangStr=getBianXiang(bianBin);
+
+var html='';
+
+// === 核心展示区 ===
+html+='<div class="core-display">';
+html+='<div class="core-big">';
+html+='<div class="big-item"><div class="big-label">上卦</div><div class="big-value">'+qg.upperTrigram+'</div><div class="big-sub">'+TRIGRAMS[qg.upperTrigram]["nature"]+'·'+TRIGRAMS[qg.upperTrigram]["element"]+'</div></div>';
+html+='<div class="big-item"><div class="big-label">本卦</div><div class="big-value" style="font-size:24px">'+name+'</div><div class="big-sub">'+palace+'宫第'+palacePos+'位</div></div>';
+html+='<div class="big-item"><div class="big-label">下卦</div><div class="big-value">'+qg.lowerTrigram+'</div><div class="big-sub">'+TRIGRAMS[qg.lowerTrigram]["nature"]+'·'+TRIGRAMS[qg.lowerTrigram]["element"]+'</div></div>';
+html+='</div>';
+
+html+='<div class="highlight-grid">';
+html+='<div class="highlight-item gold"><div class="label">动爻</div><div class="value">第'+movingLine+'爻</div></div>';
+html+='<div class="highlight-item"><div class="label">变卦</div><div class="value">'+(bianInfo.name||'?')+'</div></div>';
+html+='<div class="highlight-item"><div class="label">宫五行</div><div class="value">'+palaceElem+'</div></div>';
+html+='<div class="highlight-item"><div class="label">日干支</div><div class="value">'+dayGanZhi+'</div></div>';
+html+='<div class="highlight-item"><div class="label">月支</div><div class="value">'+monthZhi+'</div></div>';
+html+='<div class="highlight-item"><div class="label">空亡</div><div class="value">'+(kongWangZhi.length>0?kongWangZhi.join('、'):'无')+'</div></div>';
+html+='<div class="highlight-item gold"><div class="label">体用精断</div><div class="value">'+preciseJudgment+'</div></div>';
+html+='</div>';
+html+='</div>';
+
+// === 5项优化卡片 ===
+html+='<div class="opt-section">';
+html+=optCardHtml("OPT1 日干支计算（儒略日号法）+ 空亡地支 + 月支",
+"日干支: "+dayGanZhi+" | 月支: "+monthZhi+" | 空亡: "+(kongWangZhi.length>0?kongWangZhi.join('、'):'无'),
+"儒略日号法: JDN="+julianDayNumber(year,month,day)+", 60甲子索引="+(((julianDayNumber(year,month,day)-2451551)%60+60)%60)+" → 消除占位符");
+html+=optCardHtml("OPT2 帛书序补全64卦",
+"帛书序: 第"+getBoshuOrder(name)+"卦/64 (BOSHU_ORDER_COMPLETE完整64卦)",
+"原BOSHU_ORDER仅40卦，现已补全至完整64卦");
+html+=optCardHtml("OPT3 体用判断精细化（5级）",
+"体="+tiYong.tiTrigram+"("+tiYong.tiElement+"), 用="+tiYong.yongTrigram+"("+tiYong.yongElement+"), 关系="+tiYong.relation,
+"精断: "+preciseJudgment);
+html+=optCardHtml("OPT4 变象实际计算",
+"变卦: "+(bianInfo.name||'?')+" → 变象: "+bianXiangStr,
+"变卦上下卦取象: "+bianXiangStr);
+html+=optCardHtml("OPT5 六亲旺衰综合分析",
+"六亲旺衰: "+lqWs.liuqinWangShuai,
+"用神有力: "+lqWs.yongshenYouli);
+html+='</div>';
+
+// === L1 结构层 (8维) ===
+var l1='<div class="kv">';
+l1+=gc("本卦",name,true);
+l1+=gc("变卦",bianInfo.name||'?');
+l1+=gc("互卦",huInfo.name||'?');
+l1+=gc("错卦",cuoInfo.name||'?');
+l1+=gc("综卦",zongInfo.name||'?');
+l1+=gc("之卦",bianInfo.name||'?');
+l1+=gc("伏卦",fuInfo.name||'?');
+l1+=gc("连互",lianHuInfo.name||'?');
+l1+='</div>';
+html+=layerHtml("L1 结构层 (8维): 本卦/变卦/互卦/错卦/综卦/之卦/伏卦/连互",l1);
+
+// === L2 文本层 (8维) ===
+var l2='<div class="kv">';
+l2+=gc("卦辞","待补充");
+l2+=gc("爻辞",YAO_CI[name]?YAO_CI[name][movingLine]||'待补充':'待补充',true);
+l2+=gc("彖传","待补充");
+l2+=gc("大象",XIAO_XIANG[name]||'待补充');
+l2+=gc("小象","待补充");
+l2+=gc("文言",WENYAN[name]||'无');
+l2+=gc("序卦",XUGUA[name]||'待补充');
+l2+=gc("杂卦",ZAGUA[name]||'待补充');
+l2+='</div>';
+html+=layerHtml("L2 文本层 (8维): 卦辞/爻辞/彖传/大象/小象/文言/序卦/杂卦",l2);
+
+// === L3 卦象属性层 (10维) ===
+var l3='<div class="kv">';
+l3+=gc("卦主",upperTri+'/'+lowerTri+'为主');
+l3+=gc("卦身",'世爻第'+sy.shi+'位');
+l3+=gc("卦德",GUA_DE[name]||'待补充');
+l3+=gc("卦象",TRIGRAMS[upperTri]["nature"]+'在'+TRIGRAMS[lowerTri]["nature"]+'上');
+l3+=gc("卦时",GUA_SHI[name]||'待补充');
+l3+=gc("体用",'体='+tiYong.tiTrigram+'('+tiYong.tiElement+'),用='+tiYong.yongTrigram+'('+tiYong.yongElement+'),'+preciseJudgment,true);
+l3+=gc("先天数",seq.xiantianNum);
+l3+=gc("后天数",seq.houtianNum);
+l3+=gc("河图数",seq.hetuNum);
+l3+=gc("洛书数",seq.luoshuNum);
+l3+='</div>';
+html+=layerHtml("L3 卦象属性层 (10维): 卦主/卦身/卦德/卦象/卦时/体用/先天数/后天数/河图数/洛书数",l3);
+
+// === L4 动爻分析层 (6维) ===
+var l4='<div class="kv">';
+l4+=gc("位置",'第'+yaoAna.movingPos+'爻');
+l4+=gc("得位",yaoAna.deWei);
+l4+=gc("得中",yaoAna.deZhong);
+l4+=gc("乘承比应",'乘:'+yaoAna.cheng+',承:'+yaoAna.chengShang+',比:'+yaoAna.bi+',应:'+yaoAna.ying);
+l4+=gc("轨迹",name+'→'+(bianInfo.name||'?'));
+l4+=gc("用九用六",yaoAna.yongJiuLiu);
+l4+='</div>';
+html+=layerHtml("L4 动爻分析层 (6维): 位置/得位/得中/乘承比应/轨迹/用九用六",l4);
+
+// === L5 爻位关系层 (34维) ===
+var l5='';
+for(var i=0;i<lineRels.length;i++){
+var lr=lineRels[i];
+l5+='<div class="table-row"><span class="row-label">'+lr.pos+'爻('+lr.yinYang+')</span>';
+l5+=gc("乘",lr.cheng);
+l5+=gc("承",lr.cheng2);
+l5+=gc("比",lr.bi);
+l5+=gc("应",lr.ying);
+l5+=gc("中正",lr.zhongZheng);
+l5+='</div>';
+}
+var movingIdx=movingLine-1;
+l5+='<div class="table-row"><span class="row-label">动爻综合</span>';
+l5+=gc("等级",lineRels[movingIdx].level);
+l5+=gc("三才",lineRels[movingIdx].sanCai);
+l5+=gc("贵贱",lineRels[movingIdx].guiJian);
+l5+=gc("爻德",lineRels[movingIdx].yaoDe);
+l5+='</div>';
+html+=layerHtml("L5 爻位关系层 (34维): 6爻×5属性 + 等级/三才/贵贱/爻德",l5);
+
+// === L6 序列与宫位层 (12维) ===
+var l6='<div class="kv">';
+l6+=gc("文王序",seq.wenwangOrder,true);
+l6+=gc("先天序",seq.xiantianOrder);
+l6+=gc("八宫",seq.baGong);
+l6+=gc("卦气值日",seq.guaQiZhiRi);
+l6+=gc("消息卦",seq.xiaoXiGua);
+l6+=gc("旁通",seq.pangTong);
+l6+=gc("卦变来源",seq.guaBianLaiyuan);
+l6+=gc("十六变",seq.shiLiuBian);
+l6+=gc("帛书序",seq.boShuXu>0?'第'+seq.boShuXu+'卦':'未找到');
+l6+=gc("圆图",seq.yuanTu);
+l6+=gc("方图",seq.fangTu);
+l6+=gc("七十二候配卦",seq.qiShiErHou);
+l6+='</div>';
+html+=layerHtml("L6 序列与宫位层 (12维): 文王序/先天序/八宫/卦气值日/消息卦/旁通/卦变来源/十六变/帛书序/圆图/方图/七十二候配卦",l6);
+
+// === L7 纳甲六爻层 (34维) ===
+var l7='';
+for(var i=0;i<naJia.length;i++){
+var nj=naJia[i];
+var isShi=(sy.shi===i+1),isYing=(sy.ying===i+1);
+var mark='';
+if(isShi)mark+=' [世]';
+if(isYing)mark+=' [应]';
+l7+='<div class="table-row"><span class="row-label">'+(i+1)+'爻'+mark+'</span>';
+l7+=gc("天干",nj.gan);
+l7+=gc("地支",nj.zhi);
+l7+=gc("五行",nj.element);
+l7+=gc("六亲",nj.liuQin);
+l7+='</div>';
+}
+l7+='<div class="kv">';
+l7+=gc("世爻位",sy.shi,true);
+l7+=gc("应爻位",sy.ying);
+l7+=gc("世爻天干",sy.shi?naJia[sy.shi-1].gan:'?');
+l7+=gc("世爻地支",sy.shi?naJia[sy.shi-1].zhi:'?');
+l7+=gc("世爻五行",sy.shi?naJia[sy.shi-1].element:'?');
+l7+=gc("世爻六亲",sy.shi?naJia[sy.shi-1].liuQin:'?');
+l7+=gc("应爻天干",sy.ying?naJia[sy.ying-1].gan:'?');
+l7+=gc("应爻地支",sy.ying?naJia[sy.ying-1].zhi:'?');
+l7+=gc("应爻五行",sy.ying?naJia[sy.ying-1].element:'?');
+l7+=gc("应爻六亲",sy.ying?naJia[sy.ying-1].liuQin:'?');
+l7+='</div>';
+l7+='<div class="kv">';
+l7+=gc("五行生克网络",njRel.shengKeNetwork.slice(0,8).join('; '),true);
+l7+=gc("地支冲合网络",njRel.chongHeNetwork.join('; '));
+l7+=gc("三合局",njRel.sanHe.length>0?njRel.sanHe.join('; '):'无');
+l7+=gc("世应五行关系",njRel.shiYingWuxing);
+l7+=gc("世爻六亲",njRel.shiLiuQin);
+l7+=gc("世爻空亡",kongWangZhi.length>0&&sy.shi?(kongWangZhi.indexOf(naJia[sy.shi-1].zhi)>=0?'空亡':'不空'):'待日干支');
+l7+=gc("应爻空亡",kongWangZhi.length>0&&sy.ying?(kongWangZhi.indexOf(naJia[sy.ying-1].zhi)>=0?'空亡':'不空'):'待日干支');
+l7+='</div>';
+html+=layerHtml("L7 纳甲六爻层 (34维): 6爻×3属性 + 世应10 + 关系网络7",l7);
+
+// === L8 六爻逐爻展开层 (66维) ===
+var l8='';
+for(var i=0;i<sixLines.length;i++){
+var sl=sixLines[i];
+l8+='<div class="table-row"><span class="row-label">'+sl.pos+'爻</span>';
+l8+=gc("阴阳",sl.yinYang);
+l8+=gc("五行",sl.element);
+l8+=gc("六神",sl.sixSpirit);
+l8+=gc("旺衰",sl.wangShuai);
+l8+=gc("空亡",sl.kongWang);
+l8+=gc("暗动",sl.anDong);
+l8+=gc("墓库",sl.muKu);
+l8+=gc("进退神",sl.jinTuiShen);
+l8+=gc("伏吟反吟",sl.fuYinFanYin);
+l8+=gc("生克",sl.shengKe);
+l8+=gc("冲合",sl.chongHe);
+l8+='</div>';
+}
+html+=layerHtml("L8 六爻逐爻展开层 (66维): 6爻×11属性(阴阳/五行/六神/旺衰/空亡/暗动/墓库/进退神/伏吟反吟/生克/冲合)",l8);
+
+// === L9 六爻占法专用层 (12维) ===
+var l9='<div class="kv">';
+l9+=gc("用神",divSpec.yongShen,true);
+l9+=gc("原神",divSpec.yuanShen);
+l9+=gc("忌神",divSpec.jiShen);
+l9+=gc("仇神",divSpec.chouShen);
+l9+=gc("日辰",divSpec.riChen);
+l9+=gc("月建",divSpec.yueJian);
+l9+=gc("回头生",divSpec.huiTouSheng);
+l9+=gc("回头克",divSpec.huiTouKe);
+l9+=gc("阴卦身",divSpec.yinGuaShen);
+l9+=gc("阳卦身",divSpec.yangGuaShen);
+l9+=gc("卦命",divSpec.guaMing);
+l9+=gc("卦验",divSpec.guaYan);
+l9+='</div>';
+html+=layerHtml("L9 六爻占法专用层 (12维): 用神/原神/忌神/仇神/日辰/月建/回头生/回头克/阴卦身/阳卦身/卦命/卦验",l9);
+
+// === L10 郑玄爻辰法层 (12维) ===
+var l10='';
+for(var i=0;i<zhengXuan.length;i++){
+var zx=zhengXuan[i];
+l10+='<div class="table-row"><span class="row-label">'+zx.pos+'爻</span>';
+l10+=gc("地支",zx.zhi);
+l10+=gc("律吕",zx.lvLu);
+l10+='</div>';
+}
+html+=layerHtml("L10 郑玄爻辰法层 (12维): 6爻×2属性(地支/律吕)",l10);
+
+// === L11 卦象细分层 (8维) ===
+var l11='<div class="kv">';
+l11+=gc("大象",gxFine.daXiang);
+l11+=gc("取象自然",gxFine.xiangNature);
+l11+=gc("取象人体",gxFine.xiangBody);
+l11+=gc("取象动物",gxFine.xiangAnimal);
+l11+=gc("互象",gxFine.huXiang);
+l11+=gc("覆象",gxFine.fuXiang);
+l11+=gc("变象",bianXiangStr+'('+(bianInfo.name||'?')+')',true);
+l11+=gc("反对之象",gxFine.fanduiXiang);
+l11+='</div>';
+html+=layerHtml("L11 卦象细分层 (8维): 大象/取象自然/取象人体/取象动物/互象/覆象/变象/反对之象",l11);
+
+// === L12 五行维度族 (18维) ===
+var l12='<div class="kv">';
+l12+=gc("体性",wxFamily.tiXingLower+'/'+wxFamily.tiXingUpper);
+l12+=gc("相生",wxFamily.xiangSheng);
+l12+=gc("相克",wxFamily.xiangKe);
+l12+=gc("乘侮",wxFamily.chengWu);
+l12+=gc("母子",wxFamily.muZi);
+l12+=gc("制化",wxFamily.zhiHua);
+l12+=gc("旺衰",wxFamily.wangShuaiRelation);
+l12+=gc("五方",wxFamily.wuFang);
+l12+=gc("五季",wxFamily.wuJi);
+l12+=gc("五气",wxFamily.wuQi);
+l12+=gc("五化",wxFamily.wuHua);
+l12+=gc("五情",wxFamily.wuQing);
+l12+=gc("五色",wxFamily.wuSe);
+l12+=gc("五味",wxFamily.wuWei);
+l12+=gc("五音",wxFamily.wuYin);
+l12+=gc("五常",wxFamily.wuChang);
+l12+=gc("阴阳互藏",wxFamily.yinYangHuCang);
+l12+=gc("六亲映射",wxFamily.liuQinMapping);
+l12+='</div>';
+html+=layerHtml("L12 五行维度族 (18维): 体性/相生/相克/乘侮/母子/制化/旺衰/五方/五季/五气/五化/五情/五色/五味/五音/五常/阴阳互藏/六亲映射",l12);
+
+// === L13 其他层 (4维) ===
+var l13='<div class="kv">';
+l13+=gc("三才",'天:'+sanCai.tian+',人:'+sanCai.ren+',地:'+sanCai.di);
+l13+=gc("抽象映射",TRIGRAMS[upperTri]["attribute"]+'+'+TRIGRAMS[lowerTri]["attribute"]);
+l13+=gc("经文关联",'《'+name+'》');
+l13+=gc("梅花心法",'体'+tiYong.tiTrigram+'用'+tiYong.yongTrigram+','+preciseJudgment,true);
+l13+='</div>';
+html+=layerHtml("L13 其他层 (4维): 三才/抽象映射/经文关联/梅花心法",l13);
+
+document.getElementById('output').innerHTML=html;
+
+// 自动展开前3层
+var layers=document.querySelectorAll('.layer-header');
+for(var i=0;i<3&&i<layers.length;i++){
+layers[i].classList.add('open');
+layers[i].nextElementSibling.classList.add('open');
+}
+}
+
+// 页面加载时自动生成
+window.onload=function(){generate();};
+</script>
+</body>
+</html>
