@@ -1,0 +1,1121 @@
+/**
+ * 印度占星 (Jyotish) 标签生成模块
+ * 从 jyotish.html 提取的纯计算逻辑
+ *
+ * Vedic Astrology · 9行星 · 27星宿 · Vimshottari Dasha · Lahiri岁差
+ * 7层标签: L1行星位置 / L2月亮系统 / L3上升与宫位 / L4大运系统 / L5_Yoga组合 / L6元素平衡 / L7综合总评
+ */
+
+window.Systems = window.Systems || {};
+
+(function() {
+    'use strict';
+
+
+// ===== 参考数据 =====
+const REF_DATA = {
+  "_meta": {
+    "system_name": "jyotish",
+    "system_name_cn": "印度占星",
+    "version": "1.0",
+    "description": "Vedic Astrology (Jyotish) label dictionary with simplified VSOP87 planetary calculations",
+    "total_declared_dimensions": 0,
+    "layers": 7
+  },
+  "rasi_table": {
+    "1": {
+      "name": "Mesha",
+      "name_cn": "白羊",
+      "lord": "Mars",
+      "lord_cn": "火星",
+      "element": "火",
+      "quality": "开创",
+      "symbol": "公羊"
+    },
+    "2": {
+      "name": "Vrishabha",
+      "name_cn": "金牛",
+      "lord": "Venus",
+      "lord_cn": "金星",
+      "element": "土",
+      "quality": "固定",
+      "symbol": "公牛"
+    },
+    "3": {
+      "name": "Mithuna",
+      "name_cn": "双子",
+      "lord": "Mercury",
+      "lord_cn": "水星",
+      "element": "风",
+      "quality": "变动",
+      "symbol": "双胞胎"
+    },
+    "4": {
+      "name": "Karka",
+      "name_cn": "巨蟹",
+      "lord": "Moon",
+      "lord_cn": "月亮",
+      "element": "水",
+      "quality": "开创",
+      "symbol": "螃蟹"
+    },
+    "5": {
+      "name": "Simha",
+      "name_cn": "狮子",
+      "lord": "Sun",
+      "lord_cn": "太阳",
+      "element": "火",
+      "quality": "固定",
+      "symbol": "狮子"
+    },
+    "6": {
+      "name": "Kanya",
+      "name_cn": "处女",
+      "lord": "Mercury",
+      "lord_cn": "水星",
+      "element": "土",
+      "quality": "变动",
+      "symbol": "少女"
+    },
+    "7": {
+      "name": "Tula",
+      "name_cn": "天秤",
+      "lord": "Venus",
+      "lord_cn": "金星",
+      "element": "风",
+      "quality": "开创",
+      "symbol": "天平"
+    },
+    "8": {
+      "name": "Vrishchika",
+      "name_cn": "天蝎",
+      "lord": "Mars",
+      "lord_cn": "火星",
+      "element": "水",
+      "quality": "固定",
+      "symbol": "蝎子"
+    },
+    "9": {
+      "name": "Dhanu",
+      "name_cn": "射手",
+      "lord": "Jupiter",
+      "lord_cn": "木星",
+      "element": "火",
+      "quality": "变动",
+      "symbol": "弓箭手"
+    },
+    "10": {
+      "name": "Makara",
+      "name_cn": "摩羯",
+      "lord": "Saturn",
+      "lord_cn": "土星",
+      "element": "土",
+      "quality": "开创",
+      "symbol": "海山羊"
+    },
+    "11": {
+      "name": "Kumbha",
+      "name_cn": "水瓶",
+      "lord": "Saturn",
+      "lord_cn": "土星",
+      "element": "风",
+      "quality": "固定",
+      "symbol": "持水瓶者"
+    },
+    "12": {
+      "name": "Meena",
+      "name_cn": "双鱼",
+      "lord": "Jupiter",
+      "lord_cn": "木星",
+      "element": "水",
+      "quality": "变动",
+      "symbol": "两条鱼"
+    }
+  },
+  "nakshatra_table": {
+    "1": {
+      "name": "Ashwini",
+      "name_cn": "阿湿维尼",
+      "ruler": "Ketu",
+      "ruler_cn": "计都",
+      "deity": "Ashwini Kumaras",
+      "deity_cn": "双马神",
+      "element": "火",
+      "symbol": "马头",
+      "range": "0°-13°20'"
+    },
+    "2": {
+      "name": "Bharani",
+      "name_cn": "巴拉尼",
+      "ruler": "Venus",
+      "ruler_cn": "金星",
+      "deity": "Yama",
+      "deity_cn": "阎摩",
+      "element": "火",
+      "symbol": "子宫",
+      "range": "13°20'-26°40'"
+    },
+    "3": {
+      "name": "Krittika",
+      "name_cn": "克利提卡",
+      "ruler": "Sun",
+      "ruler_cn": "太阳",
+      "deity": "Agni",
+      "deity_cn": "火神",
+      "element": "火",
+      "symbol": "剃刀",
+      "range": "26°40'-40°"
+    },
+    "4": {
+      "name": "Rohini",
+      "name_cn": "罗希尼",
+      "ruler": "Moon",
+      "ruler_cn": "月亮",
+      "deity": "Brahma",
+      "deity_cn": "梵天",
+      "element": "月",
+      "symbol": "牛车",
+      "range": "40°-53°20'"
+    },
+    "5": {
+      "name": "Mrigashira",
+      "name_cn": "姆里加希拉",
+      "ruler": "Mars",
+      "ruler_cn": "火星",
+      "deity": "Soma",
+      "deity_cn": "月神",
+      "element": "火",
+      "symbol": "鹿头",
+      "range": "53°20'-66°40'"
+    },
+    "6": {
+      "name": "Ardra",
+      "name_cn": "阿尔德拉",
+      "ruler": "Rahu",
+      "ruler_cn": "罗睺",
+      "deity": "Rudra",
+      "deity_cn": "风暴神",
+      "element": "风",
+      "symbol": "泪珠",
+      "range": "66°40'-80°"
+    },
+    "7": {
+      "name": "Punarvasu",
+      "name_cn": "普纳瓦苏",
+      "ruler": "Jupiter",
+      "ruler_cn": "木星",
+      "deity": "Aditi",
+      "deity_cn": "母亲神",
+      "element": "风",
+      "symbol": "弓箭",
+      "range": "80°-93°20'"
+    },
+    "8": {
+      "name": "Pushya",
+      "name_cn": "普夏",
+      "ruler": "Saturn",
+      "ruler_cn": "土星",
+      "deity": "Brihaspati",
+      "deity_cn": "木星",
+      "element": "火",
+      "symbol": "莲花",
+      "range": "93°20'-106°40'"
+    },
+    "9": {
+      "name": "Ashlesha",
+      "name_cn": "阿湿莱夏",
+      "ruler": "Mercury",
+      "ruler_cn": "水星",
+      "deity": "Nagas",
+      "deity_cn": "蛇神",
+      "element": "水",
+      "symbol": "蛇盘",
+      "range": "106°40'-120°"
+    },
+    "10": {
+      "name": "Magha",
+      "name_cn": "马格哈",
+      "ruler": "Ketu",
+      "ruler_cn": "计都",
+      "deity": "Pitris",
+      "deity_cn": "祖先",
+      "element": "火",
+      "symbol": "王座",
+      "range": "120°-133°20'"
+    },
+    "11": {
+      "name": "Purva Phalguni",
+      "name_cn": "普拉瓦法古尼",
+      "ruler": "Venus",
+      "ruler_cn": "金星",
+      "deity": "Bhaga",
+      "deity_cn": "幸运神",
+      "element": "火",
+      "symbol": "吊床",
+      "range": "133°20'-146°40'"
+    },
+    "12": {
+      "name": "Uttara Phalguni",
+      "name_cn": "乌塔拉法古尼",
+      "ruler": "Sun",
+      "ruler_cn": "太阳",
+      "deity": "Aryaman",
+      "deity_cn": "太阳神",
+      "element": "火",
+      "symbol": "床榻",
+      "range": "146°40'-160°"
+    },
+    "13": {
+      "name": "Hasta",
+      "name_cn": "哈斯塔",
+      "ruler": "Moon",
+      "ruler_cn": "月亮",
+      "deity": "Savitar",
+      "deity_cn": "太阳神",
+      "element": "风",
+      "symbol": "手掌",
+      "range": "160°-173°20'"
+    },
+    "14": {
+      "name": "Chitra",
+      "name_cn": "奇特拉",
+      "ruler": "Mars",
+      "ruler_cn": "火星",
+      "deity": "Vishvakarma",
+      "deity_cn": "建筑神",
+      "element": "火",
+      "symbol": "宝石",
+      "range": "173°20'-186°40'"
+    },
+    "15": {
+      "name": "Swati",
+      "name_cn": "斯瓦提",
+      "ruler": "Rahu",
+      "ruler_cn": "罗睺",
+      "deity": "Vayu",
+      "deity_cn": "风神",
+      "element": "风",
+      "symbol": "珊瑚",
+      "range": "186°40'-200°"
+    },
+    "16": {
+      "name": "Vishakha",
+      "name_cn": "维沙卡",
+      "ruler": "Jupiter",
+      "ruler_cn": "木星",
+      "deity": "Indra-Agni",
+      "deity_cn": "双神",
+      "element": "火",
+      "symbol": "拱门",
+      "range": "200°-213°20'"
+    },
+    "17": {
+      "name": "Anuradha",
+      "name_cn": "阿努拉达",
+      "ruler": "Saturn",
+      "ruler_cn": "土星",
+      "deity": "Mitra",
+      "deity_cn": "雷神",
+      "element": "土",
+      "symbol": "莲花",
+      "range": "213°20'-226°40'"
+    },
+    "18": {
+      "name": "Jyeshtha",
+      "name_cn": "杰什塔",
+      "ruler": "Mercury",
+      "ruler_cn": "水星",
+      "deity": "Indra",
+      "deity_cn": "守护神",
+      "element": "火",
+      "symbol": "耳环",
+      "range": "226°40'-240°"
+    },
+    "19": {
+      "name": "Mula",
+      "name_cn": "穆拉",
+      "ruler": "Ketu",
+      "ruler_cn": "计都",
+      "deity": "Nirriti",
+      "deity_cn": "毁灭神",
+      "element": "风",
+      "symbol": "树根",
+      "range": "240°-253°20'"
+    },
+    "20": {
+      "name": "Purva Ashadha",
+      "name_cn": "普拉瓦阿沙达",
+      "ruler": "Venus",
+      "ruler_cn": "金星",
+      "deity": "Apas",
+      "deity_cn": "水神",
+      "element": "水",
+      "symbol": "扇子",
+      "range": "253°20'-266°40'"
+    },
+    "21": {
+      "name": "Uttara Ashadha",
+      "name_cn": "乌塔拉阿沙达",
+      "ruler": "Sun",
+      "ruler_cn": "太阳",
+      "deity": "Vishvadevas",
+      "deity_cn": "太阳神",
+      "element": "土",
+      "symbol": "象牙",
+      "range": "266°40'-280°"
+    },
+    "22": {
+      "name": "Shravana",
+      "name_cn": "什拉瓦纳",
+      "ruler": "Moon",
+      "ruler_cn": "月亮",
+      "deity": "Vishnu",
+      "deity_cn": "毗湿奴",
+      "element": "土",
+      "symbol": "耳朵",
+      "range": "280°-293°20'"
+    },
+    "23": {
+      "name": "Dhanishta",
+      "name_cn": "达尼什塔",
+      "ruler": "Mars",
+      "ruler_cn": "火星",
+      "deity": "Vasus",
+      "deity_cn": "八神",
+      "element": "火",
+      "symbol": "鼓",
+      "range": "293°20'-306°40'"
+    },
+    "24": {
+      "name": "Shatabhisha",
+      "name_cn": "沙塔比沙",
+      "ruler": "Rahu",
+      "ruler_cn": "罗睺",
+      "deity": "Varuna",
+      "deity_cn": "药神",
+      "element": "风",
+      "symbol": "圆圈",
+      "range": "306°40'-320°"
+    },
+    "25": {
+      "name": "Purva Bhadrapada",
+      "name_cn": "普拉瓦巴德拉",
+      "ruler": "Jupiter",
+      "ruler_cn": "木星",
+      "deity": "Aja Ekapada",
+      "deity_cn": "阿贾",
+      "element": "火",
+      "symbol": "双面人",
+      "range": "320°-333°20'"
+    },
+    "26": {
+      "name": "Uttara Bhadrapada",
+      "name_cn": "乌塔拉巴德拉",
+      "ruler": "Saturn",
+      "ruler_cn": "土星",
+      "deity": "Ahir Budhnya",
+      "deity_cn": "蛇神",
+      "element": "水",
+      "symbol": "双蛇",
+      "range": "333°20'-346°40'"
+    },
+    "27": {
+      "name": "Revati",
+      "name_cn": "雷瓦提",
+      "ruler": "Mercury",
+      "ruler_cn": "水星",
+      "deity": "Pushan",
+      "deity_cn": "牧神",
+      "element": "水",
+      "symbol": "鱼",
+      "range": "346°40'-360°"
+    }
+  },
+  "dasha_periods": {
+    "Ketu": 7,
+    "Venus": 20,
+    "Sun": 6,
+    "Moon": 10,
+    "Mars": 7,
+    "Rahu": 18,
+    "Jupiter": 16,
+    "Saturn": 19,
+    "Mercury": 17
+  },
+  "graha_attributes": {
+    "Sun": {
+      "name_cn": "太阳",
+      "sanskrit": "Surya",
+      "element": "火",
+      "nature": "凶星(略凶)",
+      "signifies": "灵魂/权威/父亲/健康",
+      "wuxing": "火"
+    },
+    "Moon": {
+      "name_cn": "月亮",
+      "sanskrit": "Chandra",
+      "element": "水",
+      "nature": "吉星",
+      "signifies": "心灵/情感/母亲/记忆",
+      "wuxing": "水"
+    },
+    "Mars": {
+      "name_cn": "火星",
+      "sanskrit": "Mangala",
+      "element": "火",
+      "nature": "凶星",
+      "signifies": "能量/勇气/兄弟/冲突",
+      "wuxing": "火"
+    },
+    "Mercury": {
+      "name_cn": "水星",
+      "sanskrit": "Budha",
+      "element": "土",
+      "nature": "吉星(变动)",
+      "signifies": "智力/沟通/商业/教育",
+      "wuxing": "土"
+    },
+    "Jupiter": {
+      "name_cn": "木星",
+      "sanskrit": "Guru",
+      "element": "风",
+      "nature": "大吉星",
+      "signifies": "智慧/财富/子女/导师",
+      "wuxing": "木"
+    },
+    "Venus": {
+      "name_cn": "金星",
+      "sanskrit": "Shukra",
+      "element": "水",
+      "nature": "吉星",
+      "signifies": "爱情/美感/艺术/享受",
+      "wuxing": "水"
+    },
+    "Saturn": {
+      "name_cn": "土星",
+      "sanskrit": "Shani",
+      "element": "风",
+      "nature": "大凶星",
+      "signifies": "业力/限制/长寿/责任",
+      "wuxing": "金"
+    },
+    "Rahu": {
+      "name_cn": "罗睺",
+      "sanskrit": "Rahu",
+      "element": "风",
+      "nature": "凶星(影子)",
+      "signifies": "欲望/错觉/外国/创新",
+      "wuxing": "风"
+    },
+    "Ketu": {
+      "name_cn": "计都",
+      "sanskrit": "Ketu",
+      "element": "风",
+      "nature": "凶星(影子)",
+      "signifies": "灵性/解脱/神秘/放下",
+      "wuxing": "风"
+    }
+  },
+  "yoga_definitions": {
+    "Ruchaka": {
+      "condition": "Mars在白羊/天蝎且在kendra(1/4/7/10宫)",
+      "effect": "勇气/军事才能/领导力",
+      "type": "Pancha Mahapurusha"
+    },
+    "Bhadra": {
+      "condition": "Mercury在双子/处女且在kendra",
+      "effect": "智慧/沟通/商业才能",
+      "type": "Pancha Mahapurusha"
+    },
+    "Hamsa": {
+      "condition": "Jupiter在射手/双鱼且在kendra",
+      "effect": "智慧/灵性/教育成就",
+      "type": "Pancha Mahapurusha"
+    },
+    "Malavya": {
+      "condition": "Venus在金牛/天秤且在kendra",
+      "effect": "美感/艺术/财富/魅力",
+      "type": "Pancha Mahapurusha"
+    },
+    "Sasa": {
+      "condition": "Saturn在摩羯/水瓶且在kendra",
+      "effect": "纪律/权威/组织才能",
+      "type": "Pancha Mahapurusha"
+    },
+    "Gajakesari": {
+      "condition": "Jupiter在月亮的kendra(1/4/7/10)",
+      "effect": "智慧/名声/品德/财富",
+      "type": "特殊Yoga"
+    },
+    "Budhaditya": {
+      "condition": "Sun与Mercury同宫",
+      "effect": "智力/学问/政府职位",
+      "type": "特殊Yoga"
+    },
+    "ChandraMangala": {
+      "condition": "Moon与Mars合相或对冲",
+      "effect": "财富/进取/情绪驱动行动",
+      "type": "特殊Yoga"
+    },
+    "NeechaBhanga": {
+      "condition": "落陷行星的宫主在kendra",
+      "effect": "落陷消除/逆境翻身",
+      "type": "补偿Yoga"
+    },
+    "Kemadruma": {
+      "condition": "月亮两侧无行星",
+      "effect": "孤独/自力更生/精神挑战",
+      "type": "挑战Yoga"
+    }
+  },
+  "own_signs": {
+    "Sun": [
+      5
+    ],
+    "Moon": [
+      4
+    ],
+    "Mars": [
+      1,
+      8
+    ],
+    "Mercury": [
+      3,
+      6
+    ],
+    "Jupiter": [
+      9,
+      12
+    ],
+    "Venus": [
+      2,
+      7
+    ],
+    "Saturn": [
+      10,
+      11
+    ]
+  },
+  "exaltation": {
+    "Sun": {
+      "sign": 1,
+      "degree": 10
+    },
+    "Moon": {
+      "sign": 2,
+      "degree": 3
+    },
+    "Mars": {
+      "sign": 10,
+      "degree": 28
+    },
+    "Mercury": {
+      "sign": 6,
+      "degree": 15
+    },
+    "Jupiter": {
+      "sign": 4,
+      "degree": 5
+    },
+    "Venus": {
+      "sign": 12,
+      "degree": 27
+    },
+    "Saturn": {
+      "sign": 7,
+      "degree": 20
+    }
+  },
+  "debilitation": {
+    "Sun": {
+      "sign": 7,
+      "degree": 10
+    },
+    "Moon": {
+      "sign": 8,
+      "degree": 3
+    },
+    "Mars": {
+      "sign": 4,
+      "degree": 28
+    },
+    "Mercury": {
+      "sign": 12,
+      "degree": 15
+    },
+    "Jupiter": {
+      "sign": 10,
+      "degree": 5
+    },
+    "Venus": {
+      "sign": 6,
+      "degree": 27
+    },
+    "Saturn": {
+      "sign": 1,
+      "degree": 20
+    }
+  }
+};
+
+// ===== 天文计算引擎 (Schlyter简化VSOP87) =====
+
+function _dayNumber(year, month, day, hour, minute) {
+    const dt = new Date(Date.UTC(year, month-1, day, hour, minute, 0));
+    const epoch = Date.UTC(1999, 11, 31, 0, 0, 0);
+    return (dt - epoch) / 86400000.0;
+}
+
+function _rev(angle) { return ((angle % 360) + 360) % 360; }
+
+function _solveKepler(M, e) {
+    let M_rad = M * Math.PI / 180;
+    let E = M_rad;
+    for (let i = 0; i < 15; i++) {
+        let delta = (E - e * Math.sin(E) - M_rad) / (1 - e * Math.cos(E));
+        E -= delta;
+        if (Math.abs(delta) < 1e-10) break;
+    }
+    return E * 180 / Math.PI;
+}
+
+const _SUN = {w:282.9404,w_rate:4.70935e-5,e:0.016709,e_rate:-1.151e-9,M:356.0470,M_rate:0.9856002585};
+const _MOON = {N:125.1228,N_rate:-0.0529538083,i:5.1454,w:318.0634,w_rate:0.1643573223,a:60.2666,e:0.054900,M:115.3654,M_rate:13.0649929509};
+const _PLANETS = {
+    Mercury:{N:48.3313,N_rate:3.24587e-5,i:7.0047,i_rate:5.00e-8,w:29.1241,w_rate:1.01444e-5,a:0.387098,e:0.205635,e_rate:5.59e-10,M:168.6562,M_rate:4.0923344368},
+    Venus:{N:76.6799,N_rate:2.46590e-5,i:3.3946,i_rate:2.75e-8,w:54.8910,w_rate:1.38374e-5,a:0.723330,e:0.006773,e_rate:-1.302e-9,M:48.0052,M_rate:1.6021302244},
+    Mars:{N:49.5574,N_rate:2.11081e-5,i:1.8497,i_rate:-1.78e-8,w:286.5016,w_rate:2.92961e-5,a:1.523688,e:0.093405,e_rate:2.516e-9,M:18.6021,M_rate:0.5240207766},
+    Jupiter:{N:100.4542,N_rate:2.76854e-5,i:1.3030,i_rate:-1.557e-7,w:273.8777,w_rate:1.64505e-5,a:5.20256,e:0.048498,e_rate:4.469e-9,M:19.8950,M_rate:0.0830853001},
+    Saturn:{N:113.6634,N_rate:2.38980e-5,i:2.4886,i_rate:-1.081e-7,w:339.3939,w_rate:2.97661e-5,a:9.55475,e:0.055546,e_rate:-9.499e-9,M:316.9670,M_rate:0.0334442282}
+};
+
+function _sunPos(d) {
+    let w = _SUN.w + _SUN.w_rate * d;
+    let e = _SUN.e + _SUN.e_rate * d;
+    let M = _rev(_SUN.M + _SUN.M_rate * d);
+    let E = _solveKepler(M, e);
+    let x = Math.cos(E * Math.PI/180) - e;
+    let y = Math.sin(E * Math.PI/180) * Math.sqrt(1 - e*e);
+    let r = Math.sqrt(x*x + y*y);
+    let v = Math.atan2(y, x) * 180/Math.PI;
+    return [_rev(v + w), 0.0, r];
+}
+
+function _moonPos(d) {
+    let N = _rev(_MOON.N + _MOON.N_rate * d);
+    let i = _MOON.i;
+    let w = _rev(_MOON.w + _MOON.w_rate * d);
+    let a = _MOON.a;
+    let e = _MOON.e;
+    let M = _rev(_MOON.M + _MOON.M_rate * d);
+    let E = _solveKepler(M, e);
+    let xv = a * (Math.cos(E * Math.PI/180) - e);
+    let yv = a * Math.sin(E * Math.PI/180) * Math.sqrt(1 - e*e);
+    let v = Math.atan2(yv, xv) * 180/Math.PI;
+    let r = Math.sqrt(xv*xv + yv*yv);
+    let Nrad = N * Math.PI/180, irad = i * Math.PI/180, vw = (v+w) * Math.PI/180;
+    let xh = r * (Math.cos(Nrad)*Math.cos(vw) - Math.sin(Nrad)*Math.sin(vw)*Math.cos(irad));
+    let yh = r * (Math.sin(Nrad)*Math.cos(vw) + Math.cos(Nrad)*Math.sin(vw)*Math.cos(irad));
+    let zh = r * Math.sin(vw) * Math.sin(irad);
+    let lon = _rev(Math.atan2(yh, xh) * 180/Math.PI);
+    let lat = Math.atan2(zh, Math.sqrt(xh*xh + yh*yh)) * 180/Math.PI;
+    // Perturbations
+    let Ms = _rev(_SUN.M + _SUN.M_rate * d);
+    let Ls = _rev(Ms + _SUN.w + _SUN.w_rate * d);
+    let Lm = _rev(M + w + N);
+    let Dm = _rev(Lm - Ls);
+    let F = _rev(Lm - N);
+    let s = (a) => Math.sin(a * Math.PI/180);
+    lon += (-1.274 * s(M - 2*Dm) + 0.658 * s(2*Dm) - 0.186 * s(Ms)
+            - 0.059 * s(2*M - 2*Dm) - 0.057 * s(M - 2*Dm + Ms)
+            + 0.053 * s(M + 2*Dm) + 0.046 * s(2*Dm - Ms)
+            + 0.041 * s(M - Ms) - 0.035 * s(Dm) - 0.031 * s(M + Ms)
+            - 0.015 * s(2*F - 2*Dm) + 0.011 * s(M - 4*Dm));
+    lat += (-0.173 * s(F - 2*Dm) - 0.055 * s(M - F - 2*Dm)
+            - 0.046 * s(M + F - 2*Dm) + 0.033 * s(F + 2*Dm) + 0.017 * s(2*M + F));
+    return [_rev(lon), lat, r];
+}
+
+function _planetPos(name, d) {
+    let e = _PLANETS[name];
+    let N = _rev(e.N + e.N_rate * d);
+    let i = e.i + e.i_rate * d;
+    let w = _rev(e.w + e.w_rate * d);
+    let a = e.a;
+    let ecc = e.e + e.e_rate * d;
+    let M = _rev(e.M + e.M_rate * d);
+    let E = _solveKepler(M, ecc);
+    let xv = a * (Math.cos(E * Math.PI/180) - ecc);
+    let yv = a * Math.sin(E * Math.PI/180) * Math.sqrt(1 - ecc*ecc);
+    let v = Math.atan2(yv, xv) * 180/Math.PI;
+    let r = Math.sqrt(xv*xv + yv*yv);
+    let Nrad = N * Math.PI/180, irad = i * Math.PI/180, vw = (v+w) * Math.PI/180;
+    let xh = r * (Math.cos(Nrad)*Math.cos(vw) - Math.sin(Nrad)*Math.sin(vw)*Math.cos(irad));
+    let yh = r * (Math.sin(Nrad)*Math.cos(vw) + Math.cos(Nrad)*Math.sin(vw)*Math.cos(irad));
+    let zh = r * Math.sin(vw) * Math.sin(irad);
+    let sunLon = _sunPos(d)[0];
+    let sunR = _sunPos(d)[2];
+    let xs = -sunR * Math.cos(sunLon * Math.PI/180);
+    let ys = -sunR * Math.sin(sunLon * Math.PI/180);
+    let xg = xh - xs, yg = yh - ys, zg = zh;
+    let lon = _rev(Math.atan2(yg, xg) * 180/Math.PI);
+    let lat = Math.atan2(zg, Math.sqrt(xg*xg + yg*yg)) * 180/Math.PI;
+    let dist = Math.sqrt(xg*xg + yg*yg + zg*zg);
+    // Jupiter/Saturn perturbations
+    let s = (a) => Math.sin(a * Math.PI/180);
+    let c = (a) => Math.cos(a * Math.PI/180);
+    if (name === 'Jupiter') {
+        let Mj = M;
+        let Msat = _rev(_PLANETS.Saturn.M + _PLANETS.Saturn.M_rate * d);
+        lon += (-0.332 * s(2*Mj - 5*Msat - 67.6) - 0.056 * s(2*Mj - 2*Msat + 21) + 0.042 * s(Mj - 2*Msat + 12));
+        lat += 0.032 * s(Mj - 2*Msat + 12);
+        lon = _rev(lon);
+    } else if (name === 'Saturn') {
+        let Msat = M;
+        let Mj = _rev(_PLANETS.Jupiter.M + _PLANETS.Jupiter.M_rate * d);
+        lon += (0.812 * s(2*Mj - 5*Msat - 67.6) - 0.229 * c(2*Mj - 4*Msat - 2) + 0.119 * s(Mj - 2*Msat - 3) + 0.046 * s(2*Mj - 6*Msat - 69) + 0.014 * s(Mj - 3*Msat + 32));
+        lat += (-0.020 * c(2*Mj - 4*Msat - 2) + 0.018 * s(2*Mj - 6*Msat - 49));
+        lon = _rev(lon);
+    }
+    return [lon, lat, dist];
+}
+
+function _lunarNodes(d) {
+    let N = _rev(_MOON.N + _MOON.N_rate * d);
+    return [N, _rev(N + 180.0)];
+}
+
+function _lahiriAyanamsa(d) {
+    let years = d / 365.25;
+    return 23.853 + (50.29 / 3600.0) * years;
+}
+
+function _obliquity(d) { return 23.4393 - 3.563e-7 * d; }
+
+// ===== 占星转换层 =====
+const RASI_CN = ['白羊','金牛','双子','巨蟹','狮子','处女','天秤','天蝎','射手','摩羯','水瓶','双鱼'];
+const RASI_EN = ['Mesha','Vrishabha','Mithuna','Karka','Simha','Kanya','Tula','Vrishchika','Dhanu','Makara','Kumbha','Meena'];
+const DASHA_SEQ = ['Ketu','Venus','Sun','Moon','Mars','Rahu','Jupiter','Saturn','Mercury'];
+const DASHA_PERIODS = {Ketu:7,Venus:20,Sun:6,Moon:10,Mars:7,Rahu:18,Jupiter:16,Saturn:19,Mercury:17};
+const DASHA_CN = {Ketu:'计都',Venus:'金星',Sun:'太阳',Moon:'月亮',Mars:'火星',Rahu:'罗睺',Jupiter:'木星',Saturn:'土星',Mercury:'水星'};
+const GRAHA_CN = {Sun:'太阳',Moon:'月亮',Mars:'火星',Mercury:'水星',Jupiter:'木星',Venus:'金星',Saturn:'土星',Rahu:'罗睺',Ketu:'计都'};
+
+function _siderealLon(tropLon, ayanamsa) { return _rev(tropLon - ayanamsa); }
+function _lonToRasi(lon) { return Math.floor(lon / 30.0) + 1; }
+function _lonToNakshatra(lon) { return Math.floor(lon / (360.0/27.0)) + 1; }
+function _lonToPada(lon) {
+    let nakSpan = 360.0/27.0;
+    return Math.floor((lon % nakSpan) / (nakSpan/4.0)) + 1;
+}
+
+function _planetStatus(planet, rasi) {
+    let own = REF_DATA.own_signs[planet] || [];
+    let exalt = REF_DATA.exaltation[planet] || {};
+    let debil = REF_DATA.debilitation[planet] || {};
+    if (exalt.sign === rasi) return '庙旺(exalted)';
+    if (debil.sign === rasi) return '落陷(debilitated)';
+    if (own.includes(rasi)) return '本宫(own sign)';
+    let friends = {Sun:[1,4,5,9,11],Moon:[1,3,6,7,10,11],Mars:[1,2,4,5,7,8,9,11],Mercury:[2,6,8,9,10,11],Jupiter:[1,2,3,4,8,9,11,12],Venus:[1,2,3,4,7,8,9,10,11,12],Saturn:[1,3,4,7,8,9,10,11,12],Rahu:[1,2,3,6,7,9,10,11],Ketu:[1,2,3,6,7,9,10,11]};
+    if ((friends[planet]||[]).includes(rasi)) return '友好(friendly)';
+    return '中性(neutral)';
+}
+
+function _isKendra(h) { return [1,4,7,10].includes(h); }
+function _isTrikona(h) { return [1,5,9].includes(h); }
+
+function _detectYogas(planetsRasi, lagnaRasi, moonRasi) {
+    let yogas = [];
+    let houseFrom = (ref, target) => ((target - ref) % 12) + 1;
+    let pmp = {Ruchaka:['Mars',[1,8]],Bhadra:['Mercury',[3,6]],Hamsa:['Jupiter',[9,12]],Malavya:['Venus',[2,7]],Sasa:['Saturn',[10,11]]};
+    for (let [yn, [p, signs]] of Object.entries(pmp)) {
+        if (planetsRasi[p] !== undefined && signs.includes(planetsRasi[p])) {
+            if (_isKendra(houseFrom(lagnaRasi, planetsRasi[p]))) {
+                yogas.push(yn + '(' + REF_DATA.yoga_definitions[yn].effect + ')');
+            }
+        }
+    }
+    if (planetsRasi.Jupiter !== undefined && moonRasi) {
+        if (_isKendra(houseFrom(moonRasi, planetsRasi.Jupiter))) yogas.push('Gajakesari(智慧/名声/品德)');
+    }
+    if (planetsRasi.Sun !== undefined && planetsRasi.Mercury !== undefined) {
+        if (planetsRasi.Sun === planetsRasi.Mercury) yogas.push('Budhaditya(智力/学问)');
+    }
+    if (planetsRasi.Moon !== undefined && planetsRasi.Mars !== undefined) {
+        let h = houseFrom(planetsRasi.Moon, planetsRasi.Mars);
+        if ([1,7].includes(h)) yogas.push('ChandraMangala(财富/进取)');
+    }
+    if (moonRasi) {
+        let prev = ((moonRasi - 2) % 12) + 1;
+        let next = (moonRasi % 12) + 1;
+        let hasComp = false;
+        for (let [p, r] of Object.entries(planetsRasi)) {
+            if (p !== 'Moon' && (r === prev || r === next || r === moonRasi)) { hasComp = true; break; }
+        }
+        if (!hasComp) yogas.push('Kemadruma(孤独/自力更生)');
+    }
+    return yogas;
+}
+
+function _calcDasha(moonSidLon, birthDT, currentDT) {
+    let nak = _lonToNakshatra(moonSidLon);
+    let nakIdx = nak - 1;
+    let dashaLordIdx = nakIdx % 9;
+    let dashaLord = DASHA_SEQ[dashaLordIdx];
+    let nakSpan = 360.0/27.0;
+    let fracElapsed = (moonSidLon % nakSpan) / nakSpan;
+    let totalYears = DASHA_PERIODS[dashaLord];
+    let elapsedYears = fracElapsed * totalYears;
+    let mahaStart = new Date(birthDT.getTime() - elapsedYears * 365.25 * 86400000);
+    let currentLord = dashaLord;
+    let currentMahaStart = mahaStart;
+    let lordIdx = dashaLordIdx;
+    let period = totalYears;
+    let mahaEnd;
+    while (true) {
+        period = DASHA_PERIODS[currentLord];
+        mahaEnd = new Date(currentMahaStart.getTime() + period * 365.25 * 86400000);
+        if (currentDT < mahaEnd) break;
+        lordIdx = (lordIdx + 1) % 9;
+        currentLord = DASHA_SEQ[lordIdx];
+        currentMahaStart = mahaEnd;
+        if (lordIdx === dashaLordIdx) break;
+    }
+    let mahaRemaining = (mahaEnd - currentDT) / (365.25 * 86400000);
+    // Antardasha
+    let antarLordIdx = DASHA_SEQ.indexOf(currentLord);
+    let antarStart = currentMahaStart;
+    let antarIdx = antarLordIdx;
+    let antarEnd;
+    while (true) {
+        let antarYears = period * DASHA_PERIODS[DASHA_SEQ[antarIdx]] / 120.0;
+        antarEnd = new Date(antarStart.getTime() + antarYears * 365.25 * 86400000);
+        if (currentDT < antarEnd) break;
+        antarStart = antarEnd;
+        antarIdx = (antarIdx + 1) % 9;
+        if (antarIdx === antarLordIdx) break;
+    }
+    let currentAntarLord = DASHA_SEQ[antarIdx];
+    let antarRemaining = (antarEnd - currentDT) / (365.25 * 86400000);
+    return [currentLord, DASHA_CN[currentLord], Math.round(mahaRemaining*100)/100, currentAntarLord, DASHA_CN[currentAntarLord], Math.round(antarRemaining*100)/100];
+}
+
+function _calcLagna(d, lat, lon) {
+    let GMST = _rev(280.46061837 + 360.98564736629 * d);
+    let LST = _rev(GMST + lon);
+    let obl = _obliquity(d);
+    let oblRad = obl * Math.PI/180;
+    let lstRad = LST * Math.PI/180;
+    let latRad = lat * Math.PI/180;
+    let ascRad = Math.atan2(Math.cos(lstRad), Math.sin(lstRad)*Math.cos(oblRad) + Math.tan(latRad)*Math.sin(oblRad));
+    let ascLon = _rev(ascRad * 180/Math.PI);
+    let ayanamsa = _lahiriAyanamsa(d);
+    return _siderealLon(ascLon, ayanamsa);
+}
+
+// ===== 7层标签生成 =====
+function generateLabels(year, month, day, hour, minute, lat, lon) {
+    let d = _dayNumber(year, month, day, hour, minute);
+    let ayanamsa = _lahiriAyanamsa(d);
+    let birthDT = new Date(Date.UTC(year, month-1, day, hour, minute, 0));
+    let now = new Date();
+
+    let sunTrop = _sunPos(d)[0];
+    let sunSid = _siderealLon(sunTrop, ayanamsa);
+    let moonTrop = _moonPos(d)[0];
+    let moonSid = _siderealLon(moonTrop, ayanamsa);
+
+    let planetSids = {};
+    for (let p of ['Mercury','Venus','Mars','Jupiter','Saturn']) {
+        planetSids[p] = _siderealLon(_planetPos(p, d)[0], ayanamsa);
+    }
+    let nodes = _lunarNodes(d);
+    let rahuSid = _siderealLon(nodes[0], ayanamsa);
+    let ketuSid = _siderealLon(nodes[1], ayanamsa);
+
+    let allPlanets = {Sun:sunSid, Moon:moonSid, Mars:planetSids.Mars, Mercury:planetSids.Mercury, Jupiter:planetSids.Jupiter, Venus:planetSids.Venus, Saturn:planetSids.Saturn, Rahu:rahuSid, Ketu:ketuSid};
+    let planetsRasi = {};
+    for (let [p, lon2] of Object.entries(allPlanets)) planetsRasi[p] = _lonToRasi(lon2);
+
+    let moonNak = _lonToNakshatra(moonSid);
+    let moonPada = _lonToPada(moonSid);
+    let lagnaSid = _calcLagna(d, lat, lon);
+    let lagnaRasi = _lonToRasi(lagnaSid);
+    let dasha = _calcDasha(moonSid, birthDT, now);
+    let yogas = _detectYogas(planetsRasi, lagnaRasi, _lonToRasi(moonSid));
+
+    // L1
+    let L1 = {};
+    for (let [pname, lon2] of Object.entries(allPlanets)) {
+        let rasi = _lonToRasi(lon2);
+        let nak = _lonToNakshatra(lon2);
+        let pada = _lonToPada(lon2);
+        let rasiInfo = REF_DATA.rasi_table[String(rasi)];
+        let nakInfo = REF_DATA.nakshatra_table[String(nak)];
+        let status = (pname === 'Rahu' || pname === 'Ketu') ? '影子行星' : _planetStatus(pname, rasi);
+        let house = ((rasi - lagnaRasi) % 12) + 1;
+        L1[pname + '_' + GRAHA_CN[pname]] = {
+            '恒星黄经': Math.round(lon2*1000)/1000,
+            '星座': rasiInfo.name_cn + '(' + rasiInfo.name + ')',
+            '星宿': nakInfo.name_cn + '(' + nakInfo.name + ')',
+            'pada': pada, '状态': status,
+            '宫位(从上升)': house,
+            '主管': REF_DATA.graha_attributes[pname].signifies,
+            '五行': REF_DATA.graha_attributes[pname].wuxing
+        };
+    }
+
+    // L2
+    let moonRasi = _lonToRasi(moonSid);
+    let moonRasiInfo = REF_DATA.rasi_table[String(moonRasi)];
+    let moonNakInfo = REF_DATA.nakshatra_table[String(moonNak)];
+    let L2 = {
+        '月亮星座': moonRasiInfo.name_cn + '(' + moonRasiInfo.name + ')',
+        '月亮星宿': moonNakInfo.name_cn + '(' + moonNakInfo.name + ')',
+        '月亮pada': moonPada,
+        '星宿主星': moonNakInfo.ruler_cn + '(' + moonNakInfo.ruler + ')',
+        '星宿神明': moonNakInfo.deity_cn,
+        '星宿元素': moonNakInfo.element,
+        '星宿象征': moonNakInfo.symbol,
+        '月亮宫位(从上升)': ((moonRasi - lagnaRasi) % 12) + 1
+    };
+
+    // L3
+    let lagnaInfo = REF_DATA.rasi_table[String(lagnaRasi)];
+    let L3 = {
+        '上升星座': lagnaInfo.name_cn + '(' + lagnaInfo.name + ')',
+        '上升主星': lagnaInfo.lord_cn + '(' + lagnaInfo.lord + ')',
+        '上升元素': lagnaInfo.element,
+        '上升性质': lagnaInfo.quality
+    };
+    for (let house = 1; house <= 12; house++) {
+        let sign = ((lagnaRasi - 1 + house - 1) % 12) + 1;
+        let si = REF_DATA.rasi_table[String(sign)];
+        let pin = Object.entries(planetsRasi).filter(([p,r]) => r === sign).map(([p,r]) => GRAHA_CN[p]);
+        let ht = _isKendra(house) ? '角宫(kendra)' : _isTrikona(house) ? '三合宫(trikona)' : [6,8,12].includes(house) ? '凶宫(dusthana)' : '普通(upachaya)';
+        L3['第' + house + '宫'] = {'星座': si.name_cn, '宫主': si.lord_cn, '宫位类型': ht, '宫内行星': pin.length ? pin : '空宫'};
+    }
+
+    // L4
+    let L4 = {
+        '当前大运(Mahadasha)': dasha[1] + '(' + dasha[0] + ')',
+        '大运剩余年数': dasha[2],
+        '当前小运(Antardasha)': dasha[4] + '(' + dasha[3] + ')',
+        '小运剩余年数': dasha[5],
+        '大运周期': '120年(Vimshottari)',
+        '大运序列': '计都→金星→太阳→月亮→火星→罗睺→木星→土星→水星'
+    };
+
+    // L5
+    let L5 = {'已激活Yoga': yogas.length ? yogas : '无显著Yoga', 'Yoga总数': yogas.length};
+    for (let p of ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn']) {
+        let st = _planetStatus(p, planetsRasi[p]);
+        if (st.includes('庙旺') || st.includes('落陷')) L5[GRAHA_CN[p] + '特殊状态'] = st;
+    }
+
+    // L6
+    let ec = {'火':0,'土':0,'风':0,'水':0};
+    let qc = {'开创':0,'固定':0,'变动':0};
+    for (let [p, r] of Object.entries(planetsRasi)) {
+        if (p === 'Rahu' || p === 'Ketu') continue;
+        let ri = REF_DATA.rasi_table[String(r)];
+        ec[ri.element] = (ec[ri.element]||0) + 1;
+        qc[ri.quality] = (qc[ri.quality]||0) + 1;
+    }
+    ec[lagnaInfo.element] = (ec[lagnaInfo.element]||0) + 1;
+    let L6 = {
+        '元素分布': Object.entries(ec).map(([k,v])=>k+':'+v).join(' '),
+        '性质分布': Object.entries(qc).map(([k,v])=>k+':'+v).join(' '),
+        '主导元素': Object.keys(ec).reduce((a,b)=>ec[a]>ec[b]?a:b),
+        '主导性质': Object.keys(qc).reduce((a,b)=>qc[a]>qc[b]?a:b),
+        'Lahiri岁差': Math.round(ayanamsa*10000)/10000
+    };
+
+    // L7
+    let dominant = [];
+    for (let p of ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn']) {
+        let st = _planetStatus(p, planetsRasi[p]);
+        if (st.includes('庙旺') || st.includes('本宫')) dominant.push(GRAHA_CN[p] + '(' + st + ')');
+    }
+    let L7 = {
+        '系统名称': '印度占星(Jyotish/Vedic Astrology)',
+        '计算方法': 'Schlyter简化VSOP87+Brown月球理论',
+        '岁差系统': 'Lahiri(Chitrapaksha)',
+        '宫位制': 'Whole Sign(整宫制)',
+        '强势行星': dominant.length ? dominant : '无明显强势',
+        'Yoga评估': '共' + yogas.length + '个Yoga' + (yogas.length ? ': ' + yogas.join('; ') : ''),
+        '五行映射': Object.entries(REF_DATA.graha_attributes).map(([p,a])=>GRAHA_CN[p]+':'+a.wuxing).join(', ')
+    };
+
+    // Count dimensions (top-level keys per layer, matching Python)
+    let totalDims = 0;
+    for (let layer of [L1,L2,L3,L4,L5,L6,L7]) {
+        totalDims += Object.keys(layer).length;
+    }
+
+    return {
+        layers: {'L1_行星位置':L1,'L2_月亮系统':L2,'L3_上升与宫位':L3,'L4_大运系统':L4,'L5_Yoga组合':L5,'L6_元素平衡':L6,'L7_综合总评':L7},
+        meta: {system_name:'jyotish',system_name_cn:'印度占星',total_dimensions:totalDims,ayanamsa:Math.round(ayanamsa*10000)/10000,
+               timestamp:year+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0')+' '+String(hour).padStart(2,'0')+':'+String(minute).padStart(2,'0'),
+               lat:lat,lon:lon},
+        allPlanets: allPlanets, planetsRasi: planetsRasi, lagnaRasi: lagnaRasi, yogas: yogas, dasha: dasha
+    };
+}
+
+    // ===== 标准接口 =====
+    window.Systems.jyotish = function(year, month, day, hour, minute, options) {
+        hour = hour || 12;
+        minute = minute || 0;
+        options = options || {};
+
+        var lat = options.lat || 0;
+        var lon = options.lon || 0;
+
+        var result = generateLabels(year, month, day, hour, minute, lat, lon);
+        var layers = result.layers;
+        var dimensions = {};
+
+        // 展平为 dimensions
+        var layerNames = Object.keys(layers);
+        for (var i = 0; i < layerNames.length; i++) {
+            var layerName = layerNames[i];
+            var layerData = layers[layerName];
+            var keys = Object.keys(layerData);
+            for (var j = 0; j < keys.length; j++) {
+                var key = keys[j];
+                var val = layerData[key];
+                if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+                    var subKeys = Object.keys(val);
+                    for (var k = 0; k < subKeys.length; k++) {
+                        var subKey = subKeys[k];
+                        var subVal = val[subKey];
+                        if (subVal !== null && subVal !== '' && subVal !== false) {
+                            dimensions[layerName + '.' + key + '.' + subKey] = subVal;
+                        }
+                    }
+                } else if (val !== null && val !== '' && val !== false) {
+                    if (Array.isArray(val)) {
+                        dimensions[layerName + '.' + key] = val.join(', ');
+                    } else {
+                        dimensions[layerName + '.' + key] = val;
+                    }
+                }
+            }
+        }
+
+        // 生成摘要
+        var l3 = layers['L3_上升与宫位'] || {};
+        var l2 = layers['L2_月亮系统'] || {};
+        var l4 = layers['L4_大运系统'] || {};
+        var summary = '';
+        if (l3['上升星座']) summary += '上升:' + l3['上升星座'];
+        if (l2['月亮星座']) summary += ' | 月亮:' + l2['月亮星座'] + ' ' + (l2['月亮星宿'] || '');
+        if (l4['当前大运(Mahadasha)']) summary += ' | 大运:' + l4['当前大运(Mahadasha)'];
+
+        return {
+            dimensions: dimensions,
+            name: '印度占星',
+            meta: result.meta
+        };
+    };
+
+})();
