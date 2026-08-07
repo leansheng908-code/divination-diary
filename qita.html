@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>其他术数 · 小六壬 · 九宫飞星 · 姓名学 · 测字术 · 太岁</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1008;color:#e8d5e8;font-family:'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh}
+.header{text-align:center;padding:30px 20px;background:linear-gradient(135deg,#1a1008,#2d1b3d)}
+.header h1{color:#9b59b6;font-size:28px;margin-bottom:8px}
+.header p{color:#f1c40f;font-size:14px}
+.container{max-width:900px;margin:0 auto;padding:20px}
+.input-area{background:#2a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;border:1px solid #7d3c98}
+.input-area label{color:#bb8fce;font-size:13px;display:block;margin-bottom:4px}
+.input-area input{background:#1a1008;border:1px solid #9b59b6;color:#e8d5e8;padding:8px 12px;border-radius:6px;font-size:16px;width:80px}
+.input-area input:focus{outline:none;border-color:#bb8fce}
+.btn{background:linear-gradient(135deg,#7d3c98,#9b59b6);color:#fff;border:none;padding:10px 30px;border-radius:8px;font-size:16px;cursor:pointer;transition:all .3s}
+.btn:hover{background:linear-gradient(135deg,#9b59b6,#bb8fce)}
+/* Core display area */
+.core-display{background:#2a1a2e;border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid #7d3c98}
+.core-big{display:flex;justify-content:center;align-items:center;gap:30px;margin-bottom:20px;flex-wrap:wrap}
+.big-item{text-align:center;min-width:90px}
+.big-item .big-label{color:#bb8fce;font-size:12px;margin-bottom:6px}
+.big-item .big-value{font-size:36px;font-weight:bold}
+.big-item .big-sub{font-size:12px;margin-top:4px}
+.ji-color{color:#bb8fce}
+.xiong-color{color:#e74c3c}
+.ping-color{color:#f1c40f}
+.daji-color{color:#f1c40f}
+.daxiong-color{color:#c0392b}
+.highlight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:12px}
+.highlight-item{background:#1a1008;padding:10px 14px;border-radius:8px;border-left:3px solid #9b59b6}
+.highlight-item .label{color:#bb8fce;font-size:11px}
+.highlight-item .value{color:#f1c40f;font-size:15px;font-weight:bold;margin-top:2px}
+.highlight-item.warning{border-left-color:#e74c3c}
+.highlight-item.warning .value{color:#e74c3c}
+.highlight-item.gold{border-left-color:#f1c40f}
+.highlight-item.gold .value{color:#f1c40f}
+/* Optimization cards */
+.opt-section{margin-bottom:20px}
+.opt-card{background:#2a1a2e;border:1px solid #7d3c98;border-radius:8px;padding:14px 18px;margin-bottom:8px}
+.opt-card .opt-title{color:#f1c40f;font-size:14px;font-weight:bold}
+.opt-card .opt-desc{color:#e8d5e8;font-size:13px;margin-top:6px;line-height:1.6}
+.opt-card .opt-detail{color:#bb8fce;font-size:13px;margin-top:4px}
+.opt-card.danger{border-color:#c0392b;background:#2c1410}
+.opt-card.danger .opt-title{color:#e74c3c}
+.opt-card.danger .opt-desc{color:#f5b7b1}
+.verdict-box{background:#2a1a2e;border-radius:10px;padding:18px;margin-bottom:16px;text-align:center;border:2px solid #9b59b6}
+.verdict-box .verdict-level{font-size:28px;font-weight:bold;margin-bottom:6px}
+.verdict-box .verdict-desc{font-size:14px;color:#e8d5e8}
+.verdict-box .verdict-factors{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:10px}
+.factor-badge{display:inline-block;padding:3px 12px;border-radius:12px;font-size:12px}
+.factor-da-ji{background:#1a1a2e;color:#f1c40f;border:1px solid #f1c40f}
+.factor-ji{background:#1e1a2e;color:#bb8fce;border:1px solid #9b59b6}
+.factor-xiong{background:#3d1410;color:#e74c3c;border:1px solid #c0392b}
+.factor-ping{background:#2a2a1a;color:#f0c040;border:1px solid #e67e22}
+/* Layer panels */
+.layer{background:#241828;border-radius:8px;margin-bottom:8px;overflow:hidden;border:1px solid #3d2b40}
+.layer-header{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.2s}
+.layer-header:hover{background:rgba(155,89,182,0.08)}
+.layer-header .layer-title{color:#bb8fce;font-size:14px;font-weight:bold}
+.layer-header .layer-arrow{color:#9b59b6;transition:transform 0.3s}
+.layer-header.open .layer-arrow{transform:rotate(90deg)}
+.layer-body{max-height:0;overflow:hidden;transition:max-height 0.3s ease}
+.layer-body.open{max-height:8000px;overflow-y:auto}
+.layer-content{padding:12px 16px}
+.kv{display:flex;flex-wrap:wrap;gap:6px}
+.kv-item{background:#1a1008;padding:4px 10px;border-radius:4px;font-size:12px}
+.kv-item .k{color:#bb8fce}.kv-item .v{color:#f1c40f;margin-left:4px}
+.kv-item.active{background:#2a1a3e;border:1px solid #9b59b6}
+.kv-item.active .v{color:#f1c40f}
+.table-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.table-row .row-label{color:#bb8fce;font-size:12px;font-weight:bold;min-width:60px}
+.warning-box{background:#3d1410;border:1px solid #c0392b;border-radius:8px;padding:10px 14px;margin:8px 0;color:#e74c3c;font-size:13px;font-weight:bold}
+.shuli-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:4px;margin-top:8px}
+.shuli-item{background:#1a1008;padding:4px 8px;border-radius:4px;text-align:center;font-size:12px}
+.shuli-item .num{color:#bb8fce}.shuli-item .jx{font-size:11px}
+.shuli-item.daji{border:1px solid #f1c40f}.shuli-item.daji .jx{color:#f1c40f}
+.shuli-item.ji{border:1px solid #9b59b6}.shuli-item.ji .jx{color:#bb8fce}
+.shuli-item.xiong{border:1px solid #555}.shuli-item.xiong .jx{color:#888}
+.shuli-item.daxiong{border:1px solid #c0392b}.shuli-item.daxiong .jx{color:#e74c3c}
+.feixing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.feixing-cell{background:#1a1008;border:1px solid #3d2b40;border-radius:8px;padding:10px;text-align:center}
+.feixing-cell.center{border-color:#f1c40f;background:#2a2a1a}
+.feixing-cell.warning{border-color:#c0392b;background:#2c1410}
+.feixing-cell.wealth{border-color:#f1c40f;background:#2a2a1a}
+.feixing-cell .pos{color:#bb8fce;font-size:11px}
+.feixing-cell .star{font-size:18px;font-weight:bold;margin:4px 0}
+.feixing-cell .mark{font-size:12px;margin-top:4px}
+.footer{text-align:center;padding:20px;color:#5b3c6e;font-size:12px}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>其他术数排盘</h1>
+<p>系统⑦ · 小六壬 · 九宫飞星 · 姓名学 · 测字术 · 太岁 · 227维 · v1.1-optimized · 17层 + 5项优化</p>
+</div>
+<div class="container">
+<div class="input-area">
+<div><label>年份</label><input type="number" id="year" value="2026" min="1900" max="2100"></div>
+<div><label>月份</label><input type="number" id="month" value="8" min="1" max="12"></div>
+<div><label>日期</label><input type="number" id="day" value="7" min="1" max="31"></div>
+<div><label>时辰</label><input type="number" id="hour" value="18" min="0" max="23"></div>
+<button class="btn" onclick="generate()">排盘推演</button>
+</div>
+<div id="output"></div>
+</div>
+<div class="footer">其他中国术数 · 227维度 · 17层 · 5项理论驱动优化 · 术数日记</div>
+<script>
+// ============================================================
+// Part 1: 基础数据表（从Python适配器v1.1-optimized移植）
+// ============================================================
+var DIZHI=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+var TIANGAN=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+
+// --- 小六壬 (诸葛马前课) ---
+var XIAOLIUREN=[
+{name:"大安",dizhi:"寅",wuxing:"木",jixiong:"吉",desc:"事事安稳",xiang:"青龙",yi:"求财/谋事/出行"},
+{name:"留连",dizhi:"卯",wuxing:"水",jixiong:"凶",desc:"事多拖延",xiang:"玄武",yi:"不宜急事"},
+{name:"速喜",dizhi:"辰",wuxing:"火",jixiong:"吉",desc:"喜事速至",xiang:"朱雀",yi:"求财/谋事/求名"},
+{name:"赤口",dizhi:"巳",wuxing:"金",jixiong:"凶",desc:"口舌是非",xiang:"白虎",yi:"防口舌/防官非"},
+{name:"小吉",dizhi:"午",wuxing:"水",jixiong:"吉",desc:"小有吉利",xiang:"六合",yi:"求财/谋事/婚恋"},
+{name:"空亡",dizhi:"未",wuxing:"土",jixiong:"大凶",desc:"万事落空",xiang:"勾陈",yi:"万事不宜"}
+];
+
+// --- 九宫飞星 (紫白九星) ---
+var JIUGONG_FEIXING={
+1:{name:"一白",gua:"坎",wuxing:"水",fangwei:"正北",desc:"桃花文昌",jixiong:"吉",zhuguan:"事业/人缘"},
+2:{name:"二黑",gua:"坤",wuxing:"土",fangwei:"西南",desc:"病符星",jixiong:"凶",zhuguan:"疾病/健康"},
+3:{name:"三碧",gua:"震",wuxing:"木",fangwei:"正东",desc:"禄存星",jixiong:"凶",zhuguan:"口舌/是非"},
+4:{name:"四绿",gua:"巽",wuxing:"木",fangwei:"东南",desc:"文曲星",jixiong:"吉",zhuguan:"学业/文昌"},
+5:{name:"五黄",gua:"中",wuxing:"土",fangwei:"中宫",desc:"廉贞大煞",jixiong:"大凶",zhuguan:"灾祸/意外"},
+6:{name:"六白",gua:"乾",wuxing:"金",fangwei:"西北",desc:"武曲星",jixiong:"吉",zhuguan:"权力/贵人"},
+7:{name:"七赤",gua:"兑",wuxing:"金",fangwei:"正西",desc:"破军星",jixiong:"凶",zhuguan:"破财/口舌"},
+8:{name:"八白",gua:"艮",wuxing:"土",fangwei:"东北",desc:"左辅星",jixiong:"大吉",zhuguan:"财运/置业"},
+9:{name:"九紫",gua:"离",wuxing:"火",fangwei:"正南",desc:"右弼星",jixiong:"大吉",zhuguan:"姻缘/喜庆"}
+};
+
+// --- 三元九运 ---
+var SANYUAN_JIUYUN=[
+{yun:"一运",start:1864,end:1883,star:1,yuan:"上元"},
+{yun:"二运",start:1884,end:1903,star:2,yuan:"上元"},
+{yun:"三运",start:1904,end:1923,star:3,yuan:"上元"},
+{yun:"四运",start:1924,end:1943,star:4,yuan:"中元"},
+{yun:"五运",start:1944,end:1963,star:5,yuan:"中元"},
+{yun:"六运",start:1964,end:1983,star:6,yuan:"中元"},
+{yun:"七运",start:1984,end:2003,star:7,yuan:"下元"},
+{yun:"八运",start:2004,end:2023,star:8,yuan:"下元"},
+{yun:"九运",start:2024,end:2043,star:9,yuan:"下元"}
+];
+
+// --- 姓名学五格剖象法 ---
+var WUGE={
+"天格":{desc:"姓氏笔画+1(单姓)或两姓笔画之和(复姓)",zhuguan:"祖上/长辈/先天运",importance:"一般"},
+"人格":{desc:"姓氏末字+名字首字笔画",zhuguan:"主运/性格/核心命运",importance:"最重要"},
+"地格":{desc:"名字笔画之和(单名+1)",zhuguan:"早年运/基础运",importance:"一般"},
+"总格":{desc:"姓名总笔画",zhuguan:"晚年运/总体命运",importance:"一般"},
+"外格":{desc:"总格-人格+1",zhuguan:"人际运/社交运",importance:"一般"}
+};
+
+// --- OPT2: 81数理吉凶 (完整1-81) ---
+var SHULI_81={
+1:"大吉",2:"凶",3:"大吉",4:"凶",5:"大吉",
+6:"大吉",7:"吉",8:"吉",9:"凶",10:"凶",
+11:"大吉",12:"凶",13:"大吉",14:"凶",15:"大吉",
+16:"大吉",17:"吉",18:"吉",19:"凶",20:"凶",
+21:"大吉",22:"凶",23:"大吉",24:"大吉",25:"吉",
+26:"凶",27:"吉",28:"凶",29:"吉",30:"凶",
+31:"大吉",32:"大吉",33:"大吉",34:"大凶",35:"吉",
+36:"凶",37:"吉",38:"吉",39:"吉",40:"凶",
+41:"大吉",42:"凶",43:"凶",44:"凶",45:"大吉",
+46:"凶",47:"大吉",48:"大吉",49:"凶",50:"凶",
+51:"吉",52:"大吉",53:"凶",54:"凶",55:"凶",
+56:"凶",57:"吉",58:"大吉",59:"凶",60:"凶",
+61:"大吉",62:"凶",63:"大吉",64:"凶",65:"大吉",
+66:"凶",67:"大吉",68:"大吉",69:"凶",70:"凶",
+71:"吉",72:"凶",73:"大吉",74:"凶",75:"吉",
+76:"凶",77:"吉",78:"凶",79:"凶",80:"吉",
+81:"大吉"
+};
+
+// --- 测字术基本偏旁含义 ---
+var CEZI_PIANPANG={
+"人(亻)":{wuxing:"金",desc:"主信义/仁慈"},
+"水(氵)":{wuxing:"水",desc:"主智慧/流动"},
+"火(灬)":{wuxing:"火",desc:"主礼节/热情"},
+"木":{wuxing:"木",desc:"主仁慈/成长"},
+"土":{wuxing:"土",desc:"主信实/厚重"},
+"金(钅)":{wuxing:"金",desc:"主刚毅/决断"},
+"日":{wuxing:"火",desc:"主光明/正气"},
+"月":{wuxing:"水",desc:"主阴柔/变化"},
+"山":{wuxing:"土",desc:"主稳固/阻碍"},
+"心(忄)":{wuxing:"火",desc:"主思考/情感"}
+};
+
+// --- 五行笔画对应 (康熙字典) ---
+var WUXING_BIHUA={
+"木":[1,2,11,12,21,22,31,32,41,42,51,52],
+"火":[3,4,13,14,23,24,33,34,43,44,53,54],
+"土":[5,6,15,16,25,26,35,36,45,46,55,56],
+"金":[7,8,17,18,27,28,37,38,47,48,57,58],
+"水":[9,10,19,20,29,30,39,40,49,50,59,60]
+};
+
+// --- 太岁 (十二值年神) ---
+var TAISUI={
+"子":{太岁:"甲子金辩",方位:"正北"},
+"丑":{太岁:"乙丑陈材",方位:"东北"},
+"寅":{太岁:"丙寅耿章",方位:"东北偏东"},
+"卯":{太岁:"丁卯沈兴",方位:"正东"},
+"辰":{太岁:"戊辰赵达",方位:"东南偏东"},
+"巳":{太岁:"己巳郭灿",方位:"东南偏南"},
+"午":{太岁:"庚午王清",方位:"正南"},
+"未":{太岁:"辛未李素",方位:"西南偏南"},
+"申":{太岁:"壬申刘旺",方位:"西南偏西"},
+"酉":{太岁:"癸酉康忠",方位:"正西"},
+"戌":{太岁:"甲戌誓广",方位:"西北偏西"},
+"亥":{太岁:"乙亥吴保",方位:"西北偏北"}
+};
+
+// --- 五行生克 ---
+var WUXING_SHENG={金:"水",水:"木",木:"火",火:"土",土:"金"};
+var WUXING_KE={金:"木",木:"土",土:"水",水:"火",火:"金"};
+
+// --- 三煞方位映射 (年支三合局→三煞方位) ---
+var SANSHA={
+"申":"南方(巳午未)","子":"南方(巳午未)","辰":"南方(巳午未)",
+"亥":"西方(申酉戌)","卯":"西方(申酉戌)","未":"西方(申酉戌)",
+"寅":"北方(亥子丑)","午":"北方(亥子丑)","戌":"北方(亥子丑)",
+"巳":"东方(寅卯辰)","酉":"东方(寅卯辰)","丑":"东方(寅卯辰)"
+};
+
+// --- 飞星洛书宫位顺序: 中宫→乾→兑→艮→离→坎→坤→震→巽 ---
+var FEIXING_POSITIONS=["中宫","乾(西北)","兑(正西)","艮(东北)","离(正南)","坎(正北)","坤(西南)","震(正东)","巽(东南)"];
+
+// --- 六冲 ---
+var LIU_CHONG={子:"午",丑:"未",寅:"申",卯:"酉",辰:"戌",巳:"亥",午:"子",未:"丑",申:"寅",酉:"卯",戌:"辰",亥:"巳"};
+// --- 六合 ---
+var LIU_HE={子:"丑",丑:"子",寅:"亥",卯:"戌",辰:"酉",巳:"申",午:"未",未:"午",申:"巳",酉:"辰",戌:"卯",亥:"寅"};
+// --- 相刑 ---
+var XIANG_XING={
+"寅":["巳","申"],"巳":["寅","申"],"申":["寅","巳"],
+"丑":["戌","未"],"戌":["丑","未"],"未":["丑","戌"],
+"子":["卯"],"卯":["子"],
+"辰":["辰"],"午":["午"],"酉":["酉"],"亥":["亥"]
+};
+// --- 相害 ---
+var XIANG_HAI={子:"未",丑:"午",寅:"巳",卯:"辰",申:"亥",酉:"戌",未:"子",午:"丑",巳:"寅",辰:"卯",亥:"申",戌:"酉"};
+
+// ============================================================
+// Part 2: 计算函数（从Python适配器移植）
+// ============================================================
+
+function solarToGanzhi(year,month,day){
+// 简化干支计算 (无lunar_python时的fallback逻辑)
+var baseDate=new Date(2024,0,1); // 2024-01-01
+var targetDate=new Date(year,month-1,day);
+var daysDiff=Math.round((targetDate-baseDate)/(1000*60*60*24));
+var dayIdx=((daysDiff%60)+60)%60;
+var dayGan=TIANGAN[dayIdx%10];
+var dayZhi=DIZHI[dayIdx%12];
+var yearZhi=DIZHI[((4+(year-2024))%12+12)%12];
+var yearGan=TIANGAN[((0+(year-2024))%10+10)%10];
+return{yearGz:yearGan+yearZhi,dayGz:dayGan+dayZhi};
+}
+
+function getXiaoliuren(month,day,hourZhiIdx){
+var monthPos=(month-1)%6;
+var dayPos=((monthPos+day-1)%6+6)%6;
+var hourPos=((dayPos+hourZhiIdx)%6+6)%6;
+return{month:XIAOLIUREN[monthPos],day:XIAOLIUREN[dayPos],hour:XIAOLIUREN[hourPos]};
+}
+
+function getCurrentYun(year){
+for(var i=0;i<SANYUAN_JIUYUN.length;i++){
+var yun=SANYUAN_JIUYUN[i];
+if(yun.start<=year&&yun.end>=year){return yun;}
+}
+return SANYUAN_JIUYUN[SANYUAN_JIUYUN.length-1];
+}
+
+function getAnnualStar(year){
+var yun=getCurrentYun(year);
+var yunStar=yun.star;
+var yearsIntoYun=year-yun.start;
+var centerStar=((yunStar-yearsIntoYun)%9+9)%9;
+if(centerStar===0){centerStar=9;}
+return centerStar;
+}
+
+// OPT1: 计算年度风水关键方位
+function calcFengshuiPositions(annualStar){
+var positions={};
+for(var i=0;i<FEIXING_POSITIONS.length;i++){
+var pos=FEIXING_POSITIONS[i];
+var star=((annualStar-1+i)%9+9)%9+1;
+if(star===5){positions["五黄方位"]=pos+"("+JIUGONG_FEIXING[5].name+"大煞)";}
+else if(star===2){positions["二黑方位"]=pos+"("+JIUGONG_FEIXING[2].name+"病符)";}
+else if(star===8){positions["财星方位"]=pos+"("+JIUGONG_FEIXING[8].name+"财运)";}
+else if(star===9){positions["喜星方位"]=pos+"("+JIUGONG_FEIXING[9].name+"喜庆)";}
+else if(star===4){positions["文昌方位"]=pos+"("+JIUGONG_FEIXING[4].name+"学业)";}
+}
+return positions;
+}
+
+// OPT4: 小六壬三宫五行生克分析
+function calcXiaoliurenShengke(xlrMonth,xlrDay,xlrHour){
+var wxM=xlrMonth.wuxing;
+var wxD=xlrDay.wuxing;
+var wxH=xlrHour.wuxing;
+
+function relation(a,b){
+if(a===b){return"比和";}
+if(WUXING_SHENG[a]===b){return"生(→)";}
+if(WUXING_SHENG[b]===a){return"被生(←)";}
+if(WUXING_KE[a]===b){return"克(→)";}
+if(WUXING_KE[b]===a){return"被克(←)";}
+return"无关系";
+}
+
+var relMd=relation(wxM,wxD);
+var relDh=relation(wxD,wxH);
+
+var shengCount=0,keCount=0;
+if(relMd.indexOf("生")>=0){shengCount++;}
+if(relMd.indexOf("克")>=0){keCount++;}
+if(relDh.indexOf("生")>=0){shengCount++;}
+if(relDh.indexOf("克")>=0){keCount++;}
+
+var trend;
+if(shengCount>=2){trend="顺畅(相生链强)";}
+else if(keCount>=2){trend="阻碍(相克链强)";}
+else if(shengCount>=1&&keCount>=1){trend="波折(生克并存)";}
+else{trend="平稳(关系中性)";}
+
+return{
+"月→日五行":wxM+"→"+wxD+"("+relMd+")",
+"日→时五行":wxD+"→"+wxH+"("+relDh+")",
+"三宫五行链":wxM+"→"+wxD+"→"+wxH,
+"生克趋势":trend,
+"生链数":shengCount,
+"克链数":keCount
+};
+}
+
+// OPT5: 太岁冲合刑害分析
+function calcTaisuiRelation(yearZhi,dayZhi){
+var relations=[];
+
+if(LIU_CHONG[yearZhi]===dayZhi){relations.push("冲(日支"+dayZhi+"冲太岁"+yearZhi+")");}
+if(LIU_HE[yearZhi]===dayZhi){relations.push("合(日支"+dayZhi+"合太岁"+yearZhi+")");}
+var xingList=XIANG_XING[yearZhi]||[];
+for(var i=0;i<xingList.length;i++){
+if(xingList[i]===dayZhi){relations.push("刑(日支"+dayZhi+"刑太岁"+yearZhi+")");break;}
+}
+if(XIANG_HAI[yearZhi]===dayZhi){relations.push("害(日支"+dayZhi+"害太岁"+yearZhi+")");}
+
+if(relations.length===0){relations.push("无特殊关系");}
+
+var hasChong=false,hasXing=false,hasHai=false,hasHe=false;
+for(var j=0;j<relations.length;j++){
+if(relations[j].indexOf("冲")>=0){hasChong=true;}
+if(relations[j].indexOf("刑")>=0){hasXing=true;}
+if(relations[j].indexOf("害")>=0){hasHai=true;}
+if(relations[j].indexOf("合")>=0){hasHe=true;}
+}
+
+var advice;
+if(hasChong){advice="日冲太岁，行事需谨慎";}
+else if(hasXing){advice="日刑太岁，注意纠纷";}
+else if(hasHai){advice="日害太岁，注意小人口舌";}
+else if(hasHe){advice="日合太岁，诸事顺遂";}
+else{advice="与太岁无冲合刑害，平稳";}
+
+return{
+"关系类型":relations.join("、"),
+"综合建议":advice
+};
+}
+
+// ============================================================
+// Part 3: 辅助渲染函数
+// ============================================================
+
+function toggleLayer(header){
+header.classList.toggle('open');
+header.nextElementSibling.classList.toggle('open');
+}
+
+function gc(k,v,active){
+var cls=active?'kv-item active':'kv-item';
+return'<span class="'+cls+'"><span class="k">'+k+'</span><span class="v">'+v+'</span></span>';
+}
+
+function jixiongColor(jx){
+if(jx==="大吉")return'daji-color';
+if(jx==="大凶")return'daxiong-color';
+if(jx==="吉")return'ji-color';
+if(jx==="凶")return'xiong-color';
+return'ping-color';
+}
+
+function jixiongBadge(jx){
+if(jx==="大吉")return'<span style="color:#f1c40f">大吉</span>';
+if(jx==="大凶")return'<span style="color:#c0392b">大凶</span>';
+if(jx==="吉")return'<span style="color:#bb8fce">吉</span>';
+if(jx==="凶")return'<span style="color:#e74c3c">凶</span>';
+return'<span style="color:#f1c40f">'+jx+'</span>';
+}
+
+function layerHtml(title,contentFn){
+return'<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><span class="layer-title">'+title+'</span><span class="layer-arrow">▶</span></div><div class="layer-body"><div class="layer-content">'+contentFn()+'</div></div></div>';
+}
+
+function optCardHtml(title,detail,extra){
+var html='<div class="opt-card"><div class="opt-title">'+title+'</div>';
+if(detail){html+='<div class="opt-desc">'+detail+'</div>';}
+if(extra){html+='<div class="opt-detail">'+extra+'</div>';}
+html+='</div>';
+return html;
+}
+
+function shuliItemHtml(num,jx){
+var cls='shuli-item ';
+if(jx==='大吉')cls+='daji';
+else if(jx==='吉')cls+='ji';
+else if(jx==='大凶')cls+='daxiong';
+else cls+='xiong';
+return'<div class="'+cls+'"><div class="num">'+num+'</div><div class="jx">'+jx+'</div></div>';
+}
+
+// ============================================================
+// Part 4: 主生成函数
+// ============================================================
+
+function generate(){
+var year=parseInt(document.getElementById('year').value);
+var month=parseInt(document.getElementById('month').value);
+var day=parseInt(document.getElementById('day').value);
+var hour=parseInt(document.getElementById('hour').value);
+
+// 基础计算
+var gz=solarToGanzhi(year,month,day);
+var yearGz=gz.yearGz,dayGz=gz.dayGz;
+var yearZhi=yearGz.charAt(yearGz.length-1);
+var yearGan=yearGz.charAt(0);
+var dayZhi=dayGz.charAt(dayGz.length-1);
+
+var hourZhiIdx=((hour%24+1)/2)%12;
+hourZhiIdx=Math.floor(hourZhiIdx);
+var hourZhi=DIZHI[hourZhiIdx];
+
+var xlr=getXiaoliuren(month,day,hourZhiIdx);
+var xlrMonth=xlr.month,xlrDay=xlr.day,xlrHour=xlr.hour;
+var currentYun=getCurrentYun(year);
+var annualStar=getAnnualStar(year);
+var taisui=TAISUI[yearZhi]||{太岁:"?",方位:"?"};
+var yunStarInfo=JIUGONG_FEIXING[currentYun.star];
+
+// OPT1: 计算年度风水方位
+var fengshuiPos=calcFengshuiPositions(annualStar);
+var sansha=SANSHA[yearZhi]||"未知";
+
+// OPT4: 小六壬三宫生克
+var xlrShengke=calcXiaoliurenShengke(xlrMonth,xlrDay,xlrHour);
+
+// OPT5: 太岁冲合刑害
+var taisuiRel=calcTaisuiRelation(yearZhi,dayZhi);
+
+// 综合判断
+var jiCount=0,xiongCount=0;
+var arr=[xlrMonth,xlrDay,xlrHour];
+for(var i=0;i<3;i++){
+if(arr[i].jixiong==="吉"||arr[i].jixiong==="大吉")jiCount++;
+if(arr[i].jixiong==="凶"||arr[i].jixiong==="大凶")xiongCount++;
+}
+var zongheJianyi;
+if(jiCount>=2&&JIUGONG_FEIXING[annualStar].jixiong.indexOf("吉")>=0){zongheJianyi="吉";}
+else if(xiongCount>=2){zongheJianyi="凶";}
+else{zongheJianyi="平";}
+
+var html='';
+
+// === 核心展示区 ===
+html+='<div class="core-display">';
+html+='<div class="core-big">';
+// 小六壬三宫
+html+='<div class="big-item"><div class="big-label">月宫</div><div class="big-value '+jixiongColor(xlrMonth.jixiong)+'">'+xlrMonth.name+'</div><div class="big-sub">'+xlrMonth.wuxing+' · '+xlrMonth.xiang+'</div></div>';
+html+='<div class="big-item"><div class="big-label">日宫</div><div class="big-value '+jixiongColor(xlrDay.jixiong)+'">'+xlrDay.name+'</div><div class="big-sub">'+xlrDay.wuxing+' · '+xlrDay.xiang+'</div></div>';
+html+='<div class="big-item"><div class="big-label">时宫</div><div class="big-value '+jixiongColor(xlrHour.jixiong)+'">'+xlrHour.name+'</div><div class="big-sub">'+xlrHour.wuxing+' · '+xlrHour.xiang+'</div></div>';
+html+='</div>';
+
+// 关键信息高亮
+html+='<div class="highlight-grid">';
+html+='<div class="highlight-item gold"><div class="label">年飞星入中</div><div class="value">'+annualStar+' '+JIUGONG_FEIXING[annualStar].name+'</div></div>';
+html+='<div class="highlight-item"><div class="label">当前元运</div><div class="value">'+currentYun.yun+'('+currentYun.yuan+')</div></div>';
+html+='<div class="highlight-item"><div class="label">太岁</div><div class="value">'+taisui["太岁"]+'</div></div>';
+html+='<div class="highlight-item"><div class="label">太岁方位</div><div class="value">'+taisui["方位"]+'</div></div>';
+html+='<div class="highlight-item warning"><div class="label">三煞方位</div><div class="value">'+sansha+'</div></div>';
+html+='<div class="highlight-item warning"><div class="label">五黄方位</div><div class="value">'+(fengshuiPos["五黄方位"]||"未知")+'</div></div>';
+html+='<div class="highlight-item gold"><div class="label">财星方位</div><div class="value">'+(fengshuiPos["财星方位"]||"未知")+'</div></div>';
+html+='<div class="highlight-item"><div class="label">日干支</div><div class="value">'+dayGz+'</div></div>';
+html+='</div>';
+
+// 综合评判
+html+='<div class="verdict-box">';
+var verdictColor=zongheJianyi==="吉"?'daji-color':(zongheJianyi==="凶"?'daxiong-color':'ping-color');
+html+='<div class="verdict-level '+verdictColor+'">综合：'+zongheJianyi+'</div>';
+html+='<div class="verdict-desc">月'+xlrMonth.name+'→日'+xlrDay.name+'→时'+xlrHour.name+' · '+JIUGONG_FEIXING[annualStar].name+'入中 · '+currentYun.yun+'</div>';
+html+='<div class="verdict-factors">';
+html+='<span class="factor-badge '+(xlrHour.jixiong.indexOf("吉")>=0?'factor-ji':'factor-xiong')+'">时宫:'+xlrHour.jixiong+'</span>';
+html+='<span class="factor-badge '+(JIUGONG_FEIXING[annualStar].jixiong.indexOf("吉")>=0?'factor-ji':'factor-xiong')+'">飞星:'+JIUGONG_FEIXING[annualStar].jixiong+'</span>';
+html+='<span class="factor-badge '+(yunStarInfo.jixiong.indexOf("吉")>=0?'factor-ji':'factor-xiong')+'">元运:'+yunStarInfo.jixiong+'</span>';
+html+='<span class="factor-badge factor-ping">吉宫:'+jiCount+' 凶宫:'+xiongCount+'</span>';
+html+='</div>';
+html+='</div>';
+html+='</div>'; // end core-display
+
+// === 5项优化卡片 ===
+html+='<div class="opt-section">';
+html+=optCardHtml("OPT1 年度风水方位实际计算",
+"三煞: "+sansha+" | 五黄: "+(fengshuiPos["五黄方位"]||"未知")+" | 二黑: "+(fengshuiPos["二黑方位"]||"未知"),
+"财星: "+(fengshuiPos["财星方位"]||"未知")+" | 喜星: "+(fengshuiPos["喜星方位"]||"未知")+" | 文昌: "+(fengshuiPos["文昌方位"]||"未知"));
+html+=optCardHtml("OPT2 81数理完整补全 (1-81)",
+"原代码仅1-40，现已补全至1-81完整数理吉凶表",
+"大吉:"+countShuli("大吉")+"项 · 吉:"+countShuli("吉")+"项 · 凶:"+countShuli("凶")+"项 · 大凶:"+countShuli("大凶")+"项");
+html+=optCardHtml("OPT3 飞星九宫分布关键星位标注",
+"⚠️五黄大煞 · ⚠️二黑病符 · 💰财星 · 🎉喜星 · 📚文昌 已标注关键位置",
+buildFeixingMarks(annualStar));
+var skDanger = xlrShengke["生克趋势"].indexOf("阻碍")>=0;
+html+=optCardHtml("OPT4 小六壬三宫五行生克分析",
+xlrShengke["月→日五行"]+" | "+xlrShengke["日→时五行"],
+"三宫链: "+xlrShengke["三宫五行链"]+" | 趋势: "+xlrShengke["生克趋势"]+" | 生:"+xlrShengke["生链数"]+" 克:"+xlrShengke["克链数"]);
+var relDanger = taisuiRel["综合建议"].indexOf("谨慎")>=0||taisuiRel["综合建议"].indexOf("纠纷")>=0||taisuiRel["综合建议"].indexOf("口舌")>=0;
+html+=optCardHtml("OPT5 太岁冲合刑害分析",
+"太岁("+yearZhi+") vs 日支("+dayZhi+"): "+taisuiRel["关系类型"],
+"建议: "+taisuiRel["综合建议"]);
+html+='</div>'; // end opt-section
+
+// === 17层 ===
+
+// L1: 基础排盘
+html+=layerHtml("L1 基础排盘 (12维)",function(){
+var s='<div class="kv">';
+s+=gc("年干支",yearGz);
+s+=gc("日干支",dayGz);
+s+=gc("年支",yearZhi);
+s+=gc("年干",yearGan);
+s+=gc("时支",hourZhi);
+s+=gc("小六壬月宫",xlrMonth.name);
+s+=gc("小六壬日宫",xlrDay.name);
+s+=gc("小六壬时宫",xlrHour.name);
+s+=gc("当前元运",currentYun.yun+"("+currentYun.yuan+")");
+s+=gc("年飞星入中",annualStar+"("+JIUGONG_FEIXING[annualStar].name+")",true);
+s+=gc("太岁",taisui["太岁"]);
+s+=gc("太岁方位",taisui["方位"]);
+s+='</div>';
+return s;
+});
+
+// L2: 小六壬六宫
+html+=layerHtml("L2 小六壬六宫 (6维)",function(){
+var s='';
+for(var i=0;i<XIAOLIUREN.length;i++){
+var x=XIAOLIUREN[i];
+s+='<div class="table-row"><span class="row-label">'+x.name+'</span>';
+s+=gc("地支",x.dizhi);
+s+=gc("五行",x.wuxing);
+s+=gc("吉凶",x.jixiong);
+s+=gc("描述",x.desc);
+s+=gc("象意",x.xiang);
+s+=gc("宜",x.yi);
+s+='</div>';
+}
+return s;
+});
+
+// L3: 小六壬三宫排盘
+html+=layerHtml("L3 小六壬三宫排盘 (18维)",function(){
+var s='';
+var triples=[["月宫",xlrMonth],["日宫",xlrDay],["时宫",xlrHour]];
+for(var t=0;t<triples.length;t++){
+var label=triples[t][0];
+var x=triples[t][1];
+s+='<div class="table-row"><span class="row-label">'+label+'_'+x.name+'</span>';
+s+=gc("五行",x.wuxing);
+s+=gc("吉凶",x.jixiong);
+s+=gc("描述",x.desc);
+s+=gc("象意",x.xiang);
+s+=gc("宜",x.yi);
+s+=gc("地支",x.dizhi);
+s+='</div>';
+}
+return s;
+});
+
+// L4: 九宫飞星九星
+html+=layerHtml("L4 九宫飞星九星 (9维)",function(){
+var s='';
+for(var num=1;num<=9;num++){
+var info=JIUGONG_FEIXING[num];
+var isIn=(num===annualStar);
+s+='<div class="table-row"><span class="row-label">'+num+'_'+info.name+'</span>';
+s+=gc("卦",info.gua);
+s+=gc("五行",info.wuxing);
+s+=gc("方位",info.fangwei);
+s+=gc("吉凶",info.jixiong);
+s+=gc("描述",info.desc);
+s+=gc("主管",info.zhuguan);
+s+=gc("本年入中",isIn?"✅":"❌",isIn);
+s+='</div>';
+}
+return s;
+});
+
+// L5: 三元九运
+html+=layerHtml("L5 三元九运 (9维)",function(){
+var s='';
+for(var i=0;i<SANYUAN_JIUYUN.length;i++){
+var yun=SANYUAN_JIUYUN[i];
+var isCur=(yun.yun===currentYun.yun);
+s+='<div class="table-row"><span class="row-label">'+yun.yun+'</span>';
+s+=gc("年份",yun.start+"-"+yun.end);
+s+=gc("元",yun.yuan);
+s+=gc("当运星",yun.star+"白");
+s+=gc("当前是否",isCur?"✅":"❌",isCur);
+s+='</div>';
+}
+return s;
+});
+
+// L6: 姓名学五格
+html+=layerHtml("L6 姓名学五格剖象法 (5维)",function(){
+var s='';
+var keys=["天格","人格","地格","总格","外格"];
+for(var i=0;i<keys.length;i++){
+var key=keys[i];
+var info=WUGE[key];
+s+='<div class="table-row"><span class="row-label">'+key+'</span>';
+s+=gc("算法",info.desc);
+s+=gc("主管",info.zhuguan);
+s+=gc("重要性",info.importance);
+s+='</div>';
+}
+return s;
+});
+
+// L7: 81数理吉凶 (OPT2: 补全为81维)
+html+=layerHtml("L7 81数理吉凶 (81维·OPT2补全)",function(){
+var s='<div class="shuli-grid">';
+for(var num=1;num<=81;num++){
+var jx=SHULI_81[num]||"凶";
+s+=shuliItemHtml(num,jx);
+}
+s+='</div>';
+return s;
+});
+
+// L8: 五行笔画对应
+html+=layerHtml("L8 五行笔画对应 (5维)",function(){
+var s='';
+var keys=["木","火","土","金","水"];
+for(var i=0;i<keys.length;i++){
+var wx=keys[i];
+var bihua=WUXING_BIHUA[wx];
+var weishu=[];
+for(var j=0;j<6&&j<bihua.length;j++){weishu.push(bihua[j]%10);}
+s+='<div class="table-row"><span class="row-label">'+wx+'</span>';
+s+=gc("笔画",bihua.slice(0,6).join(","));
+s+=gc("尾数",weishu.join(",")+"属"+wx);
+s+='</div>';
+}
+return s;
+});
+
+// L9: 测字术偏旁
+html+=layerHtml("L9 测字术偏旁 (10维)",function(){
+var s='';
+var keys=["人(亻)","水(氵)","火(灬)","木","土","金(钅)","日","月","山","心(忄)"];
+for(var i=0;i<keys.length;i++){
+var key=keys[i];
+var info=CEZI_PIANPANG[key];
+s+='<div class="table-row"><span class="row-label">'+key+'</span>';
+s+=gc("五行",info.wuxing);
+s+=gc("含义",info.desc);
+s+='</div>';
+}
+return s;
+});
+
+// L10: 太岁系统
+html+=layerHtml("L10 太岁系统 (12维)",function(){
+var s='';
+var keys=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+for(var i=0;i<keys.length;i++){
+var dz=keys[i];
+var info=TAISUI[dz];
+var isCur=(dz===yearZhi);
+s+='<div class="table-row"><span class="row-label">'+dz+'年太岁</span>';
+s+=gc("太岁名",info["太岁"]);
+s+=gc("方位",info["方位"]);
+s+=gc("本年是否",isCur?"✅":"❌",isCur);
+s+='</div>';
+}
+return s;
+});
+
+// L11: 年飞星九宫分布 (OPT3: 完善)
+html+=layerHtml("L11 年飞星九宫分布 (9维·OPT3完善)",function(){
+var s='<div class="feixing-grid">';
+for(var i=0;i<FEIXING_POSITIONS.length;i++){
+var pos=FEIXING_POSITIONS[i];
+var star=((annualStar-1+i)%9+9)%9+1;
+var starInfo=JIUGONG_FEIXING[star];
+var isKey="";
+var cls="feixing-cell";
+if(star===5){isKey="⚠️五黄大煞";cls="feixing-cell warning";}
+else if(star===2){isKey="⚠️二黑病符";cls="feixing-cell warning";}
+else if(star===8){isKey="💰财星";cls="feixing-cell wealth";}
+else if(star===9){isKey="🎉喜星";cls="feixing-cell wealth";}
+else if(star===4){isKey="📚文昌";cls="feixing-cell";}
+if(i===0){cls+=" center";}
+s+='<div class="'+cls+'">';
+s+='<div class="pos">'+pos+'</div>';
+s+='<div class="star '+jixiongColor(starInfo.jixiong)+'">'+star+' '+starInfo.name+'</div>';
+s+='<div class="mark">'+starInfo.wuxing+' · '+starInfo.jixiong+'</div>';
+if(isKey){s+='<div class="mark" style="font-weight:bold">'+isKey+'</div>';}
+else{s+='<div class="mark">'+starInfo.zhuguan+'</div>';}
+s+='</div>';
+}
+s+='</div>';
+return s;
+});
+
+// L12: 元运分析
+html+=layerHtml("L12 元运分析 (8维)",function(){
+var s='<div class="kv">';
+s+=gc("当前运",currentYun.yun);
+s+=gc("当前元",currentYun.yuan);
+s+=gc("运期",currentYun.start+"-"+currentYun.end);
+s+=gc("当运星",currentYun.star+"_"+yunStarInfo.name,true);
+s+=gc("运星五行",yunStarInfo.wuxing);
+s+=gc("运星吉凶",yunStarInfo.jixiong);
+s+=gc("运星主管",yunStarInfo.zhuguan);
+s+=gc("运星描述",yunStarInfo.desc);
+s+='</div>';
+return s;
+});
+
+// L13: 小六壬综合分析 (OPT4: +生克)
+html+=layerHtml("L13 小六壬综合分析 (16维·OPT4+生克)",function(){
+var s='<div class="kv">';
+s+=gc("月宫吉凶",xlrMonth.jixiong);
+s+=gc("日宫吉凶",xlrDay.jixiong);
+s+=gc("时宫吉凶",xlrHour.jixiong);
+s+=gc("三宫五行",xlrMonth.wuxing+"-"+xlrDay.wuxing+"-"+xlrHour.wuxing);
+s+=gc("月宫象意",xlrMonth.xiang);
+s+=gc("日宫象意",xlrDay.xiang);
+s+=gc("时宫象意",xlrHour.xiang);
+s+=gc("综合吉凶",zongheJianyi);
+s+=gc("月宫宜",xlrMonth.yi);
+s+=gc("时宫宜",xlrHour.yi);
+s+=gc("月→日五行",xlrShengke["月→日五行"],true);
+s+=gc("日→时五行",xlrShengke["日→时五行"],true);
+s+=gc("三宫五行链",xlrShengke["三宫五行链"],true);
+s+=gc("生克趋势",xlrShengke["生克趋势"],true);
+s+=gc("生链数",String(xlrShengke["生链数"]));
+s+=gc("克链数",String(xlrShengke["克链数"]));
+s+='</div>';
+return s;
+});
+
+// L14: 年度风水 (OPT1: 实际计算)
+html+=layerHtml("L14 年度风水 (10维·OPT1实际计算)",function(){
+var s='<div class="kv">';
+s+=gc("年飞星",annualStar+"_"+JIUGONG_FEIXING[annualStar].name,true);
+s+=gc("入中五行",JIUGONG_FEIXING[annualStar].wuxing);
+s+=gc("入中吉凶",JIUGONG_FEIXING[annualStar].jixiong);
+s+=gc("太岁方位",taisui["方位"]);
+s+=gc("三煞方位",sansha,true);
+s+=gc("五黄方位",fengshuiPos["五黄方位"]||"未知",true);
+s+=gc("二黑方位",fengshuiPos["二黑方位"]||"未知");
+s+=gc("财星方位",fengshuiPos["财星方位"]||"未知",true);
+s+=gc("喜星方位",fengshuiPos["喜星方位"]||"未知");
+s+=gc("文昌方位",fengshuiPos["文昌方位"]||"未知");
+s+='</div>';
+// 无待计算验证
+var hasPlaceholder=false;
+var allVals=[sansha,fengshuiPos["五黄方位"],fengshuiPos["二黑方位"],fengshuiPos["财星方位"],fengshuiPos["喜星方位"],fengshuiPos["文昌方位"]];
+for(var i=0;i<allVals.length;i++){if(!allVals[i]||allVals[i].indexOf("待计算")>=0){hasPlaceholder=true;}}
+if(!hasPlaceholder){s+='<div style="color:#f1c40f;font-size:12px;margin-top:8px">✅ OPT1验证通过：无"待计算"占位符</div>';}
+return s;
+});
+
+// L15: 姓名学数理
+html+=layerHtml("L15 姓名学数理 (10维)",function(){
+var s='<div class="kv">';
+s+=gc("天格含义","祖上根基与先天禀赋");
+s+=gc("人格含义","主运，一生核心命运");
+s+=gc("地格含义","早年(36岁前)运势");
+s+=gc("总格含义","晚年(36岁后)总体运势");
+s+=gc("外格含义","人际关系与社交运");
+s+=gc("三才配置","天/人/地三格五行相生相克");
+s+=gc("阴阳配置","笔画奇偶阴阳平衡");
+s+=gc("五行补益","通过姓名五行补八字所缺");
+s+=gc("数理吉凶","81数理判断各格吉凶(OPT2已补全1-81)");
+s+=gc("喜用神配合","姓名五行配合八字喜用神");
+s+='</div>';
+return s;
+});
+
+// L16: 综合术数信息
+html+=layerHtml("L16 综合术数信息 (10维)",function(){
+var s='<div class="kv">';
+s+=gc("小六壬月宫",xlrMonth.name);
+s+=gc("小六壬日宫",xlrDay.name);
+s+=gc("小六壬时宫",xlrHour.name);
+s+=gc("年飞星",JIUGONG_FEIXING[annualStar].name,true);
+s+=gc("元运",currentYun.yun);
+s+=gc("太岁",taisui["太岁"]);
+s+=gc("太岁方位",taisui["方位"]);
+s+=gc("小六壬综合","月"+xlrMonth.name+"→日"+xlrDay.name+"→时"+xlrHour.name);
+s+=gc("飞星综合",JIUGONG_FEIXING[annualStar].name+"入中("+JIUGONG_FEIXING[annualStar].jixiong+")");
+s+=gc("风水要点",currentYun.yun+"当令"+yunStarInfo.name+"("+yunStarInfo.zhuguan+")");
+s+='</div>';
+return s;
+});
+
+// L17: 盘面总评 (OPT5: +太岁关系)
+html+=layerHtml("L17 盘面总评 (12维·OPT5+太岁关系)",function(){
+var s='<div class="kv">';
+s+=gc("小六壬总评","月"+xlrMonth.name+"日"+xlrDay.name+"时"+xlrHour.name);
+s+=gc("飞星总评",JIUGONG_FEIXING[annualStar].name+"入中-"+JIUGONG_FEIXING[annualStar].jixiong);
+s+=gc("元运总评",currentYun.yun+"-"+yunStarInfo.name+"("+yunStarInfo.zhuguan+")");
+s+=gc("太岁总评",taisui["太岁"]+"("+taisui["方位"]+")");
+s+=gc("吉宫数",String(jiCount));
+s+=gc("凶宫数",String(xiongCount));
+s+=gc("时宫吉凶",xlrHour.jixiong);
+s+=gc("飞星吉凶",JIUGONG_FEIXING[annualStar].jixiong);
+s+=gc("元运吉凶",yunStarInfo.jixiong);
+s+=gc("综合建议",zongheJianyi,true);
+s+=gc("太岁日支关系",taisuiRel["关系类型"],true);
+s+=gc("太岁建议",taisuiRel["综合建议"],true);
+s+='</div>';
+return s;
+});
+
+document.getElementById('output').innerHTML=html;
+
+// 自动展开前3层
+var layers=document.querySelectorAll('.layer-header');
+for(var i=0;i<3&&i<layers.length;i++){
+layers[i].classList.add('open');
+layers[i].nextElementSibling.classList.add('open');
+}
+}
+
+// ============================================================
+// 辅助函数
+// ============================================================
+
+function countShuli(target){
+var count=0;
+for(var num=1;num<=81;num++){
+if(SHULI_81[num]===target){count++;}
+}
+return count;
+}
+
+function buildFeixingMarks(annualStar){
+var marks=[];
+for(var i=0;i<FEIXING_POSITIONS.length;i++){
+var pos=FEIXING_POSITIONS[i];
+var star=((annualStar-1+i)%9+9)%9+1;
+if(star===5){marks.push("⚠️五黄@"+pos);}
+else if(star===2){marks.push("⚠️二黑@"+pos);}
+else if(star===8){marks.push("💰财星@"+pos);}
+else if(star===9){marks.push("🎉喜星@"+pos);}
+else if(star===4){marks.push("📚文昌@"+pos);}
+}
+return marks.join(" · ");
+}
+
+// 页面加载时自动生成
+window.onload=function(){
+generate();
+};
+</script>
+</body>
+</html>
