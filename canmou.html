@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>参考系统 · 塔罗·印度占星·元维度·内容驱动</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a1a; color: #e0d8c8; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding: 16px; }
+h1 { text-align: center; background: linear-gradient(135deg, #d4af37, #9b59b6, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.5em; margin: 16px 0 4px; }
+.subtitle { text-align: center; color: #8b7d6b; font-size: 0.85em; margin-bottom: 20px; }
+.input-area { background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.input-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 8px; }
+.input-row input { background: #0d0d1f; border: 1px solid #444; border-radius: 8px; padding: 8px 12px; color: #e0d8c8; font-size: 0.9em; width: 70px; text-align: center; }
+.input-row label { color: #8b7d6b; font-size: 0.8em; display: flex; align-items: center; }
+.btn { background: linear-gradient(135deg, #9b59b6, #d4af37); color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-size: 1em; cursor: pointer; margin: 8px auto; display: block; transition: opacity 0.2s; }
+.btn:hover { opacity: 0.85; }
+.result { display: none; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.planet-card { background: #1a1a2e; border: 1px solid #333; border-radius: 10px; padding: 12px; transition: border-color 0.2s; }
+.planet-card:hover { border-color: #d4af37; }
+.planet-card h4 { color: #d4af37; font-size: 0.95em; margin-bottom: 6px; }
+.planet-card .info { font-size: 0.8em; color: #b0a898; line-height: 1.5; }
+.layer { background: #1a1a2e; border: 1px solid #333; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+.layer-header { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 12px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.layer-header h3 { color: #d4af37; font-size: 1em; }
+.layer-header .badge { background: #9b59b6; color: #fff; border-radius: 12px; padding: 2px 10px; font-size: 0.75em; }
+.layer-header .arrow { color: #8b7d6b; transition: transform 0.2s; }
+.layer-header.open .arrow { transform: rotate(180deg); }
+.layer-body { display: none; padding: 12px 16px; }
+.layer-body.open { display: block; }
+.item-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #222; font-size: 0.85em; }
+.item-row:last-child { border-bottom: none; }
+.item-key { color: #9b59b6; flex-shrink: 0; margin-right: 8px; }
+.item-val { color: #b0a898; text-align: right; }
+.highlight-card { background: linear-gradient(135deg, #1a1a2e, #2a1a3e); border: 2px solid #d4af37; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.highlight-card h3 { color: #d4af37; text-align: center; margin-bottom: 12px; }
+.three-cards { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.tarot-card { background: #0d0d1f; border: 1px solid #444; border-radius: 10px; padding: 12px; width: 140px; text-align: center; }
+.tarot-card .card-num { color: #9b59b6; font-size: 1.5em; font-weight: bold; }
+.tarot-card .card-name { color: #d4af37; font-size: 1em; margin: 4px 0; }
+.tarot-card .card-meaning { color: #b0a898; font-size: 0.75em; }
+.tarot-card .card-reversed { color: #e74c3c; font-size: 0.7em; }
+.optimization-note { background: #1a2a1a; border: 1px solid #2a5a2a; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: 0.8em; color: #7fcc7f; }
+.cross-cultural { background: #0d0d1f; border: 1px solid #333; border-radius: 8px; padding: 10px; margin: 6px 0; }
+.cross-cultural .cc-key { color: #9b59b6; font-size: 0.85em; margin-bottom: 4px; }
+.cross-cultural .cc-val { color: #b0a898; font-size: 0.8em; line-height: 1.5; }
+.cross-cultural .cc-fix { color: #7fcc7f; font-size: 0.75em; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<h1>🔮 参考系统</h1>
+<p class="subtitle">塔罗 · 印度占星 · 元维度 · 内容驱动 | v1.1 优化版</p>
+
+<div class="input-area">
+  <div class="input-row">
+    <label>年</label><input type="number" id="year" value="2026" min="1900" max="2100">
+    <label>月</label><input type="number" id="month" value="8" min="1" max="12">
+    <label>日</label><input type="number" id="day" value="7" min="1" max="31">
+    <label>时</label><input type="number" id="hour" value="16" min="0" max="23">
+  </div>
+  <button class="btn" onclick="generateAll()">生成参考系统标签</button>
+</div>
+
+<div class="result" id="result">
+  <div id="highlightSection"></div>
+  <div id="layersSection"></div>
+</div>
+
+<script>
+// === 数据定义 ===
+const MAJOR_ARCANA = [
+  {num:0,name:"愚者",en:"The Fool",wx:"风",desc:"新的开始/冒险/纯真",zheng:"自由/新旅程/无限可能",ni:"鲁莽/不稳定/愚蠢"},
+  {num:1,name:"魔术师",en:"The Magician",wx:"水星",desc:"创造/意志力/技巧",zheng:"主动/技能/沟通",ni:"操纵/滥用才能/欺骗"},
+  {num:2,name:"女祭司",en:"The High Priestess",wx:"月亮",desc:"直觉/潜意识/神秘",zheng:"内在智慧/直觉/静默",ni:"隐秘/压抑/被动"},
+  {num:3,name:"皇后",en:"The Empress",wx:"金星",desc:"丰饶/母性/创造",zheng:"丰盛/滋养/创造力",ni:"过度依赖/停滞/占有欲"},
+  {num:4,name:"皇帝",en:"The Emperor",wx:"白羊",desc:"权威/结构/控制",zheng:"领导/秩序/稳定",ni:"专制/固执/僵化"},
+  {num:5,name:"教皇",en:"The Hierophant",wx:"金牛",desc:"传统/信仰/教育",zheng:"传统/教导/精神引导",ni:"教条/保守/束缚"},
+  {num:6,name:"恋人",en:"The Lovers",wx:"双子",desc:"选择/关系/和谐",zheng:"爱情/选择/和谐",ni:"分离/错误选择/不忠"},
+  {num:7,name:"战车",en:"The Chariot",wx:"巨蟹",desc:"胜利/意志/前进",zheng:"胜利/决心/控制",ni:"失控/冲动/方向迷失"},
+  {num:8,name:"力量",en:"Strength",wx:"狮子",desc:"勇气/耐心/内在力量",zheng:"勇气/柔韧/内在力量",ni:"软弱/自我怀疑/失去信心"},
+  {num:9,name:"隐士",en:"The Hermit",wx:"处女",desc:"内省/独处/智慧",zheng:"内省/智慧/独处",ni:"孤立/固执/退缩"},
+  {num:10,name:"命运之轮",en:"Wheel of Fortune",wx:"木星",desc:"命运/转折/循环",zheng:"好运/转折点/机遇",ni:"厄运/停滞/抗拒变化"},
+  {num:11,name:"正义",en:"Justice",wx:"天秤",desc:"公正/因果/平衡",zheng:"公正/真相/平衡",ni:"不公/偏见/失衡"},
+  {num:12,name:"倒吊人",en:"The Hanged Man",wx:"海王",desc:"牺牲/放下/新视角",zheng:"牺牲/顿悟/新视角",ni:"无谓牺牲/拖延/受害者心态"},
+  {num:13,name:"死神",en:"Death",wx:"天蝎",desc:"结束/转化/重生",zheng:"结束/转变/重生",ni:"抗拒变化/停滞/恐惧"},
+  {num:14,name:"节制",en:"Temperance",wx:"射手",desc:"平衡/调和/耐心",zheng:"平衡/调和/适度",ni:"失衡/过度/不协调"},
+  {num:15,name:"恶魔",en:"The Devil",wx:"摩羯",desc:"束缚/欲望/物质",zheng:"雄心/物质成就/承诺",ni:"束缚/成瘾/贪欲"},
+  {num:16,name:"高塔",en:"The Tower",wx:"火星",desc:"突变/破坏/觉醒",zheng:"突然觉醒/打破旧制",ni:"灾难/毁灭/混乱"},
+  {num:17,name:"星星",en:"The Star",wx:"水瓶",desc:"希望/灵感/信念",zheng:"希望/灵感/宁静",ni:"失望/悲观/失去信心"},
+  {num:18,name:"月亮",en:"The Moon",wx:"双鱼",desc:"幻象/恐惧/潜意识",zheng:"直觉/梦境/创造力",ni:"迷惑/恐惧/幻觉"},
+  {num:19,name:"太阳",en:"The Sun",wx:"太阳",desc:"成功/快乐/活力",zheng:"成功/快乐/活力",ni:"暂时的挫折/过度乐观"},
+  {num:20,name:"审判",en:"Judgement",wx:"冥王",desc:"觉醒/重生/召唤",zheng:"觉醒/重生/宽恕",ni:"自我谴责/错过召唤/犹豫"},
+  {num:21,name:"世界",en:"The World",wx:"土星",desc:"完成/圆满/成就",zheng:"完成/圆满/成就",ni:"未完成/停滞/缺乏收尾"}
+];
+
+const SUITS = {权杖:{wx:"火",zg:"行动/激情/创造/意志",fw:"南"},圣杯:{wx:"水",zg:"情感/关系/直觉/心灵",fw:"西"},宝剑:{wx:"风",zg:"思维/冲突/决断/理性",fw:"东"},星币:{wx:"土",zg:"物质/财富/现实/稳定",fw:"北"}};
+
+const NAKSHATRA = [
+  {n:1,en:"Ashwini",cn:"阿湿维尼",deity:"双马神",wx:"火",desc:"速度/治疗/先驱"},
+  {n:2,en:"Bharani",cn:"巴拉尼",deity:"阎摩",wx:"火",desc:"约束/创造/忍耐"},
+  {n:3,en:"Krittika",cn:"克利提卡",deity:"火神",wx:"火",desc:"净化/锐利/意志"},
+  {n:4,en:"Rohini",cn:"罗希尼",deity:"梵天",wx:"月",desc:"生长/丰盛/美感"},
+  {n:5,en:"Mrigashira",cn:"姆里加希拉",deity:"月神",wx:"火",desc:"探索/温柔/寻觅"},
+  {n:6,en:"Ardra",cn:"阿尔德拉",deity:"风暴神",wx:"风",desc:"风暴/净化/新生"},
+  {n:7,en:"Punarvasu",cn:"普纳瓦苏",deity:"母亲神",wx:"风",desc:"回归/更新/光明"},
+  {n:8,en:"Pushya",cn:"普夏",deity:"木星",wx:"火",desc:"滋养/繁荣/祝福"},
+  {n:9,en:"Ashlesha",cn:"阿湿莱夏",deity:"蛇神",wx:"水",desc:"洞察/隐藏/缠缚"},
+  {n:10,en:"Magha",cn:"马格哈",deity:"祖先",wx:"火",desc:"传承/权力/荣誉"},
+  {n:11,en:"Purva Phalguni",cn:"普拉瓦法古尼",deity:"幸运神",wx:"火",desc:"享乐/慵懒/创造"},
+  {n:12,en:"Uttara Phalguni",cn:"乌塔拉法古尼",deity:"太阳神",wx:"火",desc:"契约/友谊/帮助"},
+  {n:13,en:"Hasta",cn:"哈斯塔",deity:"太阳神",wx:"风",desc:"灵巧/手艺/实现"},
+  {n:14,en:"Chitra",cn:"奇特拉",deity:"建筑神",wx:"火",desc:"闪耀/艺术"},
+  {n:15,en:"Swati",cn:"斯瓦提",deity:"风神",wx:"风",desc:"独立/灵活/平衡"},
+  {n:16,en:"Vishakha",cn:"维沙卡",deity:"双神",wx:"火",desc:"目标/野心/双分"},
+  {n:17,en:"Anuradha",cn:"阿努拉达",deity:"雷神",wx:"土",desc:"友谊/团结/追随"},
+  {n:18,en:"Jyeshtha",cn:"杰什塔",deity:"守护神",wx:"火",desc:"长兄/权力/保护"},
+  {n:19,en:"Mula",cn:"穆拉",deity:"Nirriti",wx:"风",desc:"根/调查/摧毁"},
+  {n:20,en:"Purva Ashadha",cn:"普拉瓦阿沙达",deity:"水神",wx:"水",desc:"胜利/不可征服/力量"},
+  {n:21,en:"Uttara Ashadha",cn:"乌塔拉阿沙达",deity:"太阳神",wx:"土",desc:"最终胜利/坚定/承诺"},
+  {n:22,en:"Shravana",cn:"什拉瓦纳",deity:"毗湿奴",wx:"土",desc:"聆听/学习/传统"},
+  {n:23,en:"Dhanishta",cn:"达尼什塔",deity:"八神",wx:"火",desc:"财富/音乐/节奏"},
+  {n:24,en:"Shatabhisha",cn:"沙塔比沙",deity:"药神",wx:"风",desc:"治愈/秘密/百药"},
+  {n:25,en:"Purva Bhadrapada",cn:"普拉瓦巴德拉",deity:"阿贾",wx:"火",desc:"灼烧/转化/灵性"},
+  {n:26,en:"Uttara Bhadrapada",cn:"乌塔拉巴德拉",deity:"蛇神",wx:"水",desc:"智慧/深度/守护"},
+  {n:27,en:"Revati",cn:"雷瓦提",deity:"牧神",wx:"水",desc:"丰盛/旅程/超越"}
+];
+
+const NAVAGRAHA = {
+  "太阳(Surya)":{wx:"火",desc:"灵魂/权威/父亲/健康",zg:"自我意识/生命力"},
+  "月亮(Chandra)":{wx:"水",desc:"心灵/情感/母亲/记忆",zg:"情绪/潜意识"},
+  "火星(Mangala)":{wx:"火",desc:"能量/勇气/兄弟/冲突",zg:"行动力/勇气"},
+  "水星(Budha)":{wx:"土",desc:"智力/沟通/商业/教育",zg:"思维/沟通"},
+  "木星(Guru)":{wx:"风",desc:"智慧/财富/子女/导师",zg:"智慧/扩张"},
+  "金星(Shukra)":{wx:"水",desc:"爱情/美感/艺术/享受",zg:"欲望/和谐"},
+  "土星(Shani)":{wx:"风",desc:"业力/限制/长寿/责任",zg:"纪律/因果"},
+  "罗睺(Rahu)":{wx:"风",desc:"欲望/错觉/外国/创新",zg:"执念/突破"},
+  "计都(Ketu)":{wx:"风",desc:"灵性/解脱/神秘/放下",zg:"超脱/灵性"}
+};
+
+const YUANWEIDU = {
+  "时间分辨率":{desc:"年/月/日/时四维时间戳精度",sys:"全部系统通用"},
+  "空间分辨率":{desc:"方位/宫位/星宿空间编码",sys:"全部系统通用"},
+  "系统权重":{desc:"不同术数系统的可信度/优先级权重",sys:"元层决策"},
+  "跨系统共振":{desc:"多系统对同一事件的一致性判断",sys:"元层决策"},
+  "时间衰减":{desc:"标签随时间推移的衰减系数",sys:"元层维护"},
+  "置信度":{desc:"每个标签生成的置信度评分",sys:"元层维护"}
+};
+
+const NEIRONG = {
+  "对话内容关键词":{desc:"从对话内容提取关键词触发相关术数标签"},
+  "情绪状态映射":{desc:"PSI情绪状态映射到术数维度"},
+  "事件类型匹配":{desc:"不同事件类型匹配不同术数系统"},
+  "用户偏好权重":{desc:"用户对不同术数系统的偏好权重"},
+  "历史命中率":{desc:"历史标签命中/验证率统计"},
+  "场景适配":{desc:"不同场景(婚恋/财运/健康/出行)适配不同系统"},
+  "融合输出":{desc:"多系统标签融合后的最终输出格式"}
+};
+
+// ✅ 十二消息卦-大阿卡纳完整映射 (12/12)
+const XIAOXI_ARCANA = {
+  "复(冬至阳生)":"愚者(新开始)",
+  "临(阳长阴消)":"魔术师(意志创造)",
+  "泰(阴阳平衡)":"太阳(光明圆满)",
+  "大壮(阳气盛长)":"皇帝(力量掌控)",
+  "夬(阳气决阴)":"正义(决断平衡)",
+  "乾(纯阳圆满)":"世界(完成圆满)",
+  "姤(夏至阴生)":"月亮(阴始暗生)",
+  "遁(阴长阳退)":"隐士(退隐内省)",
+  "否(天地不交)":"倒吊人(停滞悬置)",
+  "观(阴盛阳伏)":"女祭司(静观直觉)",
+  "剥(阴剥阳气)":"高塔(剥落崩塌)",
+  "坤(纯阴含育)":"死神(终结转化)"
+};
+
+// === 工具函数 ===
+function toggleLayer(header) {
+  header.classList.toggle("open");
+  header.nextElementSibling.classList.toggle("open");
+}
+
+// ✅ 优化点#2: 真实日历天数+时辰+种子化RNG+逆位
+function dayOfYear(y, m, d) {
+  const daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
+  let isLeap = (y%4===0 && y%100!==0) || y%400===0;
+  let doy = d;
+  for (let i = 0; i < m - 1; i++) doy += daysInMonth[i];
+  if (m > 2 && isLeap) doy++;
+  return doy;
+}
+
+function generateAll() {
+  const y = parseInt(document.getElementById("year").value);
+  const m = parseInt(document.getElementById("month").value);
+  const d = parseInt(document.getElementById("day").value);
+  const h = parseInt(document.getElementById("hour").value);
+  
+  // 计算真实天数（从1900-01-01）
+  function daysFromEpoch(yr, mo, dy) {
+    let total = 0;
+    for (let i = 1900; i < yr; i++) {
+      total += ((i%4===0 && i%100!==0) || i%400===0) ? 366 : 365;
+    }
+    total += dayOfYear(yr, mo, dy) - 1;
+    return total;
+  }
+  
+  const realDays = daysFromEpoch(y, m, d);
+  const seed = realDays * 24 + h;
+  
+  // 种子化伪随机
+  function rng(s) {
+    s = s & 0x7FFFFFFF;
+    s = (s * 1103515245 + 12345) & 0x7FFFFFFF;
+    return s;
+  }
+  
+  // ✅ 注意: 此处使用Number运算，但1103515245 * 0x7FFFFFFF可能超2^53
+  // 实际上seed通常远小于0x7FFFFFFF，且乘法结果用&0x7FFFFFFF截断
+  // 但为安全起见使用BigInt (BUG-002防护)
+  function rngBig(s) {
+    let st = BigInt(s & 0x7FFFFFFF);
+    const MULT = 1103515245n;
+    const INC = 12345n;
+    const MASK = 0x7FFFFFFFn;
+    st = (st * MULT + INC) & MASK;
+    return Number(st);
+  }
+  
+  let s1 = rngBig(seed);
+  let s2 = rngBig(s1);
+  let s3 = rngBig(s2);
+  
+  const pastCard = MAJOR_ARCANA[s1 % 22];
+  const presentCard = MAJOR_ARCANA[s2 % 22];
+  const futureCard = MAJOR_ARCANA[s3 % 22];
+  const pastRev = s1 % 7 === 0;
+  const presentRev = s2 % 7 === 0;
+  const futureRev = s3 % 7 === 0;
+  
+  let html = "";
+  
+  // === 高亮卡片：三牌解读 ===
+  html += '<div class="highlight-card">';
+  html += '<h3>🃏 塔罗三牌解读</h3>';
+  html += '<div class="three-cards">';
+  html += '<div class="tarot-card"><div class="card-num">'+pastCard.num+'</div><div class="card-name">'+pastCard.name+'</div><div class="card-meaning">'+(pastRev?pastCard.ni:pastCard.zheng)+'</div>'+(pastRev?'<div class="card-reversed">逆位</div>':'')+'</div>';
+  html += '<div class="tarot-card"><div class="card-num">'+presentCard.num+'</div><div class="card-name">'+presentCard.name+'</div><div class="card-meaning">'+(presentRev?presentCard.ni:presentCard.zheng)+'</div>'+(presentRev?'<div class="card-reversed">逆位</div>':'')+'</div>';
+  html += '<div class="tarot-card"><div class="card-num">'+futureCard.num+'</div><div class="card-name">'+futureCard.name+'</div><div class="card-meaning">'+(futureRev?futureCard.ni:futureCard.zheng)+'</div>'+(futureRev?'<div class="card-reversed">逆位</div>':'')+'</div>';
+  html += '</div>';
+  html += '</div>';
+  
+  // === 优化说明 ===
+  html += '<div class="optimization-note">';
+  html += '📋 <b>本版含5项理论驱动优化</b>：①五行-塔罗映射修正 ②太岁→木星周期 ③十二消息卦补全12/12 ④三牌算法升级(真实天数+时辰+逆位) ⑤地支-星座标注方向';
+  html += '</div>';
+  
+  // === L1: 塔罗基础 ===
+  html += '<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><h3>L1 塔罗基础</h3><span class="badge">10维</span><span class="arrow">▼</span></div>';
+  html += '<div class="layer-body">';
+  html += '<div class="item-row"><span class="item-key">大阿卡纳</span><span class="item-val">22张</span></div>';
+  html += '<div class="item-row"><span class="item-key">小阿卡纳</span><span class="item-val">56张</span></div>';
+  html += '<div class="item-row"><span class="item-key">总牌数</span><span class="item-val">78张</span></div>';
+  html += '<div class="item-row"><span class="item-key">权杖元素</span><span class="item-val">火 🔥 (南)</span></div>';
+  html += '<div class="item-row"><span class="item-key">圣杯元素</span><span class="item-val">水 💧 (西)</span></div>';
+  html += '<div class="item-row"><span class="item-key">宝剑元素</span><span class="item-val">风 💨 (东)</span></div>';
+  html += '<div class="item-row"><span class="item-key">星币元素</span><span class="item-val">土 🌍 (北)</span></div>';
+  html += '<div class="item-row"><span class="item-key">过去牌</span><span class="item-val">'+pastCard.num+'-'+pastCard.name+(pastRev?' (逆位)':'')+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">现在牌</span><span class="item-val">'+presentCard.num+'-'+presentCard.name+(presentRev?' (逆位)':'')+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">未来牌</span><span class="item-val">'+futureCard.num+'-'+futureCard.name+(futureRev?' (逆位)':'')+'</span></div>';
+  html += '</div></div>';
+  
+  // === L2: 大阿卡纳22张 ===
+  html += '<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><h3>L2 大阿卡纳22张</h3><span class="badge">22维</span><span class="arrow">▼</span></div>';
+  html += '<div class="layer-body">';
+  html += '<div class="card-grid">';
+  MAJOR_ARCANA.forEach(c => {
+    html += '<div class="planet-card"><h4>'+c.num+' '+c.name+'</h4><div class="info">EN: '+c.en+'<br>星象: '+c.wx+'<br>正: '+c.zheng+'<br>逆: '+c.ni+'</div></div>';
+  });
+  html += '</div></div></div>';
+  
+  // === L3: 小阿卡纳花色 ===
+  html += '<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><h3>L3 小阿卡纳四花色</h3><span class="badge">4维</span><span class="arrow">▼</span></div>';
+  html += '<div class="layer-body">';
+  for (let suit in SUITS) {
+    let s = SUITS[suit];
+    html += '<div class="item-row"><span class="item-key">'+suit+'</span><span class="item-val">'+s.wx+' / '+s.zg+' / '+s.fw+'</span></div>';
+  }
+  html += '</div></div>';
+  
+  // === L4: 塔罗三牌解读 ===
+  html += '<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><h3>L4 塔罗三牌解读</h3><span class="badge">9维</span><span class="arrow">▼</span></div>';
+  html += '<div class="layer-body">';
+  html += '<div class="item-row"><span class="item-key">过去牌</span><span class="item-val">'+pastCard.name+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">过去牌意</span><span class="item-val">'+(pastRev?pastCard.ni:pastCard.zheng)+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">过去逆位</span><span class="item-val">'+(pastRev?'是':'否')+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">现在牌</span><span class="item-val">'+presentCard.name+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">现在牌意</span><span class="item-val">'+(presentRev?presentCard.ni:presentCard.zheng)+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">现在逆位</span><span class="item-val">'+(presentRev?'是':'否')+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">未来牌</span><span class="item-val">'+futureCard.name+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">未来牌意</span><span class="item-val">'+(futureRev?futureCard.ni:futureCard.zheng)+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">未来逆位</span><span class="item-val">'+(futureRev?'是':'否')+'</span></div>';
+  html += '</div></div>';
+  
+  // === L5: 印度27星宿 ===
+  html += '<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><h3>L5 印度占星27星宿</h3><span class="badge">27维</span><span class="arrow">▼</span></div>';
+  html += '<div class="layer-body">';
+  html += '<div class="card-grid">';
+  NAKSHATRA.forEach(n => {
+    html += '<div class="planet-card"><h4>'+n.n+' '+n.cn+'</h4><div class="info">EN: '+n.en+'<br>主神: '+n.deity+'<br>五行: '+n.wx+'<br>'+n.desc+'</div></div>';
+  });
+  html += '</div></div></div>';
+  
+  // === L6: 九曜系统 ===
+  html += '<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><h3>L6 九曜系统(Navagraha)</h3><span class="badge">9维</span><span class="arrow">▼</span></div>';
+  html += '<div class="layer-body">';
+  html += '<div class="card-grid">';
+  for (let name in NAVAGRAHA) {
+    let g = NAVAGRAHA[name];
+    html += '<div class="planet-card"><h4>'+name+'</h4><div class="info">五行: '+g.wx+'<br>'+g.desc+'<br>主管: '+g.zg+'</div></div>';
+  }
+  html += '</div></div></div>';
+  
+  // === L7: 元维度 ===
+  html += '<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><h3>L7 元维度(元层调控)</h3><span class="badge">6维</span><span class="arrow">▼</span></div>';
+  html += '<div class="layer-body">';
+  for (let name in YUANWEIDU) {
+    let y2 = YUANWEIDU[name];
+    html += '<div class="item-row"><span class="item-key">'+name+'</span><span class="item-val">'+y2.desc+' ('+y2.sys+')</span></div>';
+  }
+  html += '</div></div>';
+  
+  // === L8: 内容驱动 ===
+  html += '<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><h3>L8 内容驱动(触发机制)</h3><span class="badge">7维</span><span class="arrow">▼</span></div>';
+  html += '<div class="layer-body">';
+  for (let name in NEIRONG) {
+    html += '<div class="item-row"><span class="item-key">'+name+'</span><span class="item-val">'+NEIRONG[name].desc+'</span></div>';
+  }
+  html += '</div></div>';
+  
+  // === L9: 跨文化对应（含3项修正） ===
+  html += '<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><h3>L9 跨文化对应 (含3项修正)</h3><span class="badge">10维</span><span class="arrow">▼</span></div>';
+  html += '<div class="layer-body">';
+  html += '<div class="cross-cultural"><div class="cc-key">① 中国五行 ↔ 西方塔罗</div><div class="cc-val">火=权杖 / 水=圣杯 / 金=宝剑 / 土=星币 / 木=无直接对应(五行衍生:木生火→权杖)</div><div class="cc-fix">✅ 修正: 原映射木火重复→权杖，已修正为正确四元素对应</div></div>';
+  html += '<div class="cross-cultural"><div class="cc-key">② 中国二十八宿 ↔ 印度27星宿</div><div class="cc-val">二十八宿分四象对应27星宿分三方(均基于月亮27.3天恒星月周期)</div></div>';
+  html += '<div class="cross-cultural"><div class="cc-key">③ 中国天干 ↔ 西方行星</div><div class="cc-val">甲乙=木星 / 丙丁=火星 / 戊己=土星 / 庚辛=金星 / 壬癸=水星</div></div>';
+  html += '<div class="cross-cultural"><div class="cc-key">④ 中国八卦 ↔ 西方四元素</div><div class="cc-val">坎=水 / 离=火 / 震巽=木(风) / 乾兑=金 / 坤艮=土</div></div>';
+  html += '<div class="cross-cultural"><div class="cc-key">⑤ 中国地支 ↔ 西方星座</div><div class="cc-val">子=水瓶 / 丑=摩羯 / 寅=射手 / 卯=天蝎 / 辰=天秤 / 巳=处女 (注:基于恒星黄道逆序映射,与回归黄道标准顺序不同)</div><div class="cc-fix">✅ 新增: 标注映射方向</div></div>';
+  let xiaoxiStr = Object.entries(XIAOXI_ARCANA).map(([k,v])=>k+'='+v).join(' / ');
+  html += '<div class="cross-cultural"><div class="cc-key">⑥ 十二消息卦 ↔ 大阿卡纳 (12/12完整)</div><div class="cc-val">'+xiaoxiStr+'</div><div class="cc-fix">✅ 修正: 原仅5/12映射，已补全至12/12</div></div>';
+  html += '<div class="cross-cultural"><div class="cc-key">⑦ 九宫飞星 ↔ 西方占星宫位</div><div class="cc-val">一白=第1宫 / 九紫=第9宫 / 五黄=中天 (注:9数与12宫不直接对应,为近似映射)</div></div>';
+  html += '<div class="cross-cultural"><div class="cc-key">⑧ 纳音五行 ↔ 西方元素</div><div class="cc-val">海中金=土象 / 炉中火=火象 / 大林木=木象等(30纳音按主元素归类)</div></div>';
+  html += '<div class="cross-cultural"><div class="cc-key">⑨ 太岁 ↔ 行星周期</div><div class="cc-val">太岁12年 ≈ 木星11.86年公转周期(岁星纪年法)</div><div class="cc-fix">✅ 修正: 原映射土星29.5年→已修正为木星11.86年</div></div>';
+  html += '<div class="cross-cultural"><div class="cc-key">⑩ 梅花易数 ↔ 西方数字命理</div><div class="cc-val">八卦数理 = 毕达哥拉斯数理(均为数字对应宇宙规律的数理系统)</div></div>';
+  html += '</div></div>';
+  
+  // === L10: 综合总评 ===
+  html += '<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><h3>L10 综合总评</h3><span class="badge">10维</span><span class="arrow">▼</span></div>';
+  html += '<div class="layer-body">';
+  html += '<div class="item-row"><span class="item-key">塔罗过去</span><span class="item-val">'+pastCard.name+'-'+(pastRev?'逆位:'+pastCard.ni:pastCard.zheng)+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">塔罗现在</span><span class="item-val">'+presentCard.name+'-'+(presentRev?'逆位:'+presentCard.ni:presentCard.zheng)+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">塔罗未来</span><span class="item-val">'+futureCard.name+'-'+(futureRev?'逆位:'+futureCard.ni:futureCard.zheng)+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">塔罗整体</span><span class="item-val">'+(pastRev&&futureRev?'转折':'发展')+'</span></div>';
+  html += '<div class="item-row"><span class="item-key">元维度数</span><span class="item-val">6</span></div>';
+  html += '<div class="item-row"><span class="item-key">内容驱动数</span><span class="item-val">7</span></div>';
+  html += '<div class="item-row"><span class="item-key">跨文化对应数</span><span class="item-val">10</span></div>';
+  html += '<div class="item-row"><span class="item-key">参考系统定位</span><span class="item-val">独立参考,不参与主排盘,用于跨文化对照</span></div>';
+  html += '<div class="item-row"><span class="item-key">融合策略</span><span class="item-val">中国术数为主,塔罗/印度为辅,元维度调控,内容驱动触发</span></div>';
+  html += '<div class="item-row"><span class="item-key">最终输出</span><span class="item-val">多系统标签向量+跨文化对照+元维度权重</span></div>';
+  html += '</div></div>';
+  
+  document.getElementById("result").innerHTML = html;
+  document.getElementById("result").style.display = "block";
+}
+
+// 自动生成一次
+generateAll();
+</script>
+</body>
+</html>
