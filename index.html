@@ -44,7 +44,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .tag-section{margin-top:12px}
 .tag-dim{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1f1838;font-size:13px}
 .tag-dim .key{color:#8a7aa0}
-.tag-dim .val{color:var(--text-bright);text-align:right;max-width:60%;word-break:break-all}
+.tag-dim .val{color:var(--text-bright);text-align:right;max-width:65%;word-break:break-all}
+.dim-table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
+.dim-table th{background:#2d1b4e;color:#c9b8e8;padding:6px 4px;text-align:center;border:1px solid #3d2e5f;font-weight:600}
+.dim-table td{padding:5px 4px;text-align:center;border:1px solid #1f1838;color:var(--text-bright)}
+.dim-table tr:nth-child(even) td{background:#1a1530}
+.dim-hint{font-size:11px;color:#7a6b9a;line-height:1.6;margin:6px 0;padding:6px 8px;background:var(--bg);border-radius:6px;border-left:2px solid var(--accent-dark)}
+.dim-sub{font-size:12px;padding:4px 0;border-bottom:1px solid #1f1838}
+.dim-sub b{color:#c9b8e8}
 .search-box{display:flex;gap:8px;margin-bottom:16px}
 .search-box input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:15px}
 .search-box input:focus{outline:none;border-color:var(--border-active)}
@@ -276,6 +283,37 @@ function createEntry() {
     showEntry(entry.id);
 }
 
+function formatDim(key, v) {
+    if (v == null || v === '') return '';
+    if (typeof v !== 'object') return String(v);
+
+    if (key === '爻位关系' && Array.isArray(v)) {
+        let h = '<table class="dim-table"><thead><tr><th>爻</th><th>阴阳</th><th>乘</th><th>承</th><th>比</th><th>应</th><th>中正</th><th>阶层</th><th>三才</th><th>爻德</th></tr></thead><tbody>';
+        for (const r of v) h += `<tr><td>${r.pos}</td><td>${r.yinYang}</td><td>${r.cheng}</td><td>${r.cheng2}</td><td>${r.bi}</td><td>${r.ying}</td><td>${r.zhongZheng}</td><td>${r.level}</td><td>${r.sanCai}</td><td>${r.yaoDe}</td></tr>`;
+        h += '</tbody></table><div class="dim-hint">📌 乘=阴爻压阳爻上(不吉) · 承=阴爻托阳爻下(吉) · 比=相邻爻关系 · 应=对应爻(1↔4,2↔5,3↔6) · 中=二五爻位 · 正=阴阳得位</div>';
+        return h;
+    }
+    if (key === '纳甲六爻' && Array.isArray(v)) {
+        let h = '<table class="dim-table"><thead><tr><th>爻</th><th>天干</th><th>地支</th><th>五行</th><th>六亲</th></tr></thead><tbody>';
+        for (const r of v) h += `<tr><td>${r.pos}爻</td><td>${r.gan}</td><td>${r.zhi}</td><td>${r.element}</td><td>${r.liuQin}</td></tr>`;
+        h += '</tbody></table><div class="dim-hint">📌 纳甲=将天干地支配入六爻 · 六亲以卦宫五行为"我"：父母(生我)·兄弟(同我)·子孙(我生)·妻财(我克)·官鬼(克我)</div>';
+        return h;
+    }
+    if (key === '六爻逐爻' && Array.isArray(v)) {
+        let h = '<table class="dim-table"><thead><tr><th>爻</th><th>阴阳</th><th>六神</th><th>旺衰</th><th>空亡</th><th>六亲</th><th>墓库</th><th>进退神</th><th>伏反吟</th></tr></thead><tbody>';
+        for (const r of v) h += `<tr><td>${r.pos}爻</td><td>${r.yinYang}</td><td>${r.sixSpirit}</td><td>${r.wangShuai}</td><td>${r.kongWang}</td><td>${r.liuQin}</td><td>${r.muKu}</td><td>${r.jinTuiShen}</td><td>${r.fuYinFanYin}</td></tr>`;
+        h += '</tbody></table><div class="dim-hint">📌 六神=青龙·朱雀·勾陈·腾蛇·白虎·玄武(按日干排) · 旺衰=月令对五行力量 · 空亡=旬空 · 墓库=五行墓方 · 伏吟=地支相同 · 反吟=地支相冲</div>';
+        return h;
+    }
+    if (key === '郑玄爻辰' && Array.isArray(v)) {
+        let h = '<table class="dim-table"><thead><tr><th>爻</th><th>爻辰地支</th><th>律吕</th></tr></thead><tbody>';
+        for (const r of v) h += `<tr><td>${r.pos}爻</td><td>${r.zhi}</td><td>${r.lvLu}</td></tr>`;
+        h += '</tbody></table><div class="dim-hint">📌 郑玄爻辰=将六爻配十二地支和十二律吕，阳爻配阳支、阴爻配阴支，汉代易学独特体系</div>';
+        return h;
+    }
+    return JSON.stringify(v);
+}
+
 function showEntry(entryId) {
     const entry = getEntries().find(e => e.id === entryId);
     if (!entry) { renderHome(); return; }
@@ -298,8 +336,12 @@ function showEntry(entryId) {
         for (const k of keys) {
             const v = dims[k];
             if (v == null || v === '') continue;
-            const vStr = typeof v === 'object' ? JSON.stringify(v) : String(v);
-            dimHtml += `<div class="tag-dim"><span class="key">${k}</span><span class="val">${vStr}</span></div>`;
+            const vStr = formatDim(k, v);
+            if (vStr.includes('<table')) {
+                dimHtml += `<div style="margin:6px 0"><div style="font-size:13px;color:#8a7aa0;margin-bottom:2px">${k}</div>${vStr}</div>`;
+            } else {
+                dimHtml += `<div class="tag-dim"><span class="key">${k}</span><span class="val">${vStr}</span></div>`;
+            }
         }
         html += `<div class="card">
             <div class="collapsible" onclick="toggleCol(this)"><span>${sys.icon} ${sys.name} <span style="color:#7a6b9a;font-size:11px">(${keys.length}维)</span></span><span class="arrow">▼</span></div>
@@ -361,7 +403,12 @@ function renderOverview() {
             for (const k of keys.slice(0, 8)) {
                 const v = dims[k];
                 if (v == null || v === '') continue;
-                dimHtml += `<div class="tag-dim"><span class="key">${k}</span><span class="val">${typeof v === 'object' ? JSON.stringify(v).substring(0,60) : String(v).substring(0,60)}</span></div>`;
+                const vStr = formatDim(k, v);
+                if (vStr.includes('<table')) {
+                    dimHtml += `<div style="margin:6px 0"><div style="font-size:13px;color:#8a7aa0;margin-bottom:2px">${k}</div>${vStr}</div>`;
+                } else {
+                    dimHtml += `<div class="tag-dim"><span class="key">${k}</span><span class="val">${vStr.substring(0,60)}</span></div>`;
+                }
             }
             if (keys.length > 8) dimHtml += `<div style="font-size:11px;color:#7a6b9a;padding:4px 0">...还有${keys.length-8}个维度</div>`;
             html += `<div class="card"><div class="collapsible" onclick="toggleCol(this)"><span>${sys.icon} ${sys.name} <span style="color:#7a6b9a;font-size:11px">(${keys.length}维)</span></span><span class="arrow">▼</span></div><div class="collapsible-content">${dimHtml}</div></div>`;
@@ -427,8 +474,12 @@ function showSystemDetail(sysId) {
             for (const k of keys) {
                 const v = dims[k];
                 if (v == null || v === '') continue;
-                const vStr = typeof v === 'object' ? JSON.stringify(v) : String(v);
-                html += `<div class="tag-dim"><span class="key">${k}</span><span class="val">${vStr.substring(0,80)}</span></div>`;
+                const vStr = formatDim(k, v);
+                if (vStr.includes('<table')) {
+                    html += `<div style="margin:6px 0"><div style="font-size:13px;color:#8a7aa0;margin-bottom:2px">${k}</div>${vStr}</div>`;
+                } else {
+                    html += `<div class="tag-dim"><span class="key">${k}</span><span class="val">${vStr.substring(0,80)}</span></div>`;
+                }
             }
             html += '</div>';
         } catch(e) {
