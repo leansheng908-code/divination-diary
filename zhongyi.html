@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中医术数时间排盘 · 术数日记</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1408;color:#f5e6d3;font-family:'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh}
+.header{text-align:center;padding:30px 20px;background:linear-gradient(135deg,#2a1a08,#3a2510,#2a1a08);border-bottom:2px solid #d35400}
+.header h1{color:#e67e22;font-size:28px;margin-bottom:8px;text-shadow:0 0 20px rgba(230,126,34,0.3)}
+.header p{color:#f39c12;font-size:14px}
+.container{max-width:900px;margin:0 auto;padding:20px}
+.input-area{background:#241a0e;border-radius:12px;padding:20px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;border:1px solid #5a3a1a}
+.input-area label{color:#e67e22;font-size:13px;display:block;margin-bottom:4px}
+.input-area input{background:#1a1408;border:1px solid #d35400;color:#f5e6d3;padding:8px 12px;border-radius:6px;font-size:16px;width:80px;text-align:center}
+.input-area input:focus{outline:none;border-color:#f39c12}
+.btn{background:linear-gradient(135deg,#d35400,#e67e22);color:#fff;border:none;padding:10px 30px;border-radius:8px;font-size:16px;cursor:pointer;transition:all .3s}
+.btn:hover{background:linear-gradient(135deg,#e67e22,#f39c12);transform:translateY(-2px);box-shadow:0 4px 12px rgba(243,156,18,0.4)}
+/* Core display */
+.core-display{background:linear-gradient(135deg,#2a1a08,#3a2510);border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid #5a3a1a}
+.core-big{display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:20px;flex-wrap:wrap}
+.big-item{text-align:center;min-width:90px}
+.big-item .big-label{color:#f39c12;font-size:12px;margin-bottom:6px}
+.big-item .big-value{font-size:32px;font-weight:bold;color:#e67e22}
+.big-item .big-sub{font-size:12px;color:#b8956a;margin-top:4px}
+.core-main{display:flex;justify-content:center;align-items:baseline;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.core-main .main-label{color:#f39c12;font-size:14px}
+.core-main .main-value{font-size:42px;font-weight:bold;color:#e67e22;text-shadow:0 0 15px rgba(230,126,34,0.4)}
+.highlight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:12px}
+.highlight-item{background:#1a1408;padding:10px 14px;border-radius:8px;border-left:3px solid #e67e22}
+.highlight-item .label{color:#f39c12;font-size:11px}
+.highlight-item .value{color:#f5e6d3;font-size:15px;font-weight:bold;margin-top:2px}
+.highlight-item.gold{border-left-color:#f39c12}
+.highlight-item.gold .value{color:#f39c12}
+/* Optimization cards */
+.opt-section{margin-bottom:20px}
+.opt-card{background:#241a0e;border:1px solid #5a3a1a;border-radius:8px;padding:14px 18px;margin-bottom:8px}
+.opt-card .opt-title{color:#f39c12;font-size:14px;font-weight:bold}
+.opt-card .opt-desc{color:#b8956a;font-size:13px;margin-top:6px;line-height:1.6}
+.opt-card .opt-detail{color:#f5e6d3;font-size:13px;margin-top:4px}
+.opt-card.highlight{border-color:#f39c12;background:#2a2008}
+.opt-card.danger{border-color:#c0392b;background:#2c1410}
+.opt-card.danger .opt-title{color:#e74c3c}
+.opt-card.danger .opt-desc{color:#f5b7b1}
+.calc-process{background:#1a1408;border-radius:6px;padding:10px 14px;margin-top:8px;font-size:13px;color:#f39c12;font-family:monospace;line-height:1.8}
+.step-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;align-items:center}
+.step-row .step-num{color:#f39c12;font-weight:bold;min-width:50px}
+.step-row .step-val{color:#f5e6d3}
+.tag-hit{display:inline-block;background:#f39c12;color:#1a1408;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:bold;margin-left:6px}
+.tag-miss{display:inline-block;background:#3a2a1a;color:#666;padding:2px 8px;border-radius:4px;font-size:11px;margin-left:6px}
+/* Layer panels */
+.layer{background:#241a0e;border-radius:8px;margin-bottom:8px;overflow:hidden;border:1px solid #3a2a1a}
+.layer-header{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.2s}
+.layer-header:hover{background:rgba(230,126,34,0.08)}
+.layer-header .layer-title{color:#e67e22;font-size:14px;font-weight:bold}
+.layer-header .layer-arrow{color:#f39c12;transition:transform 0.3s}
+.layer-header.open .layer-arrow{transform:rotate(90deg)}
+.layer-body{max-height:0;overflow:hidden;transition:max-height 0.3s ease}
+.layer-body.open{max-height:6000px;overflow-y:auto}
+.layer-content{padding:12px 16px}
+.kv{display:flex;flex-wrap:wrap;gap:6px}
+.kv-item{background:#1a1408;padding:4px 10px;border-radius:4px;font-size:12px}
+.kv-item .k{color:#f39c12}
+.kv-item .v{color:#f5e6d3;margin-left:4px}
+.kv-item.active{background:#2a2008;border:1px solid #f39c12}
+.kv-item.active .v{color:#f39c12}
+.table-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;align-items:center}
+.table-row .row-label{color:#e67e22;font-size:12px;font-weight:bold;min-width:60px}
+.shensha-badge{display:inline-block;background:#2a2008;color:#f39c12;padding:3px 10px;border-radius:12px;font-size:12px;margin:3px;border:1px solid #5a3a1a}
+.shensha-badge.inactive{background:#1a1408;color:#555;border-color:#2a2a2a}
+.shensha-badge.active{background:#d35400;color:#fff;font-weight:bold;border-color:#e67e22}
+.shensha-badge.danger{background:#3d1410;color:#e74c3c;border-color:#c0392b}
+.warning-box{background:#3d1410;border:1px solid #c0392b;border-radius:8px;padding:10px 14px;margin:8px 0;color:#e74c3c;font-size:13px;font-weight:bold}
+.info-box{background:#2a2008;border:1px solid #f39c12;border-radius:8px;padding:10px 14px;margin:8px 0;color:#f39c12;font-size:13px}
+.verdict-box{background:linear-gradient(135deg,#2a1a08,#3a2510);border-radius:10px;padding:18px;margin-bottom:16px;text-align:center;border:2px solid #e67e22}
+.verdict-box .verdict-level{font-size:24px;font-weight:bold;color:#f39c12;margin-bottom:6px}
+.verdict-box .verdict-desc{font-size:14px;color:#b8956a}
+.footer{text-align:center;padding:20px;color:#5a3a1a;font-size:12px}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>中医术数时间排盘</h1>
+<p>子午流注 · 灵龟八法 · 五运六气 · 191维 · v1.1-optimized · 17层 + 5项理论驱动优化</p>
+</div>
+<div class="container">
+<div class="input-area">
+<div><label>年份</label><input type="number" id="year" value="2026" min="1900" max="2100"></div>
+<div><label>月份</label><input type="number" id="month" value="8" min="1" max="12"></div>
+<div><label>日期</label><input type="number" id="day" value="7" min="1" max="31"></div>
+<div><label>时辰</label><input type="number" id="hour" value="18" min="0" max="23"></div>
+<button class="btn" onclick="generate()">排盘推演</button>
+</div>
+<div id="output"></div>
+</div>
+<div class="footer">中医术数时间记忆标签字典 · 191维度 · 17层 · 5项优化 · 术数日记</div>
+<script>
+// ============================================================
+// Part 1: 基础数据表（从Python源码移植）
+// ============================================================
+
+var DIZHI=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+var TIANGAN=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+
+// --- 子午流注: 十二经脉对应十二时辰 ---
+var ZIWULIUZHU={
+"子":{"经脉":"胆经(足少阳胆经)","wuxing":"木","流注":"当令","desc":"子时胆经旺，一阳初生，宜安睡养胆","养生":"安睡/勿熬夜"},
+"丑":{"经脉":"肝经(足厥阴肝经)","wuxing":"木","流注":"当令","desc":"丑时肝经旺，藏血解毒，宜深度睡眠","养生":"深度睡眠"},
+"寅":{"经脉":"肺经(手太阴肺经)","wuxing":"金","流注":"当令","desc":"寅时肺经旺，气血由静转动，宜安睡","养生":"安睡/勿早起剧烈"},
+"卯":{"经脉":"大肠经(手阳明大肠经)","wuxing":"金","流注":"当令","desc":"卯时大肠经旺，宜排便排毒","养生":"晨起饮水/排便"},
+"辰":{"经脉":"胃经(足阳明胃经)","wuxing":"土","流注":"当令","desc":"辰时胃经旺，宜进早餐","养生":"吃好早餐"},
+"巳":{"经脉":"脾经(足太阴脾经)","wuxing":"土","流注":"当令","desc":"巳时脾经旺，运化水谷精微","养生":"工作学习最佳时段"},
+"午":{"经脉":"心经(手少阴心经)","wuxing":"火","流注":"当令","desc":"午时心经旺，宜午休养心","养生":"午休15-30分钟"},
+"未":{"经脉":"小肠经(手太阳小肠经)","wuxing":"火","流注":"当令","desc":"未时小肠经旺，吸收营养","养生":"午餐消化/勿剧烈"},
+"申":{"经脉":"膀胱经(足太阳膀胱经)","wuxing":"水","流注":"当令","desc":"申时膀胱经旺，宜多饮水排毒","养生":"多喝水/运动"},
+"酉":{"经脉":"肾经(足少阴肾经)","wuxing":"水","流注":"当令","desc":"酉时肾经旺，藏精纳气","养生":"休息/勿过劳"},
+"戌":{"经脉":"心包经(手厥阴心包经)","wuxing":"火","流注":"当令","desc":"戌时心包经旺，宜散步放松","养生":"散步/听音乐"},
+"亥":{"经脉":"三焦经(手少阳三焦经)","wuxing":"火","流注":"当令","desc":"亥时三焦经旺，宜安睡养百脉","养生":"安睡/勿兴奋"}
+};
+
+// --- 灵龟八法: 八脉交会穴 ---
+var LINGGUI_BAFA={
+"公孙":{"经脉":"脾经","通脉":"冲脉","配穴":"内关","八卦":"乾","desc":"胃心胸疾患"},
+"内关":{"经脉":"心包经","通脉":"阴维脉","配穴":"公孙","八卦":"艮","desc":"胃心胸疾患"},
+"后溪":{"经脉":"小肠经","通脉":"督脉","配穴":"申脉","八卦":"巽","desc":"项强耳疾"},
+"申脉":{"经脉":"膀胱经","通脉":"阳蹻脉","配穴":"后溪","八卦":"震","desc":"项强耳疾"},
+"足临泣":{"经脉":"胆经","通脉":"带脉","配穴":"外关","八卦":"兑","desc":"目锐眦耳后疾"},
+"外关":{"经脉":"三焦经","通脉":"阳维脉","配穴":"足临泣","八卦":"坎","desc":"目锐眦耳后疾"},
+"列缺":{"经脉":"肺经","通脉":"任脉","配穴":"照海","八卦":"离","desc":"肺系咽喉胸膈疾"},
+"照海":{"经脉":"肾经","通脉":"阴蹻脉","配穴":"列缺","八卦":"坤","desc":"肺系咽喉胸膈疾"}
+};
+
+// --- 飞腾八法 ---
+var FEITENG_BAFA={
+"甲己":"公孙(乾)","乙庚":"内关(艮)","丙辛":"足临泣(兑)",
+"丁壬":"照海(坤)","戊癸":"列缺(离)","子午":"后溪(巽)",
+"丑未":"申脉(震)","寅申":"外关(坎)"
+};
+
+// --- 五运: 天干化运 ---
+var WUYUN={
+"甲己":{"运":"土运","太过不及":"甲太过/己不及","对应":"脾胃","特征":"湿气偏盛"},
+"乙庚":{"运":"金运","太过不及":"庚太过/乙不及","对应":"肺大肠","特征":"燥气偏盛"},
+"丙辛":{"运":"水运","太过不及":"丙太过/辛不及","对应":"肾膀胱","特征":"寒气偏盛"},
+"丁壬":{"运":"木运","太过不及":"壬太过/丁不及","对应":"肝胆","特征":"风气偏盛"},
+"戊癸":{"运":"火运","太过不及":"戊太过/癸不及","对应":"心小肠","特征":"火气偏盛"}
+};
+
+// --- 六气司天在泉 ---
+var LIUQI_SITIAN={
+"子午":{"司天":"少阴君火","在泉":"阳明燥金","desc":"火气司天，金气在泉"},
+"丑未":{"司天":"太阴湿土","在泉":"太阳寒水","desc":"湿气司天，寒气在泉"},
+"寅申":{"司天":"少阳相火","在泉":"厥阴风木","desc":"火气司天，风气在泉"},
+"卯酉":{"司天":"阳明燥金","在泉":"少阴君火","desc":"金气司天，火气在泉"},
+"辰戌":{"司天":"太阳寒水","在泉":"太阴湿土","desc":"寒气司天，湿气在泉"},
+"巳亥":{"司天":"厥阴风木","在泉":"少阳相火","desc":"风气司天，火气在泉"}
+};
+
+// --- 六气主气 (每年固定) ---
+var LIUQI_ZHUQI=[
+{"name":"初气(厥阴风木)","time":"大寒~春分","wuxing":"木","desc":"风气主令"},
+{"name":"二气(少阴君火)","time":"春分~小满","wuxing":"火","desc":"热气主令"},
+{"name":"三气(少阳相火)","time":"小满~大暑","wuxing":"火","desc":"火气主令"},
+{"name":"四气(太阴湿土)","time":"大暑~秋分","wuxing":"土","desc":"湿气主令"},
+{"name":"五气(阳明燥金)","time":"秋分~小雪","wuxing":"金","desc":"燥气主令"},
+{"name":"终气(太阳寒水)","time":"小雪~大寒","wuxing":"水","desc":"寒气主令"}
+];
+
+// --- 六气客气固定顺序 ---
+var LIUQI_KEQI_ORDER=["厥阴风木","少阴君火","太阴湿土","少阳相火","阳明燥金","太阳寒水"];
+
+// --- 纳甲法 (天干对应经脉) ---
+var NAJIA={
+"甲":{"经脉":"胆经","wuxing":"木","穴位":"足窍阴/侠溪/足临泣"},
+"乙":{"经脉":"肝经","wuxing":"木","穴位":"大敦/行间/太冲"},
+"丙":{"经脉":"小肠经","wuxing":"火","穴位":"少泽/前谷/后溪"},
+"丁":{"经脉":"心经","wuxing":"火","穴位":"少冲/少府/神门"},
+"戊":{"经脉":"胃经","wuxing":"土","穴位":"厉兑/内庭/足三里"},
+"己":{"经脉":"脾经","wuxing":"土","穴位":"隐白/太白/太白"},
+"庚":{"经脉":"大肠经","wuxing":"金","穴位":"商阳/二间/三间"},
+"辛":{"经脉":"肺经","wuxing":"金","穴位":"少商/鱼际/太渊"},
+"壬":{"经脉":"膀胱经","wuxing":"水","穴位":"至阴/通谷/束骨"},
+"癸":{"经脉":"肾经","wuxing":"水","穴位":"涌泉/然谷/太溪"}
+};
+
+// --- 纳子法 (地支对应经脉) ---
+var NAZI={
+"子":"胆经","丑":"肝经","寅":"肺经","卯":"大肠经",
+"辰":"胃经","巳":"脾经","午":"心经","未":"小肠经",
+"申":"膀胱经","酉":"肾经","戌":"心包经","亥":"三焦经"
+};
+
+// --- 五行生克 ---
+var WUXING_SHENG={"金":"水","水":"木","木":"火","火":"土","土":"金"};
+var WUXING_KE={"金":"木","木":"土","土":"水","水":"火","火":"金"};
+
+// --- 十二消息卦 ---
+var XIAOXI_GUA={
+"子":{"卦":"复","desc":"一阳来复","阴阳":"1阳5阴"},
+"丑":{"卦":"临","desc":"二阳浸长","阴阳":"2阳4阴"},
+"寅":{"卦":"泰","desc":"三阳开泰","阴阳":"3阳3阴"},
+"卯":{"卦":"大壮","desc":"四阳壮盛","阴阳":"4阳2阴"},
+"辰":{"卦":"夬","desc":"五阳决阴","阴阳":"5阳1阴"},
+"巳":{"卦":"乾","desc":"纯阳之体","阴阳":"6阳0阴"},
+"午":{"卦":"姤","desc":"一阴始生","阴阳":"5阳1阴"},
+"未":{"卦":"遁","desc":"二阴渐长","阴阳":"4阳2阴"},
+"申":{"卦":"否","desc":"天地不交","阴阳":"3阳3阴"},
+"酉":{"卦":"观","desc":"四阴观省","阴阳":"2阳4阴"},
+"戌":{"卦":"剥","desc":"五阴剥阳","阴阳":"1阳5阴"},
+"亥":{"卦":"坤","desc":"纯阴之体","阴阳":"0阳6阴"}
+};
+
+// --- 五行脏腑 ---
+var WUXING_ZANGFU={
+"木":{"脏腑":"肝胆","生":"火(心)","克":"土(脾)","季节":"春"},
+"火":{"脏腑":"心小肠","生":"土(脾)","克":"金(肺)","季节":"夏"},
+"土":{"脏腑":"脾胃","生":"金(肺)","克":"水(肾)","季节":"长夏"},
+"金":{"脏腑":"肺大肠","生":"水(肾)","克":"木(肝)","季节":"秋"},
+"水":{"脏腑":"肾膀胱","生":"木(肝)","克":"火(心)","季节":"冬"}
+};
+
+// ============================================================
+// Part 2: 优化相关数据表
+// ============================================================
+
+// OPT1: 节气近似日期表
+var JIEQI_DATES={
+"大寒":[1,20],"立春":[2,4],"雨水":[2,19],
+"春分":[3,20],"清明":[4,5],"谷雨":[4,20],
+"立夏":[5,5],"小满":[5,21],"芒种":[6,6],
+"夏至":[6,21],"小暑":[7,7],"大暑":[7,23],
+"立秋":[8,7],"处暑":[8,23],"白露":[9,7],
+"秋分":[9,23],"寒露":[10,8],"霜降":[10,23],
+"立冬":[11,7],"小雪":[11,22],"大雪":[12,7],
+"冬至":[12,22],"小寒":[1,5]
+};
+
+// 月份节气边界 (12节, 用于月支推算)
+var MONTH_JIE=[
+{name:"小寒",m:1,d:5,zhi:"丑"},
+{name:"立春",m:2,d:4,zhi:"寅"},
+{name:"惊蛰",m:3,d:6,zhi:"卯"},
+{name:"清明",m:4,d:5,zhi:"辰"},
+{name:"立夏",m:5,d:5,zhi:"巳"},
+{name:"芒种",m:6,d:6,zhi:"午"},
+{name:"小暑",m:7,d:7,zhi:"未"},
+{name:"立秋",m:8,d:7,zhi:"申"},
+{name:"白露",m:9,d:7,zhi:"酉"},
+{name:"寒露",m:10,d:8,zhi:"戌"},
+{name:"立冬",m:11,d:7,zhi:"亥"},
+{name:"大雪",m:12,d:7,zhi:"子"}
+];
+
+// 五虎遁起月干表 (年干→寅月天干索引)
+var WUHU_DUN={"甲":2,"己":2,"乙":4,"庚":4,"丙":6,"辛":6,"丁":8,"壬":8,"戊":0,"癸":0};
+
+// OPT2: 天干地支数值表
+var GAN_NUM={"甲":1,"乙":2,"丙":3,"丁":4,"戊":5,"己":6,"庚":7,"辛":8,"壬":9,"癸":10};
+var ZHI_NUM={"子":1,"丑":2,"寅":3,"卯":4,"辰":5,"巳":6,"午":7,"未":8,"申":9,"酉":10,"戌":11,"亥":12};
+
+// OPT2: 九宫穴位映射
+var LINGGUI_JIUGONG={
+1:["坎","申脉","膀胱经","阳蹻脉"],
+2:["坤","照海","肾经","阴蹻脉"],
+3:["震","外关","三焦经","阳维脉"],
+4:["巽","足临泣","胆经","带脉"],
+5:["中","公孙","脾经","冲脉"],
+6:["乾","公孙","脾经","冲脉"],
+7:["兑","足临泣","胆经","带脉"],
+8:["艮","内关","心包经","阴维脉"],
+9:["离","列缺","肺经","任脉"]
+};
+
+// OPT2: 阳干集合
+var YANG_GAN={"甲":1,"丙":1,"戊":1,"庚":1,"壬":1};
+
+// 五鼠遁起时干表 (日干→子时天干索引)
+var WUSHU_DUN={"甲":0,"己":0,"乙":2,"庚":2,"丙":4,"辛":4,"丁":6,"壬":6,"戊":8,"癸":8};
+
+// OPT4: 五运→五行映射
+var WUYUN_WUXING={"土运":"土","金运":"金","水运":"水","木运":"木","火运":"火"};
+
+// OPT4: 年支→五行映射
+var NIANZHI_WUXING={
+"子":"水","丑":"土","寅":"木","卯":"木","辰":"土","巳":"火",
+"午":"火","未":"土","申":"金","酉":"金","戌":"土","亥":"水"
+};
+
+// OPT4: 司天→五行映射
+var SITIAN_WUXING={
+"少阴君火":"火","太阴湿土":"土","少阳相火":"火",
+"阳明燥金":"金","太阳寒水":"水","厥阴风木":"木"
+};
+
+// OPT5: 主气五行
+var ZHUQI_WUXING={
+"初气(厥阴风木)":"木","二气(少阴君火)":"火","三气(少阳相火)":"火",
+"四气(太阴湿土)":"土","五气(阳明燥金)":"金","终气(太阳寒水)":"水"
+};
+
+// OPT5: 客气五行
+var KEQI_WUXING={
+"厥阴风木":"木","少阴君火":"火","太阴湿土":"土",
+"少阳相火":"火","阳明燥金":"金","太阳寒水":"水"
+};
+
+// ============================================================
+// Part 3: 干支推算函数
+// ============================================================
+
+function solarToGanzhi(year,month,day){
+var base=new Date(2024,0,1);
+var target=new Date(year,month-1,day);
+var daysDiff=Math.round((target-base)/86400000);
+var dayIdx=((daysDiff%60)+60)%60;
+var dayGan=TIANGAN[dayIdx%10];
+var dayZhi=DIZHI[dayIdx%12];
+var dayGz=dayGan+dayZhi;
+var feb4=new Date(year,1,4);
+var yearGan,yearZhi;
+if(target<feb4){
+yearGan=TIANGAN[((year-1-2024)%10+10)%10];
+yearZhi=DIZHI[((year-1-2024+4)%12+12)%12];
+}else{
+yearGan=TIANGAN[((year-2024)%10+10)%10];
+yearZhi=DIZHI[((year-2024+4)%12+12)%12];
+}
+return{yearGz:yearGan+yearZhi,dayGz:dayGz,dayGan:dayGan,dayZhi:dayZhi,yearGan:yearGan,yearZhi:yearZhi};
+}
+
+function calcMonthZhi(year,month,day){
+var md=month*100+day;
+var i;
+for(i=11;i>=0;i--){
+var jie=MONTH_JIE[i];
+var jieMd=jie.m*100+jie.d;
+if(md>=jieMd){
+return jie.zhi;
+}
+}
+return"丑";
+}
+
+function calcMonthGanZhi(year,month,day,yearGan){
+var monthZhi=calcMonthZhi(year,month,day);
+var zhiIdx=DIZHI.indexOf(monthZhi);
+var yinIdx=DIZHI.indexOf("寅");
+var monthOffset=((zhiIdx-yinIdx)%12+12)%12;
+var startGanIdx=WUHU_DUN[yearGan]||0;
+var monthGanIdx=(startGanIdx+monthOffset)%10;
+var monthGan=TIANGAN[monthGanIdx];
+return monthGan+monthZhi;
+}
+
+function calcHourZhi(hour){
+return DIZHI[Math.floor((hour%24+1)/2)%12];
+}
+
+function calcHourGan(dayGan,hourZhi){
+var zhiIdx=DIZHI.indexOf(hourZhi);
+var startIdx=WUSHU_DUN[dayGan]||0;
+var hourGanIdx=(startIdx+zhiIdx)%10;
+return TIANGAN[hourGanIdx];
+}
+
+function getWuyun(yearGan){
+var key;
+for(key in WUYUN){
+if(WUYUN.hasOwnProperty(key)){
+if(key.indexOf(yearGan)>=0){
+return WUYUN[key];
+}
+}
+}
+return{};
+}
+
+function getLiuqi(yearZhi){
+var key;
+for(key in LIUQI_SITIAN){
+if(LIUQI_SITIAN.hasOwnProperty(key)){
+if(key.indexOf(yearZhi)>=0){
+return LIUQI_SITIAN[key];
+}
+}
+}
+return{};
+}
+
+// ============================================================
+// Part 4: 优化计算函数
+// ============================================================
+
+// OPT1: 主气精确判断
+function getZhuqiPrecise(month,day){
+function jq(name){var d=JIEQI_DATES[name];return d[0]*100+d[1];}
+var cur=month*100+day;
+if(cur>=jq("小雪")||cur<jq("大寒")){
+return LIUQI_ZHUQI[5];
+}else if(cur<jq("春分")){
+return LIUQI_ZHUQI[0];
+}else if(cur<jq("小满")){
+return LIUQI_ZHUQI[1];
+}else if(cur<jq("大暑")){
+return LIUQI_ZHUQI[2];
+}else if(cur<jq("秋分")){
+return LIUQI_ZHUQI[3];
+}else{
+return LIUQI_ZHUQI[4];
+}
+}
+
+// OPT2: 灵龟八法独立推算
+function calcLingguiBafa(dayGan,dayZhi,hourGan,hourZhi){
+var isYangDay=YANG_GAN.hasOwnProperty(dayGan);
+var dayGanNum=GAN_NUM[dayGan]||1;
+var dayZhiNum=ZHI_NUM[dayZhi]||1;
+var hourGanNum=GAN_NUM[hourGan]||1;
+var hourZhiNum=ZHI_NUM[hourZhi]||1;
+var total=dayGanNum+dayZhiNum+hourGanNum+hourZhiNum;
+var divisor=isYangDay?9:6;
+var remainder=total%divisor;
+if(remainder===0){remainder=divisor;}
+var result=LINGGUI_JIUGONG[remainder]||["?","?","?","?"];
+return{
+dayGan:dayGan,dayGanNum:dayGanNum,dayZhi:dayZhi,dayZhiNum:dayZhiNum,
+hourGan:hourGan,hourGanNum:hourGanNum,hourZhi:hourZhi,hourZhiNum:hourZhiNum,
+total:total,isYangDay:isYangDay,divisor:divisor,remainder:remainder,
+xue:result[1],bagua:result[0],jingmai:result[2],tongmai:result[3]
+};
+}
+
+// OPT3: 客气六步按司天定位推算
+function calcKeqiSixSteps(sitian){
+var sitianIdx=LIUQI_KEQI_ORDER.indexOf(sitian);
+if(sitianIdx<0){return[];}
+var startIdx=((sitianIdx-2)%6+6)%6;
+var steps=[];
+var i;
+for(i=0;i<6;i++){
+var qiIdx=(startIdx+i)%6;
+var qiName=LIUQI_KEQI_ORDER[qiIdx];
+var stepNum=i+1;
+var position="";
+if(stepNum===3){position="司天";}
+else if(stepNum===6){position="在泉";}
+else{position="间气("+stepNum+")";}
+steps.push({step:stepNum,keqi:qiName,position:position});
+}
+return steps;
+}
+
+// OPT4: 运气相合完整分类
+function calcYunqiXianghe(yearGan,yearZhi,wuyunInfo,liuqiInfo){
+var yun=wuyunInfo["运"]||"";
+var yunWx=WUYUN_WUXING[yun]||"";
+var sitian=liuqiInfo["司天"]||"";
+var sitianWx=SITIAN_WUXING[sitian]||"";
+var nianzhiWx=NIANZHI_WUXING[yearZhi]||"";
+var isYangGan=YANG_GAN.hasOwnProperty(yearGan);
+var isTaiGuo=isYangGan;
+var isBuJi=!isYangGan;
+var isTianfu=(yunWx===sitianWx)&&yunWx!=="";
+var isSuihui=(yunWx===nianzhiWx)&&yunWx!=="";
+var isTaiyi=isTianfu&&isSuihui;
+var isPingqi=false;
+if(isTaiGuo&&sitianWx){
+if(WUXING_KE[sitianWx]===yunWx){isPingqi=true;}
+}
+if(isBuJi&&sitianWx){
+if(WUXING_SHENG[sitianWx]===yunWx){isPingqi=true;}
+}
+var category,desc;
+if(isTaiyi){category="太乙天符";desc="岁运五行=司天五行=年支五行，气化最强，易爆发流行病";}
+else if(isTianfu){category="天符";desc="岁运五行=司天五行，气化极强，气候剧烈波动";}
+else if(isSuihui){category="岁会";desc="岁运五行=年支五行，病势缓和持久";}
+else if(isPingqi){category="平气";desc="太过被克制/不及得资助，气化均衡，气候平稳";}
+else{category="运气异化";desc="运与气不同化，需具体分析";}
+return{
+yun:yun,yunWx:yunWx,sitianWx:sitianWx,nianzhiWx:nianzhiWx,
+tianfu:isTianfu,suihui:isSuihui,taiyi:isTaiyi,pingqi:isPingqi,
+category:category,desc:desc
+};
+}
+
+// OPT5: 客主加临分析
+function calcKezhuJialin(keqiSteps){
+var results=[];
+var xiangdeCount=0;
+var buxiangdeCount=0;
+var i;
+for(i=0;i<keqiSteps.length;i++){
+var step=keqiSteps[i];
+var stepNum=step.step;
+var keqiName=step.keqi;
+var zhuqi=LIUQI_ZHUQI[i];
+var zhuqiName=zhuqi.name;
+var keWx=KEQI_WUXING[keqiName]||"";
+var zhuWx=ZHUQI_WUXING[zhuqiName]||"";
+var relation="",climate="",severity="";
+if(keWx===zhuWx){
+relation="同气";climate="平和";xiangdeCount++;
+}else if(WUXING_SHENG[keWx]===zhuWx){
+relation="客生主";climate="平和";xiangdeCount++;
+}else if(WUXING_SHENG[zhuWx]===keWx){
+relation="主生客";climate="平和";xiangdeCount++;
+}else if(WUXING_KE[keWx]===zhuWx){
+relation="客克主(客胜从)";climate="反常";severity="从证(较轻)";buxiangdeCount++;
+}else if(WUXING_KE[zhuWx]===keWx){
+relation="主克客(主胜逆)";climate="反常";severity="逆证(较重)";buxiangdeCount++;
+}else{
+relation="无直接关系";climate="一般";xiangdeCount++;
+}
+results.push({
+step:stepNum,zhuqi:zhuqiName,keqi:keqiName,
+zhuWx:zhuWx,keWx:keWx,relation:relation,climate:climate,severity:severity
+});
+}
+var overall="平和";
+if(xiangdeCount<4){overall=buxiangdeCount>=3?"偏反常":"一般";}
+var disease="气候平和，发病较少";
+if(overall==="偏反常"){disease="气候反常，疾病多发";}
+else if(overall==="一般"){disease="气候一般，注意调养";}
+return{
+steps:results,xiangdeCount:xiangdeCount,buxiangdeCount:buxiangdeCount,
+overall:overall,disease:disease
+};
+}
+
+// ============================================================
+// Part 5: 辅助渲染函数
+// ============================================================
+
+function toggleLayer(header){
+header.classList.toggle('open');
+header.nextElementSibling.classList.toggle('open');
+}
+
+function kv(k,v,active){
+var cls=active?'kv-item active':'kv-item';
+return'<span class="'+cls+'"><span class="k">'+k+'</span><span class="v">'+v+'</span></span>';
+}
+
+function layerHtml(title,contentStr){
+return'<div class="layer"><div class="layer-header" onclick="toggleLayer(this)"><span class="layer-title">'+title+'</span><span class="layer-arrow">▶</span></div><div class="layer-body"><div class="layer-content">'+contentStr+'</div></div></div>';
+}
+
+function tagHit(hit,label){
+if(hit){return'<span class="tag-hit">'+label+'</span>';}
+return'<span class="tag-miss">'+label+'</span>';
+}
+
+// ============================================================
+// Part 6: 主生成函数
+// ============================================================
+
+function generate(){
+var yearVal=parseInt(document.getElementById('year').value);
+var year=isNaN(yearVal)?2026:yearVal;
+var monthVal=parseInt(document.getElementById('month').value);
+var month=isNaN(monthVal)?8:monthVal;
+var dayVal=parseInt(document.getElementById('day').value);
+var day=isNaN(dayVal)?7:dayVal;
+var hourVal=parseInt(document.getElementById('hour').value);
+var hour=isNaN(hourVal)?18:hourVal;
+
+// 干支推算
+var gz=solarToGanzhi(year,month,day);
+var yearGz=gz.yearGz,dayGz=gz.dayGz,dayGan=gz.dayGan,dayZhi=gz.dayZhi;
+var yearGan=gz.yearGan,yearZhi=gz.yearZhi;
+var monthGz=calcMonthGanZhi(year,month,day,yearGan);
+var hourZhi=calcHourZhi(hour);
+var hourGan=calcHourGan(dayGan,hourZhi);
+
+// 五运六气
+var wuyun=getWuyun(yearGan);
+var liuqi=getLiuqi(yearZhi);
+var ziwu=ZIWULIUZHU[hourZhi]||{};
+var najia=NAJIA[dayGan]||{};
+var nazi=NAZI[hourZhi]||"未知";
+var xiaoxi=XIAOXI_GUA[hourZhi]||{};
+
+// 优化计算
+var zhuqiPrecise=getZhuqiPrecise(month,day);
+var linggui=calcLingguiBafa(dayGan,dayZhi,hourGan,hourZhi);
+var sitian=liuqi["司天"]||"?";
+var keqiSteps=calcKeqiSixSteps(sitian);
+var yunqi=calcYunqiXianghe(yearGan,yearZhi,wuyun,liuqi);
+var kezhu=calcKezhuJialin(keqiSteps);
+
+var html='';
+
+// === 核心展示区 ===
+html+='<div class="core-display">';
+html+='<div class="core-main">';
+html+='<span class="main-label">当令经脉</span>';
+html+='<span class="main-value">'+(ziwu["经脉"]||'?')+'</span>';
+html+='</div>';
+html+='<div class="core-big">';
+html+='<div class="big-item"><div class="big-label">五运</div><div class="big-value">'+(wuyun["运"]||'?')+'</div><div class="big-sub">'+(wuyun["太过不及"]||'?')+'</div></div>';
+html+='<div class="big-item"><div class="big-label">司天</div><div class="big-value">'+(liuqi["司天"]||'?')+'</div><div class="big-sub">'+(liuqi["在泉"]||'?')+'</div></div>';
+html+='<div class="big-item"><div class="big-label">灵龟开穴</div><div class="big-value">'+linggui.xue+'</div><div class="big-sub">'+linggui.bagua+'·'+linggui.tongmai+'</div></div>';
+html+='<div class="big-item"><div class="big-label">纳甲经</div><div class="big-value">'+(najia["经脉"]||'?')+'</div><div class="big-sub">'+(najia["wuxing"]||'?')+'</div></div>';
+html+='<div class="big-item"><div class="big-label">消息卦</div><div class="big-value">'+(xiaoxi["卦"]||'?')+'</div><div class="big-sub">'+(xiaoxi["阴阳"]||'?')+'</div></div>';
+html+='</div>';
+html+='<div class="highlight-grid">';
+html+='<div class="highlight-item"><span class="label">年干支</span><br><span class="value">'+yearGz+'</span></div>';
+html+='<div class="highlight-item"><span class="label">月干支</span><br><span class="value">'+monthGz+'</span></div>';
+html+='<div class="highlight-item"><span class="label">日干支</span><br><span class="value">'+dayGz+'</span></div>';
+html+='<div class="highlight-item"><span class="label">时干支</span><br><span class="value">'+hourGan+hourZhi+'</span></div>';
+html+='<div class="highlight-item gold"><span class="label">运气相合</span><br><span class="value">'+yunqi.category+'</span></div>';
+html+='<div class="highlight-item gold"><span class="label">当前主气</span><br><span class="value">'+zhuqiPrecise.name+'</span></div>';
+html+='</div>';
+html+='</div>';
+
+// === 总评 ===
+html+='<div class="verdict-box">';
+html+='<div class="verdict-level">'+(wuyun["运"]||'?')+' · '+(liuqi["司天"]||'?')+'/'+(liuqi["在泉"]||'?')+'</div>';
+html+='<div class="verdict-desc">'+(wuyun["特征"]||'?')+' | 脏腑重点：'+(wuyun["对应"]||'?')+' | 养生：'+(ziwu["养生"]||'?')+'</div>';
+html+='</div>';
+
+// === 5项优化卡片 ===
+html+='<div class="opt-section">';
+
+// OPT1
+html+='<div class="opt-card highlight">';
+html+='<div class="opt-title">OPT1 主气精确判断 <span style="color:#f39c12;font-size:11px">基于节气日期</span></div>';
+html+='<div class="opt-desc">'+zhuqiPrecise.desc+' | 时间范围：'+zhuqiPrecise.time+' | 五行：'+zhuqiPrecise.wuxing+'</div>';
+html+='<div class="calc-process">判断方法：基于节气近似日期('+month+'月'+day+'日)精确判断主气六步<br>当前落入：'+zhuqiPrecise.name+'</div>';
+html+='</div>';
+
+// OPT2
+html+='<div class="opt-card highlight">';
+html+='<div class="opt-title">OPT2 灵龟八法推算 <span style="color:#f39c12;font-size:11px">日时干支数→阳除9阴除6→九宫穴位</span></div>';
+html+='<div class="calc-process">';
+html+='<div class="step-row"><span class="step-num">日干</span><span class="step-val">'+linggui.dayGan+'='+linggui.dayGanNum+'</span></div>';
+html+='<div class="step-row"><span class="step-num">日支</span><span class="step-val">'+linggui.dayZhi+'='+linggui.dayZhiNum+'</span></div>';
+html+='<div class="step-row"><span class="step-num">时干</span><span class="step-val">'+linggui.hourGan+'='+linggui.hourGanNum+'</span></div>';
+html+='<div class="step-row"><span class="step-num">时支</span><span class="step-val">'+linggui.hourZhi+'='+linggui.hourZhiNum+'</span></div>';
+html+='<div class="step-row"><span class="step-num">总数</span><span class="step-val">'+linggui.total+'</span></div>';
+html+='<div class="step-row"><span class="step-num">日类</span><span class="step-val">'+(linggui.isYangDay?'阳日(除9)':'阴日(除6)')+'</span></div>';
+html+='<div class="step-row"><span class="step-num">余数</span><span class="step-val">'+linggui.total+' ÷ '+linggui.divisor+' = '+(Math.floor(linggui.total/linggui.divisor))+' 余 '+linggui.remainder+'</span></div>';
+html+='<div class="step-row"><span class="step-num">开穴</span><span class="step-val" style="color:#f39c12;font-weight:bold;font-size:16px">'+linggui.xue+'（'+linggui.bagua+'宫）</span></div>';
+html+='<div class="step-row"><span class="step-num">经脉</span><span class="step-val">'+linggui.jingmai+' · 通'+linggui.tongmai+'</span></div>';
+html+='</div>';
+html+='</div>';
+
+// OPT3
+html+='<div class="opt-card highlight">';
+html+='<div class="opt-title">OPT3 客气六步按司天定位 <span style="color:#f39c12;font-size:11px">司天=三之气,在泉=终之气</span></div>';
+html+='<div class="opt-desc">司天之气：'+sitian+' | 推算方法：司天固定在三之气，在泉固定在终之气，按三阴三阳顺序前后推排</div>';
+var ki;
+for(ki=0;ki<keqiSteps.length;ki++){
+var ks=keqiSteps[ki];
+var isKey=(ks.position==="司天"||ks.position==="在泉");
+html+='<div class="table-row"><span class="row-label">第'+ks.step+'气</span>'+kv("客气",ks.keqi,isKey)+kv("位置",ks.position,isKey)+'</div>';
+}
+html+='</div>';
+
+// OPT4
+var opt4Highlight=(yunqi.tianfu||yunqi.suihui||yunqi.taiyi||yunqi.pingqi);
+html+='<div class="opt-card'+(opt4Highlight?' highlight':'')+'">';
+html+='<div class="opt-title">OPT4 运气相合分类 <span style="color:#f39c12;font-size:11px">天符/岁会/太乙天符/平气</span></div>';
+html+='<div class="opt-desc" style="color:#f39c12;font-weight:bold;font-size:16px;margin-top:8px">'+yunqi.category+'</div>';
+html+='<div class="opt-desc">'+yunqi.desc+'</div>';
+html+='<div class="opt-detail">岁运五行：'+yunqi.yunWx+' | 司天五行：'+yunqi.sitianWx+' | 年支五行：'+yunqi.nianzhiWx+'</div>';
+html+='<div style="margin-top:6px">';
+html+=tagHit(yunqi.tianfu,"天符")+' '+tagHit(yunqi.suihui,"岁会")+' '+tagHit(yunqi.taiyi,"太乙天符")+' '+tagHit(yunqi.pingqi,"平气");
+html+='</div>';
+html+='</div>';
+
+// OPT5
+var opt5Danger=(kezhu.buxiangdeCount>=3);
+html+='<div class="opt-card'+(opt5Danger?' danger':' highlight')+'">';
+html+='<div class="opt-title">OPT5 客主加临分析 <span style="color:#f39c12;font-size:11px">六步相得/不相得</span></div>';
+html+='<div class="opt-desc">总体判断：'+kezhu.overall+' | 相得'+kezhu.xiangdeCount+'步 / 不相得'+kezhu.buxiangdeCount+'步 | '+kezhu.disease+'</div>';
+var kj;
+for(kj=0;kj<kezhu.steps.length;kj++){
+var ks2=kezhu.steps[kj];
+var isBad=(ks2.climate==="反常");
+html+='<div class="table-row"><span class="row-label">第'+ks2.step+'步</span>'+kv("主气",ks2.zhuqi,false)+kv("客气",ks2.keqi,isBad)+kv("关系",ks2.relation,isBad);
+if(isBad){
+html+='<span class="shensha-badge danger">'+ks2.climate+'</span>';
+if(ks2.severity){html+='<span class="shensha-badge danger">'+ks2.severity+'</span>';}
+}else{
+html+='<span class="shensha-badge active">'+ks2.climate+'</span>';
+}
+html+='</div>';
+}
+if(opt5Danger){
+html+='<div class="warning-box">⚠ '+kezhu.buxiangdeCount+'步不相得，气候偏反常，疾病多发，需特别注意调养！</div>';
+}
+html+='</div>';
+
+html+='</div>'; // opt-section end
+
+// === 17层可折叠面板 ===
+
+// L1 基础排盘
+var l1='';
+l1+='<div class="kv">';
+l1+=kv("年干支",yearGz)+kv("月干支",monthGz)+kv("日干支",dayGz);
+l1+=kv("年干",yearGan)+kv("年支",yearZhi)+kv("日干",dayGan)+kv("日支",dayZhi);
+l1+=kv("时干",hourGan)+kv("时支",hourZhi);
+l1+=kv("五运",(wuyun["运"]||'?')+'('+(wuyun["太过不及"]||'?')+')',true);
+l1+=kv("司天",liuqi["司天"]||'?',true)+kv("在泉",liuqi["在泉"]||'?',true);
+l1+=kv("当令经脉",ziwu["经脉"]||'?',true);
+l1+=kv("纳甲经",(najia["经脉"]||'?')+'('+(najia["wuxing"]||'?')+')');
+l1+=kv("纳子经",nazi);
+l1+='</div>';
+html+=layerHtml('L1 基础排盘 (14维)',l1);
+
+// L2 子午流注
+var l2='';
+var l2i;
+for(l2i=0;l2i<12;l2i++){
+var dz=DIZHI[l2i];
+var info=ZIWULIUZHU[dz]||{};
+var isActive=(dz===hourZhi);
+l2+='<div class="table-row"><span class="row-label">'+dz+'时</span>';
+l2+=kv("经脉",info["经脉"]||'?',isActive);
+l2+=kv("五行",info.wuxing||'?',isActive);
+l2+=kv("养生",info["养生"]||'?',isActive);
+l2+='</div>';
+}
+html+=layerHtml('L2 子午流注十二经脉 (12维)',l2);
+
+// L3 灵龟八法
+var l3='';
+var l3k;
+for(l3k in LINGGUI_BAFA){
+if(LINGGUI_BAFA.hasOwnProperty(l3k)){
+var lb=LINGGUI_BAFA[l3k];
+l3+='<div class="table-row"><span class="row-label">'+l3k+'</span>';
+l3+=kv("经脉",lb["经脉"])+kv("通脉",lb["通脉"])+kv("配穴",lb["配穴"])+kv("八卦",lb["八卦"])+kv("主治",lb["desc"]);
+l3+='</div>';
+}
+}
+html+=layerHtml('L3 灵龟八法八脉交会穴 (8维)',l3);
+
+// L4 飞腾八法
+var l4='';
+var l4k;
+for(l4k in FEITENG_BAFA){
+if(FEITENG_BAFA.hasOwnProperty(l4k)){
+l4+='<div class="table-row"><span class="row-label">'+l4k+'</span>'+kv("取穴",FEITENG_BAFA[l4k])+'</div>';
+}
+}
+html+=layerHtml('L4 飞腾八法 (8维)',l4);
+
+// L5 五运系统
+var l5='';
+var l5k;
+for(l5k in WUYUN){
+if(WUYUN.hasOwnProperty(l5k)){
+var wy=WUYUN[l5k];
+var isYear=(l5k.indexOf(yearGan)>=0);
+l5+='<div class="table-row"><span class="row-label">'+l5k+'化'+wy["运"]+'</span>';
+l5+=kv("太过不及",wy["太过不及"],isYear)+kv("脏腑",wy["对应"],isYear)+kv("特征",wy["特征"]);
+l5+=isYear?'<span class="shensha-badge active">本年</span>':'<span class="shensha-badge inactive">非本年</span>';
+l5+='</div>';
+}
+}
+html+=layerHtml('L5 五运系统 (5维)',l5);
+
+// L6 六气司天在泉
+var l6='';
+var l6k;
+for(l6k in LIUQI_SITIAN){
+if(LIUQI_SITIAN.hasOwnProperty(l6k)){
+var lq=LIUQI_SITIAN[l6k];
+var isYear=(l6k.indexOf(yearZhi)>=0);
+l6+='<div class="table-row"><span class="row-label">'+l6k+'年</span>';
+l6+=kv("司天",lq["司天"],isYear)+kv("在泉",lq["在泉"],isYear)+kv("描述",lq["desc"]);
+l6+=isYear?'<span class="shensha-badge active">本年</span>':'<span class="shensha-badge inactive">非本年</span>';
+l6+='</div>';
+}
+}
+html+=layerHtml('L6 六气司天在泉 (6维)',l6);
+
+// L7 六气主气
+var l7='';
+var l7i;
+for(l7i=0;l7i<6;l7i++){
+var zq=LIUQI_ZHUQI[l7i];
+var isCurrent=(zq.name===zhuqiPrecise.name);
+l7+='<div class="table-row"><span class="row-label">'+zq.name+'</span>';
+l7+=kv("时间",zq.time,isCurrent)+kv("五行",zq.wuxing,isCurrent)+kv("描述",zq.desc,isCurrent);
+l7+='</div>';
+}
+html+=layerHtml('L7 六气主气 (6维)',l7);
+
+// L8 纳甲法
+var l8='';
+var l8k;
+for(l8k in NAJIA){
+if(NAJIA.hasOwnProperty(l8k)){
+var nj=NAJIA[l8k];
+var isDay=(l8k===dayGan);
+l8+='<div class="table-row"><span class="row-label">'+l8k+'日</span>';
+l8+=kv("经脉",nj["经脉"],isDay)+kv("五行",nj.wuxing,isDay)+kv("穴位",nj["穴位"],isDay);
+l8+=isDay?'<span class="shensha-badge active">本日</span>':'<span class="shensha-badge inactive">非本日</span>';
+l8+='</div>';
+}
+}
+html+=layerHtml('L8 十二经纳甲法 (10维)',l8);
+
+// L9 纳子法
+var l9='';
+var l9i;
+for(l9i=0;l9i<12;l9i++){
+var dz9=DIZHI[l9i];
+var isHour=(dz9===hourZhi);
+l9+='<div class="table-row"><span class="row-label">'+dz9+'时</span>'+kv("经脉",NAZI[dz9]||'?',isHour);
+l9+=isHour?'<span class="shensha-badge active">本时</span>':'<span class="shensha-badge inactive">非本时</span>';
+l9+='</div>';
+}
+html+=layerHtml('L9 十二经纳子法 (12维)',l9);
+
+// L10 十二消息卦
+var l10='';
+var l10k;
+for(l10k in XIAOXI_GUA){
+if(XIAOXI_GUA.hasOwnProperty(l10k)){
+var xx=XIAOXI_GUA[l10k];
+var isHour=(l10k===hourZhi);
+l10+='<div class="table-row"><span class="row-label">'+l10k+'月</span>';
+l10+=kv("卦",xx["卦"],isHour)+kv("描述",xx["desc"],isHour)+kv("阴阳比",xx["阴阳"],isHour);
+l10+='</div>';
+}
+}
+html+=layerHtml('L10 十二消息卦 (12维)',l10);
+
+// L11 五行脏腑
+var l11='';
+var l11k;
+for(l11k in WUXING_ZANGFU){
+if(WUXING_ZANGFU.hasOwnProperty(l11k)){
+var wxz=WUXING_ZANGFU[l11k];
+l11+='<div class="table-row"><span class="row-label">'+l11k+'</span>';
+l11+=kv("脏腑",wxz["脏腑"])+kv("生",wxz["生"])+kv("克",wxz["克"])+kv("季节",wxz["季节"]);
+l11+='</div>';
+}
+}
+html+=layerHtml('L11 五行生克与脏腑 (5维)',l11);
+
+// L12 时辰养生
+var l12='';
+var l12i;
+for(l12i=0;l12i<12;l12i++){
+var dz12=DIZHI[l12i];
+var info12=ZIWULIUZHU[dz12]||{};
+var isHour=(dz12===hourZhi);
+l12+='<div class="table-row"><span class="row-label">'+dz12+'时</span>';
+l12+=kv("经脉",info12["经脉"],isHour)+kv("养生",info12["养生"],isHour)+kv("描述",info12["desc"]);
+l12+='</div>';
+}
+html+=layerHtml('L12 时辰养生建议 (12维)',l12);
+
+// L13 六气客气 (OPT3优化)
+var l13='';
+var l13i;
+for(l13i=0;l13i<keqiSteps.length;l13i++){
+var ks13=keqiSteps[l13i];
+var isKey13=(ks13.position==="司天"||ks13.position==="在泉");
+l13+='<div class="table-row"><span class="row-label">第'+ks13.step+'气</span>';
+l13+=kv("客气",ks13.keqi,isKey13)+kv("位置",ks13.position,isKey13);
+l13+='</div>';
+}
+l13+='<div class="info-box">优化#3：司天固定在三之气，在泉固定在终之气，按三阴三阳顺序前后推排</div>';
+html+=layerHtml('L13 六气客气推算 (6维) <span style="color:#f39c12;font-size:11px">OPT3</span>',l13);
+
+// L14 运气相合 (OPT4优化)
+var l14='';
+l14+='<div class="kv">';
+l14+=kv("岁运",yunqi.yun,true)+kv("岁运五行",yunqi.yunWx);
+l14+=kv("司天五行",yunqi.sitianWx)+kv("年支五行",yunqi.nianzhiWx);
+l14+=kv("天符",yunqi.tianfu?'✅':'❌',yunqi.tianfu);
+l14+=kv("岁会",yunqi.suihui?'✅':'❌',yunqi.suihui);
+l14+=kv("太乙天符",yunqi.taiyi?'✅':'❌',yunqi.taiyi);
+l14+=kv("平气",yunqi.pingqi?'✅':'❌',yunqi.pingqi);
+l14+='</div>';
+l14+='<div class="info-box">分类：'+yunqi.category+' | '+yunqi.desc+'</div>';
+html+=layerHtml('L14 运气相合分析 <span style="color:#f39c12;font-size:11px">OPT4</span>',l14);
+
+// L15 经络流注时序
+var l15='';
+var l15i;
+for(l15i=0;l15i<12;l15i++){
+var dz15a=DIZHI[l15i];
+var dz15b=DIZHI[(l15i+1)%12];
+var info15a=ZIWULIUZHU[dz15a]||{};
+var info15b=ZIWULIUZHU[dz15b]||{};
+l15+='<div class="table-row"><span class="row-label">'+dz15a+'→'+dz15b+'</span>';
+l15+=kv("从经",info15a["经脉"]||'?')+kv("至经",info15b["经脉"]||'?');
+l15+=kv("五行关系",(info15a.wuxing||'?')+'→'+(info15b.wuxing||'?'));
+l15+='</div>';
+}
+html+=layerHtml('L15 经络流注时序 (12维)',l15);
+
+// L16 当令分析
+var l16='';
+l16+='<div class="kv">';
+l16+=kv("当令时辰",hourZhi,true)+kv("当令经脉",ziwu["经脉"]||'?',true);
+l16+=kv("当令五行",ziwu.wuxing||'?',true);
+l16+=kv("当令描述",ziwu["desc"]||'?',true);
+l16+=kv("当令养生",ziwu["养生"]||'?',true);
+l16+=kv("纳甲经脉",najia["经脉"]||'?')+kv("纳甲五行",najia.wuxing||'?');
+l16+=kv("纳子经脉",nazi);
+l16+=kv("消息卦",(xiaoxi["卦"]||'?')+'('+(xiaoxi["desc"]||'?')+')');
+l16+=kv("阴阳比",xiaoxi["阴阳"]||'?');
+l16+='</div>';
+html+=layerHtml('L16 当令详细分析 (10维)',l16);
+
+// L17 盘面总评
+var l17='';
+l17+='<div class="kv">';
+l17+=kv("年运",(wuyun["运"]||'?')+'-'+(wuyun["太过不及"]||'?'),true);
+l17+=kv("司天在泉",(liuqi["司天"]||'?')+'/'+(liuqi["在泉"]||'?'),true);
+l17+=kv("当令经脉",ziwu["经脉"]||'?',true);
+l17+=kv("当令五行",ziwu.wuxing||'?',true);
+l17+=kv("养生建议",ziwu["养生"]||'?',true);
+l17+=kv("运气相合",yunqi.category,true);
+l17+=kv("脏腑重点",wuyun["对应"]||'?',true);
+l17+=kv("气候特征",wuyun["特征"]||'?');
+l17+=kv("消息卦象",xiaoxi["卦"]||'?');
+l17+=kv("综合建议","调养"+(wuyun["对应"]||'?')+"，"+(ziwu["养生"]||'?'),true);
+l17+='</div>';
+html+=layerHtml('L17 盘面总评 (10维)',l17);
+
+document.getElementById('output').innerHTML=html;
+}
+
+// 页面加载后自动执行
+generate();
+</script>
+</body>
+</html>
