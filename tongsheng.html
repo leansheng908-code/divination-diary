@@ -882,7 +882,7 @@ for(var k in categories){
 var xiuWx=xiuResult.wuxing;
 var isActive=false;
 if(k.indexOf(xiuResult.name)>=0)isActive=true;
-s+='<div class="table-row"><span class="row-label">'+k+'</span>'+gc('宜',categories[k].yi,isActive)+gc('忌',categories[k].ji,isActive);
+s+='<div class="table-row"><span class="row-label">'+k+'</span>'+gc('宜',categories[k]["宜"],isActive)+gc('忌',categories[k]["忌"],isActive);
 if(isActive)s+='<span class="shensha-badge active">今日所属</span>';
 s+='</div>';
 }
