@@ -151,8 +151,7 @@ function loadSystem(sys) {
     });
 }
 
-async function loadAllSystems() {
-    await Promise.all(SYSTEM_LIST.map(s => loadSystem(s)));
+function loadAllSystems() {
     renderHome();
 }
 
@@ -9189,7 +9188,7 @@ window.Systems.yi_jing = function(year, month, day, hour, minute, options) {
             var gan=all[i][0],zhi=all[i][1];
             var elem=ZHI_WUXING[zhi];
             var liuQin=getLiuQin(elem,palaceElem);
-            result.push({gan:gan,zhi:zhi,element:elem,liuQin:liuQin,ganElement:GAN_WUXING[gan]});
+            result.push({pos:i+1,gan:gan,zhi:zhi,element:elem,liuQin:liuQin,ganElement:GAN_WUXING[gan]});
         }
         return result;
     }
@@ -11371,5 +11370,6 @@ window.Systems = window.Systems || {};
 })();
 
 </script>
+
 </body>
 </html>
